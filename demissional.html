@@ -1,0 +1,2450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Processo Demissional · WAP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#EDF0F3; --paper:#FFFFFF; --ink:#18222D; --muted:#5A6676; --line:#D3D9E0; --grid:#DCE1E7;
+  --navy:#13707C; --navy-ink:#FFFFFF; --navy-soft:#E2F2F4; --colhead:#F2F4F6; --xlhead:#1F3A5F;
+  --b-green:#83B747; --b-yellow:#FBB934; --b-pink:#DC4362; --b-teal:#219CAA;
+  --excel:#217346; --ok:#3F7F22; --ok-soft:#EAF4E1; --bad:#C0283F; --bad-soft:#FCE9EC;
+  --warn:#9A5800; --warn-soft:#FBF0DC; --na:#8A94A2;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12171D; --paper:#1B222B; --ink:#E5EAF0; --muted:#9BA7B5; --line:#2D3742; --grid:#2A333D;
+    --navy:#4FB8C6; --navy-ink:#0B1A1D; --navy-soft:#173338; --colhead:#222B35; --xlhead:#2C4A70;
+    --excel:#4CB27A; --ok:#62C08D; --ok-soft:#183026; --bad:#F08A80; --bad-soft:#3A1E1C;
+    --warn:#E5A84A; --warn-soft:#352914; --na:#7A8594; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12171D; --paper:#1B222B; --ink:#E5EAF0; --muted:#9BA7B5; --line:#2D3742; --grid:#2A333D;
+  --navy:#4FB8C6; --navy-ink:#0B1A1D; --navy-soft:#173338; --colhead:#222B35; --xlhead:#2C4A70;
+  --excel:#4CB27A; --ok:#62C08D; --ok-soft:#183026; --bad:#F08A80; --bad-soft:#3A1E1C;
+  --warn:#E5A84A; --warn-soft:#352914; --na:#7A8594; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1200px;margin:0 auto;padding:0 20px 80px}
+.brand{position:relative;background:#fff;color:#18222D;border-bottom:1px solid #D9DEE4;overflow:hidden}
+.brand::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--b-green) 0 25%,var(--b-yellow) 25% 50%,var(--b-pink) 50% 75%,var(--b-teal) 75%)}
+.brand-in{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:18px 20px 16px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.logos{display:flex;align-items:center;gap:18px}
+.logos img{display:block;height:auto}
+.lg-wap{width:74px}
+.lg-tl{width:150px}
+.logos .sep{width:1px;height:38px;background:#D9DEE4}
+.brand-title{display:flex;flex-direction:column;line-height:1.2;padding-left:4px}
+.brand-title span{font-size:12.5px;color:#5A6676;font-weight:500}
+.brand-title strong{font-size:16px;font-weight:700}
+.brand .bars{position:absolute;right:0;top:50%;transform:translateY(-50%);height:74px;width:auto;opacity:.95;pointer-events:none}
+@media (max-width:900px){ .brand .bars{height:46px;opacity:.35} }
+@media (max-width:560px){ .brand-title{display:none} .lg-tl{width:120px} }
+
+/* ---------- topo + etapas ---------- */
+.top{padding:30px 0 18px}
+.top h1{margin:0 0 6px;font-size:clamp(26px,4vw,36px);line-height:1.1;font-weight:800;letter-spacing:-.02em}
+.top p{margin:0;color:var(--muted);max-width:72ch}
+.steps{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin:0 -20px;padding:10px 20px;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+.steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.steps a{display:flex;gap:9px;align-items:center;text-decoration:none;color:var(--muted);padding:7px 10px;border-radius:8px;font-size:13.5px;font-weight:500;line-height:1.25}
+.steps a:hover{background:var(--paper)}
+.steps .n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:700;border:1.5px solid var(--line);background:var(--paper);color:var(--muted)}
+.steps li.doing .n{border-color:var(--navy);color:var(--navy)}
+.steps li.doing a{color:var(--ink)}
+.steps li.done .n{background:var(--ok);border-color:var(--ok);color:var(--paper)}
+.steps li.done a{color:var(--ink)}
+.steps li.alert .n{background:var(--bad);border-color:var(--bad);color:var(--paper)}
+.steps small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+@media (max-width:760px){ .steps ol{grid-template-columns:repeat(2,1fr)} }
+
+/* ---------- blocos ---------- */
+.block{margin-top:30px}
+.block > h2{display:flex;align-items:baseline;gap:12px;margin:0 0 4px;font-size:21px;font-weight:700;letter-spacing:-.01em}
+.block > h2 .num{color:var(--navy);font-variant-numeric:tabular-nums}
+.block > p.hint{margin:0 0 14px;color:var(--muted);max-width:76ch;font-size:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px}
+
+/* ---------- planilha de colaboradores ---------- */
+.sheetbox{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.sheet{overflow-x:auto}
+table.xl{border-collapse:collapse;width:100%;min-width:520px;font-size:13.5px}
+table.xl th,table.xl td{border:1px solid var(--grid);padding:0}
+table.xl tr.cols th{background:var(--colhead);color:var(--muted);font-weight:500;font-size:12px;height:22px;text-align:center}
+table.xl th.rn,table.xl td.rn{width:38px;background:var(--colhead);color:var(--muted);text-align:center;font-size:12px;font-variant-numeric:tabular-nums}
+table.xl tr.hdr th:not(.rn){background:var(--xlhead);color:#fff;font-weight:700;font-size:13px;height:38px;padding:0 30px 0 10px;text-align:center;position:relative;letter-spacing:.01em}
+.caret{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:17px;height:17px;border-radius:3px;background:var(--paper);display:grid;place-items:center}
+.caret::after{content:"";border:4px solid transparent;border-top:5px solid var(--muted);margin-top:4px}
+table.xl td.c{position:relative}
+table.xl td.c input,table.xl td.c select{display:block;width:100%;border:0;background:transparent;padding:8px 10px;height:36px;outline:none;text-transform:uppercase}
+table.xl td.c select{cursor:pointer;text-transform:none}
+table.xl td.c:focus-within{outline:2px solid var(--excel);outline-offset:-2px;z-index:1}
+table.xl td.c:focus-within::after{content:"";position:absolute;right:-3px;bottom:-3px;width:6px;height:6px;background:var(--excel);border:1px solid var(--paper)}
+table.xl td.c select.unset{color:var(--bad)}
+table.xl td.st{width:150px;padding:0 8px;font-size:12.5px;white-space:nowrap}
+table.xl td.del{width:40px;text-align:center}
+table.xl tr.newrow td{color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.mute{background:var(--colhead);color:var(--muted)}
+.iconbtn{border:0;background:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:6px 9px;border-radius:6px}
+.iconbtn:hover{color:var(--bad);background:var(--bad-soft)}
+.iconbtn[data-dlx]:hover{color:var(--navy);background:var(--navy-soft)}
+.sheetbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);background:var(--colhead)}
+.sheetbar .tip{color:var(--muted);font-size:13px;margin-left:auto}
+.pastebox{display:none;padding:12px;border-top:1px solid var(--line)}
+.pastebox.open{display:block}
+.pastebox textarea{width:100%;min-height:110px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:13px;font-family:ui-monospace,Consolas,monospace;resize:vertical}
+.pastebox .row{display:flex;gap:10px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.pastebox small{color:var(--muted)}
+
+/* ---------- botões ---------- */
+.btn{font-weight:600;border-radius:8px;padding:9px 15px;cursor:pointer;border:1px solid var(--navy);background:var(--navy);color:var(--navy-ink);font-size:14px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:var(--paper);color:var(--navy)}
+.btn.ghost:hover{background:var(--navy-soft);filter:none}
+.btn.big{padding:12px 20px;font-size:15px}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--navy) 55%,transparent);outline-offset:2px}
+
+/* ---------- arquivos ---------- */
+.drop{border:2px dashed var(--line);border-radius:10px;background:var(--paper);padding:30px 18px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--navy);background:var(--navy-soft)}
+.drop strong{display:block;font-size:16px;margin-bottom:3px}
+.drop span{color:var(--muted);font-size:13.5px}
+.filesbox{margin-top:14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.filesbox summary{cursor:pointer;padding:12px 16px;font-weight:600;font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;list-style:none}
+.filesbox summary::-webkit-details-marker{display:none}
+.filesbox summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;margin-right:2px}
+.filesbox[open] summary::before{transform:rotate(45deg)}
+.filesbox[open] summary{border-bottom:1px solid var(--line)}
+.filesbox summary .hide{margin-left:auto;color:var(--muted);font-weight:500;font-size:13px}
+.tablewrap{overflow-x:auto}
+table.files{width:100%;border-collapse:collapse;min-width:820px;font-size:13.5px}
+table.files th{text-align:left;font-size:12.5px;font-weight:600;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--line);background:var(--colhead)}
+table.files td{padding:7px 10px;border-bottom:1px solid var(--grid);vertical-align:middle}
+table.files tr:last-child td{border-bottom:0}
+table.files td.ord{width:44px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+table.files td.fn{max-width:260px;word-break:break-word}
+table.files td.fn small{display:block;color:var(--muted);font-size:12px}
+table.files select{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--paper);font-size:13px}
+table.files select.unset{border-color:var(--bad);color:var(--bad)}
+.how{font-size:12px;color:var(--muted);white-space:nowrap}
+table.files td.th{width:58px;padding:5px 6px}
+.thumb{display:block;width:44px;height:60px;padding:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#fff;cursor:zoom-in}
+.thumb img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.thumb.html{cursor:pointer;font-size:10px;font-weight:700;color:var(--navy);background:var(--navy-soft);line-height:1.2}
+.thumb.none{background:var(--colhead);cursor:default}
+.thumb:hover{border-color:var(--navy)}
+table.files tr.cont td{border-top-color:transparent}
+table.files tr.first td{border-top:2px solid var(--line)}
+table.files tr:first-child td{border-top:0}
+.dim{color:var(--muted)}
+.tnote{display:block;font-size:11.5px;color:var(--muted);margin-top:3px}
+.tnote.warn{color:var(--warn);font-weight:600} .tnote.man{color:var(--navy)}
+.bigpage{display:block;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);max-width:100%;height:auto}
+.how.gfd{color:var(--warn)} .how.man{color:var(--navy)} .how.none{color:var(--bad)}
+.linkbtn{border:0;background:none;color:var(--navy);cursor:pointer;font-weight:600;font-size:13px;padding:4px 6px;border-radius:5px}
+.linkbtn:hover{background:var(--navy-soft)}
+.linkbtn.mini{display:block;margin:3px 0 0 -6px;font-size:12px;padding:2px 6px}
+.empty-note{color:var(--muted);padding:18px;text-align:center;font-size:14px}
+details.opts{margin-top:12px;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+details.opts summary{cursor:pointer;padding:12px 16px;font-weight:600;font-size:14px}
+details.opts .inner{padding:4px 16px 16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.f{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted)}
+.f select,.f input{padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink)}
+.radio{display:flex;flex-direction:column;gap:6px}
+.radio label{display:flex;gap:9px;align-items:flex-start;color:var(--ink);font-size:13px;cursor:pointer;padding:7px 9px;border:1px solid var(--line);border-radius:7px}
+.radio label:has(input:checked){border-color:var(--navy);background:var(--navy-soft)}
+.radio small,.chk small{display:block;color:var(--muted);font-size:12px}
+.chk{display:flex;gap:9px;align-items:flex-start;font-size:13px;cursor:pointer;color:var(--ink)}
+.radio input,.chk input{margin-top:3px;accent-color:var(--navy)}
+
+/* ---------- conferência ---------- */
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.person{background:var(--paper);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;overflow:hidden}
+.person.ok{border-top:4px solid var(--ok)} .person.bad{border-top:4px solid var(--bad)} .person.pend{border-top:4px solid var(--warn)}
+.person header{padding:12px 14px 10px;border-bottom:1px solid var(--grid)}
+.person h3{margin:0;font-size:15.5px;font-weight:700;letter-spacing:.005em;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.person .mot{font-size:12.5px;color:var(--muted);margin-top:2px}
+.doclist{list-style:none;margin:0;padding:6px 0;flex:1}
+.doclist li{display:grid;grid-template-columns:26px 1fr auto;gap:8px;padding:6px 14px;align-items:start;font-size:13.5px}
+.doclist .i{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;margin-top:1px}
+.doclist li.have .i{background:var(--ok);color:var(--paper)}
+.doclist li.miss .i{background:var(--bad);color:var(--paper)}
+.doclist li.na .i{border:1.5px dashed var(--na);color:var(--na)}
+.doclist li.extra .i{background:var(--warn);color:var(--paper)}
+.doclist li.na .t{color:var(--na)}
+.doclist li.miss .t{color:var(--bad);font-weight:600}
+.doclist .t small{display:block;font-weight:400;color:var(--muted);font-size:12px;word-break:break-word}
+.doclist .s{font-size:12px;white-space:nowrap;color:var(--muted)}
+.doclist li.miss .s{color:var(--bad);font-weight:700}
+.doclist li.extra .s{color:var(--warn);font-weight:600}
+.person footer{padding:10px 14px;border-top:1px solid var(--grid);display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--colhead)}
+.person footer .btn{white-space:nowrap}
+.person footer small{color:var(--muted);font-size:12px;word-break:break-word}
+.orphan{margin-top:14px;border:1px solid var(--bad);background:var(--bad-soft);border-radius:10px;padding:12px 16px;font-size:14px}
+.orphan ul{margin:6px 0 0;padding-left:18px}
+
+/* ---------- gerar ---------- */
+.gen{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.status{margin-top:12px;font-size:14px;color:var(--muted);min-height:1.5em}
+.status.err{color:var(--bad)} .status.ok{color:var(--ok)}
+.summary{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+
+/* ---------- prévia TRCT ---------- */
+dialog#pv{border:0;border-radius:12px;padding:0;max-width:min(96vw,1100px);width:100%;background:var(--bg);color:var(--ink)}
+dialog#pv::backdrop{background:rgba(10,16,24,.55)}
+.pvhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}
+.pvhead h3{margin:0;font-size:15px}
+.pvbody{padding:20px;display:flex;gap:22px;flex-wrap:wrap;justify-content:center;max-height:80vh;overflow:auto}
+.slot{position:relative;box-shadow:0 1px 3px rgba(0,0,0,.2);background:#fff;margin-bottom:22px}
+.slot .pg-label{position:absolute;left:0;top:calc(100% + 5px);font-size:12px;color:var(--muted)}
+.slot > .page{transform-origin:top left;position:absolute;left:0;top:0}
+/* página do TRCT (sempre clara, é o papel) */
+.page{background:#fff;color:#000;position:relative;overflow:hidden}
+.page .inner{position:absolute;width:872px;display:flow-root;transform-origin:top left}
+.page .inner.compact td.rubricaD,.page .inner.compact td.rubricaV{height:26px;line-height:1.15;padding-top:1px;padding-bottom:1px}
+#stage-off{position:fixed;left:-20000px;top:0}
+/* ---------- 5. aviso whatsapp ---------- */
+.wz-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:860px){.wz-grid{grid-template-columns:1fr}}
+.wz-grid .card h3{margin:0 0 4px;font-size:15px;font-weight:700}
+.wz-grid .card p.sub{margin:0 0 10px;color:var(--muted);font-size:13px}
+.wz-ta{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:13px;resize:vertical}
+#wzIn{min-height:150px;font-family:ui-monospace,Consolas,monospace}
+#wzTpl{min-height:230px;line-height:1.45}
+.wz-row{display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.wz-row small{color:var(--muted);font-size:12.5px}
+.wz-two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.wz-vars code{background:var(--colhead);border-radius:4px;padding:0 5px;font-size:12px}
+table.wz{min-width:900px}
+table.wz td.c input{width:100%;padding:6px 8px;border:1px solid transparent;border-radius:6px;background:transparent;font-size:13.5px}
+table.wz td.c input:hover{border-color:var(--line)}
+table.wz td.c input:focus{border-color:var(--navy);background:var(--paper);outline:none}
+table.wz td.c input.nm{text-transform:uppercase}
+table.wz tr.sel td{background:var(--navy-soft)}
+table.wz tr.sent td.c input{color:var(--muted)}
+table.wz td.acts{white-space:nowrap;text-align:right}
+table.wz td.acts .btn{padding:6px 11px;font-size:13px}
+.btn.wa{background:#1F8F4E;border-color:#1F8F4E;color:#fff}
+.wz-prevbox{margin-top:14px;display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:14px;align-items:start}
+@media (max-width:860px){.wz-prevbox{grid-template-columns:1fr}}
+.wz-chat{background:#E7DED4;border-radius:10px;padding:16px;min-height:160px}
+:root[data-theme="dark"] .wz-chat{background:#0E1A20}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wz-chat{background:#0E1A20}}
+.wz-bubble{background:#D9FDD3;color:#111B21;border-radius:8px 0 8px 8px;padding:9px 11px;max-width:520px;margin-left:auto;white-space:pre-wrap;font-size:14px;line-height:1.45;box-shadow:0 1px 1px rgba(0,0,0,.12);word-break:break-word}
+.wz-bubble.empty{background:var(--paper);color:var(--muted);margin:0 auto;text-align:center}
+.wz-tips{font-size:13px;color:var(--muted)}
+.wz-tips b{color:var(--ink)}
+.wz-tips ul{margin:6px 0 0;padding-left:18px}
+.wz-tips li{margin-bottom:5px}
+/* envio rápido / fila */
+.wz-send{margin-top:14px;border-color:#1F8F4E}
+.wz-send .hd{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.wz-send .hd h3{margin:0;font-size:15px;font-weight:700}
+.wz-send .hd label{margin-left:auto;font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.wz-send select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:13px}
+.wz-send .wz-row .btn.wa{font-size:15px;padding:10px 18px}
+.wz-chk{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--ink);cursor:pointer}
+.wz-q{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;width:min(760px,calc(100vw - 24px));background:var(--paper);color:var(--ink);border:2px solid #1F8F4E;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:12px 14px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.wz-q[hidden]{display:none}
+.wz-q .inf{flex:1 1 220px;min-width:0;font-size:14px}
+.wz-q .inf b{font-variant-numeric:tabular-nums}
+.wz-q .inf small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.wz-q .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.wz-q .bar{position:absolute;left:0;right:0;bottom:0;height:4px;border-radius:0 0 10px 10px;overflow:hidden;background:var(--colhead)}
+.wz-q .bar i{display:block;height:100%;width:0;background:#1F8F4E;transition:width .25s}
+/* ---------- abas do app ---------- */
+.apptabs{background:var(--paper);border-bottom:1px solid var(--line)}
+.apptabs-in{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;gap:4px;overflow-x:auto}
+.apptab{border:0;background:none;cursor:pointer;padding:13px 16px 11px;font-weight:600;font-size:14.5px;color:var(--muted);border-bottom:3px solid transparent;display:flex;gap:8px;align-items:center;white-space:nowrap}
+.apptab:hover{color:var(--ink)}
+.apptab[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--navy)}
+.apptab .badge{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:99px;background:var(--colhead);color:var(--muted)}
+.apptab .badge.ok{background:var(--ok-soft);color:var(--ok)}
+.apptab .badge:empty{display:none}
+#tabWz .block:first-of-type{margin-top:6px}
+/* ---------- análise de estabilidade ---------- */
+#tabEst .block:first-of-type{margin-top:6px}
+.est-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,520px);gap:18px;align-items:start}
+@media (max-width:1020px){.est-grid{grid-template-columns:1fr}}
+.est-form{display:flex;flex-direction:column;gap:14px}
+.est-form .card h3{margin:0 0 10px;font-size:15px;font-weight:700}
+.est-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.est-fields .f input,.est-fields .f select{width:100%}
+.est-fields .f input.up{text-transform:uppercase}
+.est-fields .wide{grid-column:1/-1}
+.est-calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--grid)}
+.est-calc div{font-size:12.5px;color:var(--muted)}
+.est-calc b{display:block;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.est-calc small{display:block;font-size:12px}
+.est-items{list-style:none;margin:0;padding:0}
+.est-items li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;padding:11px 0;border-top:1px solid var(--grid)}
+.est-items li:first-child{border-top:0;padding-top:2px}
+.est-items .nm{font-weight:600;font-size:14px}
+.est-items .nm small{display:block;font-weight:400;color:var(--muted);font-size:12.5px;line-height:1.4;margin-top:1px}
+.est-items .obs{grid-column:1/-1;width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);font-size:13px}
+.est-items li.yes .obs{border-color:var(--bad)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;align-self:start}
+.seg button{border:0;background:var(--paper);padding:6px 14px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"].y{background:var(--bad);color:#fff}
+.seg button[aria-pressed="true"].n{background:var(--ok);color:#fff}
+.est-auto{font-size:11.5px;color:var(--navy);font-weight:600;margin-left:6px}
+.est-side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+.est-side .gen{margin-bottom:12px}
+.est-prev{background:var(--colhead);border:1px solid var(--line);border-radius:10px;padding:14px;overflow:hidden}
+.est-prev .slot{margin:0 auto}
+/* documento (sempre papel branco) */
+.estdoc{width:595.3pt;height:841.9pt;background:#fff;color:#1A1A1A;position:relative;overflow:hidden;font-family:Calibri,Carlito,"Segoe UI",Arial,sans-serif;font-size:10.5pt;line-height:1.43;padding:31.5pt 56.7pt 0}
+.estdoc *{box-sizing:border-box}
+.estdoc .lg{display:block;width:102pt;height:48pt}
+.estdoc .tt{margin:15pt 0 0;text-align:center;font-weight:700;font-size:13pt;letter-spacing:.06em;line-height:1.2}
+.estdoc .st{text-align:center;font-size:10pt;color:#555;margin-top:5pt}
+.estdoc .dt{text-align:right;margin-top:17pt}
+.estdoc .who{display:flex;justify-content:space-between;gap:12pt;border-top:.75pt solid #1A1A1A;border-bottom:.75pt solid #1A1A1A;padding:8pt 0 7pt;margin-top:12pt}
+.estdoc .who span{color:#444} .estdoc .who b{color:#1A1A1A}
+.estdoc .dl{display:grid;grid-template-columns:1fr 1fr;column-gap:24pt;margin-top:12pt}
+.estdoc .dl div{display:flex;justify-content:space-between;gap:10pt;padding:3.5pt 0;border-bottom:.5pt solid #D5D5D5}
+.estdoc .dl div span{color:#555}
+.estdoc .dl div b{text-align:right;font-weight:700}
+.estdoc .dl div.full{grid-column:1/-1}
+.estdoc h4{margin:16pt 0 2pt;font-size:10.5pt;font-weight:700}
+.estdoc table{width:100%;border-collapse:collapse;font-size:10pt;line-height:1.3}
+.estdoc th{text-align:left;font-size:9pt;font-weight:700;color:#555;padding:5pt 4pt 4pt;border-bottom:.75pt solid #1A1A1A}
+.estdoc th.c,.estdoc td.c{text-align:center;width:34pt}
+.estdoc td{padding:5pt 4pt;border-bottom:.5pt solid #D5D5D5;vertical-align:top}
+.estdoc td.it{width:46%}
+.estdoc td.it b{display:block}
+.estdoc td.it small{display:block;font-size:8.5pt;color:#666;line-height:1.3;margin-top:1pt}
+.estdoc td.ob{font-size:9.5pt}
+.estdoc .bx{display:inline-block;width:9pt;height:9pt;border:.75pt solid #1A1A1A;line-height:8pt;font-size:8pt;font-weight:700;text-align:center;vertical-align:-1pt}
+.estdoc tr.sim td{background:#FBECEE}
+.estdoc .cc{margin-top:14pt;text-align:justify}
+.estdoc .ft{position:absolute;left:56.7pt;right:56.7pt;bottom:30pt;border-top:.75pt solid #9A9A9A;padding-top:6pt;display:flex;justify-content:space-between;font-size:9pt;color:#555}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style id="trct-css"></style>
+</head>
+<body>
+<header class="brand">
+  <div class="brand-in">
+    <div class="logos"><img class="lg-wap" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAG8AAAA8CAYAAABo3+Q5AAAEw0lEQVR42u1c7XXbMAy8+GUAbVB3gqobqBNUnSDuBHUniDKB4glcTxBlArsTOBvYG1idIP3jNB81iSNB0orNe09/YgkSAQI4gGQAHg2AHYBHy1UHkFEJMlpCxhgZ/1AQCpMUXwDYBJDBfEeZTfaMmlDYOoGMKSFjeS5GGZH3/SDuuRd+vwog4yshY5F97RklMdt3Qp4ZE+Futw+LJlTkdxTZ816HOwkrAFvL7xNCqR2AXum5vwQZZweGZNQBZIQgKlU2lxvJ2CQgKpMAMs4ubDKhahFARgqyk2s7x4KYkSGRDJYwFdnzXtdUDMnYBpDRKwmTJOMkcRm5ptLKKMgac2Hx2lDohYlqKpFCgnp/iJqKkRGzK8M863O1pKIrMu0Ef/+cENIkkLFUyFhGMh7bgptHfP9aS1TKgRCVseez2ktL1LTXZGQINxLJWAF4iNxR0XR2asRHrRy/Fp9GkWq7EESF+Y6Z4tkQBEYz/uAIUVMxMt4jUWHTRpno/fXII9z8ChDuYnZUUnhdZ0kbKUL2A4Du4k24WRO1yZd9rjGFu43gmT2Aj5YJUBKe2QP4bMh3Jfwb1AWAa+K+b3sD+ox/u3/2z6E8Rhr/5i3LrhOFu7kgoyFk3EWc1dIKiC1tTBiWGINh3yWqyyph5odYgoqZ81vF+CW+4DVxx++IqGwiel2jmHxawztP3MsX7s7UVEMgKlKZUii8TuqjPljyvXb8FcE3tody7SZBuJM8l/F+W2ej2nt21K6GYvxS1PFqBZ4CUZkkaEfZJh8z/qky5RycuFOl4gty1kwC9AJrT4YY4poPjahgn0Q1ibYhB2/LCQzTNdVPqToqGqIyV6acg/pjN93awuW1UsaUTPYLA2FK0VHREpVFAKKyCul5hWOeqQ2zdgd/ouL6Db5XE5GoeNfXGs+bQ7fsUTjI6AytsCniL730AG4VXnMvMGy2nxzMeGyok4xfkvfODH9PsfRiq2+vFIZn62vTxLVuQLLR2lR5DvvBrwy5piSU992g/ILskc4UXiM1NtRNCZecVygK4dojz60tYZHJFVJtqclXmlYay5LF/aguxmuhWDx0NP7OMniWqGiV10QyfKiFAMogc3DLHVKHwcX4jRB2HyMrz3ZsTWv4MQKd8G0dPOEx0bUWwsU6gfLuIhmeDbnUCd82oVHYSVIKRa02VzTw7whpDc+28ybv0XhSnGc2s2qVt45k+GBEZYjGWwofrW1gs8prlV6jJSrUlnqfOs9Uz5TKbkcP4KdQF03Id1xbQi9TW9U4vEHoA7jDI63l+Yp4nj5rqPW8p26/9mzAlPjW5cBCfNJzCKFXFWwdDBd0QhvpqbivcPqYpTLeDOalEpcJcEPcdw6G63F4P2hw43VMB4DADeyHVl7mi1NH5xrFGPbFUFmffOSyeVbb4XkPl1d0cd0DUgcgE67/BKBAmr0qx7q8d4GPHRrGbQAmuIHfemB5ogZcwqPMujgQQguLoN4Sl0twi6vbfY7TMNQa6f51x5y45xbAb0/5WzLnZ3hgDb9dbRlHRhmgF5txJDTw29WWcWQU0C/9ZBwJTF1ZZzUNE9rzBxmZqJgxynYy1pESuqymYRIVqYszCKKSPe9/VNCdP8jGGzC2QwmZfwHIrPyasE6npwAAAABJRU5ErkJggg==" alt="WAP"><span class="sep"></span><img class="lg-tl" src="data:image/png;base64,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" alt="Time Legendário"></div>
+    <div class="brand-title"><span>Departamento Pessoal</span><strong>Homologação de rescisões</strong></div>
+  </div>
+  <img class="bars" src="data:image/png;base64,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" alt="">
+</header>
+<nav class="apptabs" role="tablist" aria-label="Ferramentas">
+  <div class="apptabs-in">
+    <button class="apptab" id="tbEst" role="tab" aria-controls="tabEst" aria-selected="false">Análise de estabilidade</button>
+    <button class="apptab" id="tbKit" role="tab" aria-controls="tabKit" aria-selected="true">Kit de homologação</button>
+    <button class="apptab" id="tbWz" role="tab" aria-controls="tabWz" aria-selected="false">Aviso por WhatsApp <span class="badge" id="wzBadge"></span></button>
+  </div>
+</nav>
+<div class="wrap" id="tabEst" role="tabpanel" aria-labelledby="tbEst" hidden>
+  <header class="top">
+    <h1>Análise de estabilidade</h1>
+    <p>Preencha os dados do colaborador e marque as situações verificadas. Tempo de contrato, aviso prévio, projeção e data base da CCT são calculados sozinhos, e o documento sai no mesmo padrão da carta de desligamento.</p>
+  </header>
+  <section class="block">
+    <div class="est-grid">
+      <div class="est-form">
+        <div class="card">
+          <h3>Colaborador</h3>
+          <div class="est-fields">
+            <label class="f wide">Nome<input type="text" id="esNome" class="up" autocomplete="off"></label>
+            <label class="f">Matrícula<input type="text" id="esMat" inputmode="numeric" autocomplete="off"></label>
+            <label class="f">Área<input type="text" id="esArea" class="up" autocomplete="off"></label>
+            <label class="f wide">Gestor<input type="text" id="esGestor" class="up" autocomplete="off"></label>
+            <label class="f">Data de admissão<input type="date" id="esAdm"></label>
+            <label class="f">Data prevista da demissão<input type="date" id="esDem"></label>
+          </div>
+          <div class="est-calc" id="esCalc"></div>
+        </div>
+
+        <div class="card">
+          <h3>Situações de estabilidade</h3>
+          <ul class="est-items" id="esItems"></ul>
+        </div>
+
+        <details class="opts">
+          <summary>Local, data do documento e janela da data base</summary>
+          <div class="inner">
+            <label class="f">Local<input type="text" id="esLocal" value="São José dos Pinhais"></label>
+            <label class="f">Data do documento<input type="date" id="esData"></label>
+            <label class="f">Janela da data base · início (dd/mm)<input type="text" id="esJanIni" value="30/03" maxlength="5"></label>
+            <label class="f">Janela da data base · fim (dd/mm)<input type="text" id="esJanFim" value="29/04" maxlength="5"></label>
+          </div>
+        </details>
+      </div>
+
+      <aside class="est-side">
+        <div class="gen">
+          <button class="btn" id="esPdf">Baixar PDF</button>
+          <button class="btn ghost" id="esPrint">Imprimir</button>
+          <button class="btn ghost" id="esClear">Limpar</button>
+        </div>
+        <div class="est-prev" id="esPrevBox"><div class="slot" id="esSlot"></div></div>
+        <div class="status" id="esStatus" aria-live="polite"></div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<div class="wrap" id="tabKit" role="tabpanel" aria-labelledby="tbKit">
+  <header class="top">
+    <h1>Kit demissional para homologação</h1>
+    <p>Informe os colaboradores e o motivo do desligamento, solte os documentos (o TRCT pode vir em HTML) e baixe um PDF único por pessoa, já na ordem certa e com a conferência do que falta.</p>
+  </header>
+
+  <nav class="steps" aria-label="Etapas">
+    <ol id="steps">
+      <li data-s="1"><a href="#sec1"><span class="n">1</span><span>Colaboradores<small id="s1">Nome e motivo</small></span></a></li>
+      <li data-s="2"><a href="#sec2"><span class="n">2</span><span>TRCT e separação<small id="s2">Documentos</small></span></a></li>
+      <li data-s="3"><a href="#sec3"><span class="n">3</span><span>Conferência<small id="s3">O que falta</small></span></a></li>
+      <li data-s="4"><a href="#sec4"><span class="n">4</span><span>PDF único<small id="s4">Por colaborador</small></span></a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. COLABORADORES -->
+  <section class="block" id="sec1">
+    <h2><span class="num">1</span> Colaboradores e motivo do desligamento</h2>
+    <p class="hint">Digite como na sua planilha, ou copie as colunas NOME e MOTIVO do Excel e cole direto numa célula de nome. Quem aparecer num TRCT e não estiver aqui é incluído automaticamente, com o motivo sugerido pelo próprio termo.</p>
+    <div class="sheetbox">
+      <div class="sheet">
+        <table class="xl">
+          <thead>
+            <tr class="cols"><th class="rn"></th><th>G</th><th>P</th><th></th></tr>
+            <tr class="hdr"><th class="rn">1</th><th>NOME<span class="caret" aria-hidden="true"></span></th><th style="width:380px">MOTIVO<span class="caret" aria-hidden="true"></span></th><th class="rn" style="width:40px"></th></tr>
+          </thead>
+          <tbody id="peopleRows"></tbody>
+        </table>
+      </div>
+      <div class="sheetbar">
+        <button class="btn ghost" id="addRow">Adicionar linha</button>
+        <button class="btn ghost" id="togglePaste">Colar do Excel</button>
+        <span class="tip">Ctrl+V numa célula de nome importa várias linhas de uma vez</span>
+      </div>
+      <div class="pastebox" id="pastebox">
+        <textarea id="pasteArea" placeholder="Cole aqui o trecho copiado do Excel (pode incluir as colunas do meio, como datas). Ex.:&#10;DENIZZE TORRENTE DO NASCIMENTO	01/09/2026	10/09/2026	81 - RESCISAO SJC INICIAT. EMPRESA&#10;RAFAEL PONTES	83"></textarea>
+        <div class="row"><button class="btn" id="doPaste">Importar linhas</button><small>Cada linha precisa de um nome e de um código de motivo (80, 81, 83, 84, 87, 88, 89 ou 95).</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. ARQUIVOS -->
+  <section class="block" id="sec2">
+    <h2><span class="num">2</span> TRCT e separação dos documentos</h2>
+    <p class="hint">Solte tudo junto: TRCT em HTML (é convertido para PDF de 2 páginas), a ficha de registro em Excel (é convertida para PDF como sairia na impressão, com bordas, mesclagens e imagens) ou já em PDF (é reconhecida pelo título ou pelos campos da ficha), PDFs e imagens. Nos dois casos ela entra como Registro do Funcionário. Cada PDF é avaliado página por página, então um PDF com vários documentos juntos é separado sozinho. Clique na miniatura para ver a página grande. A GFD não tem nome, então segue a ordem de envio: a 1ª GFD vai para o 1º colaborador da lista que precisa de GFD, a 2ª para o 2º, e assim por diante.</p>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Selecionar documentos">
+      <strong>Arraste os documentos aqui</strong>
+      <span>ou clique para selecionar · HTML do TRCT, ficha de registro em Excel ou PDF, outros PDFs, JPG ou PNG</span>
+    </div>
+    <input type="file" id="fileInput" accept=".html,.htm,text/html,.xlsx,.xlsm,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,.pdf,application/pdf,.jpg,.jpeg,.png,image/jpeg,image/png" multiple hidden>
+
+    <details class="filesbox" id="filesDet" hidden>
+      <summary id="filesSum">Ver páginas separadas</summary>
+      <div class="tablewrap">
+        <table class="files">
+          <thead><tr><th>Ordem</th><th>Página</th><th>Arquivo</th><th style="width:28%">Documento</th><th style="width:24%">Colaborador</th><th>Identificado por</th><th></th></tr></thead>
+          <tbody id="fileRows"><tr><td colspan="7" class="empty-note">Nenhum documento ainda.</td></tr></tbody>
+        </table>
+      </div>
+    </details>
+
+    <details class="opts">
+      <summary>Ajustes da conversão do TRCT em PDF</summary>
+      <div class="inner">
+        <div class="f">Campo 150 · Assinatura do Empregador
+          <div class="radio" id="campo150">
+            <label><input type="radio" name="c150" value="nome" checked><span>Sem nome, com linha para assinar<small>Remove o nome impresso do preposto</small></span></label>
+            <label><input type="radio" name="c150" value="linha"><span>Sem nome e sem linha<small>Mantém só o rótulo do campo</small></span></label>
+            <label><input type="radio" name="c150" value="original"><span>Como no original<small>Mantém o nome impresso</small></span></label>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <label class="f">Papel<select id="paper"><option value="A4">A4</option><option value="Carta">Carta</option></select></label>
+          <label class="f">Margem (mm)<input type="number" id="margin" min="0" max="25" step="1" value="8"></label>
+          <label class="f">Posição vertical<select id="valign"><option value="top">Topo</option><option value="center">Centralizado</option></select></label>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <label class="f">Nitidez<select id="quality"><option value="2">Normal</option><option value="3" selected>Alta</option><option value="4">Máxima</option></select></label>
+          <label class="chk"><input type="checkbox" id="compact" checked><span>Compactar linhas das verbas<small>O texto da página 1 sai maior</small></span></label>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- 3. CONFERÊNCIA -->
+  <section class="block" id="sec3">
+    <h2><span class="num">3</span> Conferência por motivo de desligamento</h2>
+    <p class="hint">Cada motivo exige um conjunto de documentos. Cada item sai como Ok, Não se aplica ou Falta documento. O comprovante de pagamento também fica como Não se aplica quando o valor líquido do TRCT é R$ 0,00.</p>
+    <div class="summary" id="summary"></div>
+    <div class="checks" id="checks"><p class="empty-note">A conferência aparece quando houver colaboradores na lista.</p></div>
+    <div id="orphans"></div>
+  </section>
+
+  <!-- 4. GERAR -->
+  <section class="block" id="sec4">
+    <h2><span class="num">4</span> PDF único por colaborador</h2>
+    <p class="hint">Cada PDF sai como <b>HOMOLOGAÇÃO - NOME DO COLABORADOR.pdf</b>, na ordem: TRCT, comprovante de pagamento, espelho de ponto, extrato FGTS, GFD, seguro-desemprego e registro do funcionário.</p>
+    <div class="card">
+      <label class="chk" style="margin-bottom:14px"><input type="checkbox" id="incExtra"><span>Incluir documentos não exigidos pelo motivo<small>Por padrão, um extrato FGTS enviado para um pedido de demissão, por exemplo, fica de fora do PDF</small></span></label>
+      <div class="gen">
+        <button class="btn big" id="genZip" disabled>Baixar todos em ZIP</button>
+        <button class="btn ghost big" id="copyPend" disabled>Copiar pendências</button>
+        <button class="btn ghost" id="clearAll">Limpar tudo</button>
+      </div>
+      <div class="status" id="status" aria-live="polite"></div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap" id="tabWz" role="tabpanel" aria-labelledby="tbWz" hidden>
+  <header class="top">
+    <h1>Aviso por WhatsApp</h1>
+    <p>Avise cada colaborador de que os documentos rescisórios foram para o e-mail pessoal dele. Cole nome, celular e e-mail do jeito que estiverem (bagunçado mesmo): a tabela organiza, confere e abre o WhatsApp com a mensagem pronta, um a um ou para todos de uma vez.</p>
+  </header>
+  <!-- 5. AVISO WHATSAPP -->
+  <section class="block" id="sec5">
+    <div class="wz-grid">
+      <div class="card">
+        <h3>Colar dados</h3>
+        <p class="sub">Excel, e-mail, lista com vírgula ou ponto e vírgula, um dado por linha… tanto faz. Se o nome já estiver na tabela, os dados são completados.</p>
+        <textarea class="wz-ta" id="wzIn" placeholder="Ex.:&#10;João da Silva  (16) 99123-4567  joao.silva@gmail.com&#10;maria souza; maria_s@hotmail.com; 16 98765 4321&#10;ANA PAULA DOS SANTOS&#10;ana.ps@gmail.com&#10;+55 16 99111-2222"></textarea>
+        <div class="wz-row">
+          <button class="btn" id="wzOrg">Organizar na tabela</button>
+          <button class="btn ghost" id="wzPull">Trazer nomes do Kit</button>
+          <button class="btn ghost" id="wzAdd">Adicionar linha</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Mensagem</h3>
+        <div class="wz-two">
+          <label class="f">Assinatura<input type="text" id="wzAss" value="Time People - WAP"></label>
+          <label class="f">Prazo para assinar (opcional)<input type="date" id="wzPrazo"></label>
+        </div>
+        <textarea class="wz-ta" id="wzTpl" aria-label="Texto da mensagem"></textarea>
+        <div class="wz-row">
+          <small class="wz-vars">Variáveis: <code>{nome}</code> <code>{email}</code> <code>{prazo}</code> <code>{assinatura}</code> · *texto* = negrito no WhatsApp</small>
+          <button class="linkbtn" id="wzReset" style="margin-left:auto">Restaurar texto padrão</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card wz-send">
+      <div class="hd">
+        <h3>Envio rápido para todos</h3>
+        <label>Abrir em
+          <select id="wzMode">
+            <option value="app">WhatsApp do computador (mais rápido)</option>
+            <option value="web">WhatsApp Web (navegador)</option>
+          </select>
+        </label>
+      </div>
+      <div class="wz-row">
+        <button class="btn wa" id="wzAll">Enviar para todos</button>
+        <button class="btn ghost" id="wzTabs">Abrir todos de uma vez (abas)</button>
+        <label class="wz-chk"><input type="checkbox" id="wzAuto" checked> Ao voltar para esta tela, abrir o próximo sozinho</label>
+      </div>
+      <div class="wz-row"><small id="wzHelp"></small></div>
+    </div>
+
+    <div class="filesbox" style="margin-top:14px">
+      <div class="tablewrap">
+        <table class="files wz">
+          <thead><tr><th>#</th><th style="width:27%">Nome</th><th style="width:16%">Celular</th><th style="width:25%">E-mail pessoal</th><th>Situação</th><th></th></tr></thead>
+          <tbody id="wzRows"><tr><td colspan="6" class="empty-note">Nenhum colaborador ainda. Cole os dados acima ou traga os nomes do Kit.</td></tr></tbody>
+        </table>
+      </div>
+      <div class="sheetbar">
+        <span id="wzCount" class="dim" style="font-size:13px"></span>
+        <span class="tip" style="display:flex;gap:10px">
+          <button class="btn ghost" id="wzCsv">Exportar controle (CSV)</button>
+          <button class="btn ghost" id="wzClear">Limpar lista</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="wz-prevbox">
+      <div class="wz-chat"><div class="wz-bubble empty" id="wzPrev">Clique em um colaborador para ver a mensagem.</div></div>
+      <div class="card wz-tips">
+        <b>Boas práticas</b>
+        <ul>
+          <li>Envie só depois de o e-mail com os documentos ter saído.</li>
+          <li>Use o WhatsApp corporativo do Time People. O app do computador é o mais rápido: abre cada conversa na hora, sem recarregar.</li>
+          <li>Envie em horário comercial e sem pressa entre um e outro: muitos envios seguidos podem bloquear o número.</li>
+          <li>Exporte o CSV ao final e arquive como evidência da comunicação.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wz-q" id="wzQ" hidden role="status" aria-live="polite">
+  <div class="inf"><b id="wzQPos"></b> · <span id="wzQName"></span><small id="wzQTip"></small></div>
+  <div class="acts">
+    <button class="btn wa" id="wzQNext">Enviado, próximo ▶</button>
+    <button class="btn ghost" id="wzQRe">Reabrir</button>
+    <button class="btn ghost" id="wzQSkip">Pular</button>
+    <button class="linkbtn" id="wzQStop">Parar</button>
+  </div>
+  <div class="bar"><i id="wzQFill"></i></div>
+</div>
+
+<dialog id="pv" aria-labelledby="pvTitle">
+  <div class="pvhead"><h3 id="pvTitle">Prévia do TRCT</h3><button class="btn ghost" id="pvClose">Fechar</button></div>
+  <div class="pvbody" id="pvBody"></div>
+</dialog>
+<div id="stage-off" aria-hidden="true"></div>
+
+<script>
+(() => {
+/* ================= Configuração ================= */
+try {
+  if (window.pdfjsLib && !(globalThis.pdfjsWorker && globalThis.pdfjsWorker.WorkerMessageHandler)) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+} catch {}
+
+const DOC_TYPES = [
+  { k:"trct",    label:"Termo de Rescisão do Contrato de Trabalho" },
+  { k:"pag",     label:"Comprovante de Pagamento Funcionário" },
+  { k:"ponto",   label:"Espelho de Ponto Eletrônico" },
+  { k:"extrato", label:"Extrato de Conta do Fundo de Garantia - FGTS" },
+  { k:"gfd",     label:"GFD - Guia do FGTS Digital" },
+  { k:"sd",      label:"Requerimento de Seguro-Desemprego - SD" },
+  { k:"reg",     label:"Registro do Funcionário" }
+];
+const TYPE_LABEL = Object.fromEntries(DOC_TYPES.map(d => [d.k, d.label]));
+const TYPE_ORDER = Object.fromEntries(DOC_TYPES.map((d, i) => [d.k, i]));
+const MOTIVOS = {
+  "80": { t:"RESCISAO CJC INICIAT. EMPRESA",  nao:["extrato","gfd","sd"] },
+  "81": { t:"RESCISAO SJC INICIAT. EMPRESA",  nao:[] },
+  "83": { t:"RESCISAO SJC INICIAT. FUNCION.", nao:["extrato","gfd","sd"] },
+  "84": { t:"RESCISAO POR MORTE",             nao:["sd"] },
+  "87": { t:"RESCISAO TERMINO CONTRATO",      nao:["sd"] },
+  "88": { t:"RESCISAO ANTEC CONTR EMPRESA",   nao:[] },
+  "89": { t:"RESCISAO ANTEC CONTR FUNCION",   nao:["extrato","gfd","sd"] },
+  "95": { t:"RESCISAO DE COMUM ACORDO",       nao:["sd"] }
+};
+const motLabel = c => c && MOTIVOS[c] ? `${c} - ${MOTIVOS[c].t}` : "";
+
+/* ================= Texto ================= */
+const PARTICLES = new Set(["da","de","do","das","dos","e","del","di","du"]);
+const strip = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const norm = s => strip(String(s || "")).toLowerCase();
+const tokensOf = name => norm(name).split(/[^a-z']+/).filter(t => t && !PARTICLES.has(t));
+const upperName = s => String(s || "").replace(/\s+/g, " ").trim().toUpperCase();
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const safeFile = s => s.replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, " ").trim() || "SEM NOME";
+const $ = id => document.getElementById(id);
+
+/* ================= Estado =================
+   Cada PDF é dividido em páginas; cada página é uma "unidade" avaliada separadamente. */
+const people = []; // {id, name, motivo, auto, motivoSug}
+window.kitPeople = people; // usado pela aba Aviso por WhatsApp
+const units = [];  // {id, seq, src, fname, kind, page, pages, text, hasText, thumb, autoType, docType, typeSrc, typeManual, personId, personSource, trct}
+const srcs = new Map(); // srcId -> {id, fname, kind, buffer}
+let pid = 0, uid = 0, seq = 0, sid = 0;
+
+/* ================= Tipo de documento ================= */
+const SPECIFIC = [
+  ["trct",    /termo de rescisao do contrato de trabalho|termo de homologacao de rescisao|termo de quitacao de rescisao/],
+  ["pag",     /comprovante de pagamento|comprovante de transferencia|comprovante (de )?pix|comprovante de credito/],
+  ["ponto",   /espelho de ponto|ponto eletronico|cartao (de )?ponto|folha de ponto/],
+  ["extrato", /extrato de conta do fundo|extrato (analitico )?(do |de )?fgts|extrato do fundo de garantia/],
+  ["gfd",     /guia do fgts digital|\bgfd\b/],
+  ["sd",      /seguro[\s\-_]*desemprego|comunicacao de dispensa/],
+  ["reg",     /ficha (de )?registro|registro d[oe]s? (empregados?|funcionarios?|colaboradores?)|livro de registro|ficha (cadastral|funcional|do empregado|de empregado|do funcionario|do colaborador)|cadastro d[oe] (empregado|funcionario|colaborador)/]
+];
+/* Ficha de registro em PDF sem título reconhecível: conta campos típicos da ficha.
+   Só é usado quando nenhum título de outro documento foi encontrado na página. */
+const FICHA_CAMPOS = [
+  /filiacao|nome do pai/, /estado civil/, /grau de instrucao|escolaridade/, /titulo de eleitor/,
+  /reservista|certificado militar/, /naturalidade/, /nacionalidade/, /dependentes?/,
+  /salario (inicial|contratual|de admissao)/, /data de admissao|admitido em|admissao/, /\bctps\b|carteira de trabalho/,
+  /\bpis\b|pasep|\bnit\b/, /\bcbo\b/, /horario de trabalho|jornada de trabalho/, /opcao (pelo |do |de )?fgts|data de opcao/,
+  /\bmatricula\b/, /contrato de experiencia/, /tipo sanguineo|\bcor\b|raca/, /\bcep\b|bairro|endereco/, /identidade|\brg\b/
+];
+const fichaScore = t => { const s = norm(t); return FICHA_CAMPOS.filter(re => re.test(s)).length; };
+function typeFromPdfText(text) {
+  const s = norm(text), t = earliest(s, SPECIFIC), score = fichaScore(text);
+  const regTitle = s.match(SPECIFIC.find(r => r[0] === "reg")[1]);
+  const trctAt = s.search(SPECIFIC.find(r => r[0] === "trct")[1]);
+  // ficha com título de ficha: vence outros títulos citados dentro dela (ex.: "cartão de ponto", "seguro-desemprego"), menos um TRCT antes do título
+  if (regTitle && score >= 4 && !(trctAt >= 0 && trctAt < regTitle.index)) return { t: "reg", by: "titulo" };
+  if (t && t !== "trct" && t !== "sd" && score >= 10) return { t: "reg", by: "campos" };
+  if (t) return { t, by: "titulo" };
+  if (score >= 7) return { t: "reg", by: "campos" };
+  return { t: "", by: "" };
+}
+const GENERIC = [
+  ["trct",    /\btrct\b/],
+  ["extrato", /\bextrato\b/],
+  ["gfd",     /fgts digital|guia fgts/],
+  ["sd",      /\bsd\b/],
+  ["ponto",   /\bespelho\b|\bponto\b/],
+  ["reg",     /\bregistro\b|\bficha\b/],
+  ["pag",     /\bcomprovante\b|\bpix\b|\bted\b|transferencia|pagamento|pagto/]
+];
+function earliest(s, rules) {
+  let best = "", pos = Infinity;
+  for (const [k, re] of rules) { const m = s.match(re); if (m && m.index < pos) { pos = m.index; best = k; } }
+  return best;
+}
+const fnNorm = fname => norm(fname.replace(/\.[a-z0-9]+$/i, "")).replace(/[_\-.]+/g, " ");
+
+/* ================= Nomes ================= */
+function matchPersonCompact(text) {
+  if (!text) return null;
+  const flat = norm(text).replace(/[^a-z]/g, "");
+  let best = null, bestLen = 0;
+  for (const p of people) {
+    const t = tokensOf(p.name);
+    if (t.length < 2 || !t.every(x => flat.includes(x))) continue;
+    if (!new RegExp(t.join("(?:das|dos|da|de|do|del|di|du|e)?")).test(flat)) continue;
+    const len = t.join("").length;
+    if (len > bestLen) { bestLen = len; best = p; }
+  }
+  return best;
+}
+function matchPerson(text) {
+  if (!text) return null;
+  const set = new Set(norm(text).split(/[^a-z']+/).filter(Boolean));
+  let best = null, bestScore = 0;
+  for (const p of people) {
+    const t = tokensOf(p.name);
+    if (t.length < 2) continue;
+    if (!set.has(t[0]) || !set.has(t[t.length - 1])) continue;
+    const score = t.filter(x => set.has(x)).length;
+    if (score > bestScore) { bestScore = score; best = p; }
+  }
+  return best;
+}
+function suggestMotivo(causa, cod) {
+  const s = norm(causa);
+  if (/acordo/.test(s)) return "95";
+  if (/falecimento|morte|obito/.test(s)) return "84";
+  if (/antecipad/.test(s)) return /empregador/.test(s) ? "88" : "89";
+  if (/termino|prazo determinado|extincao normal|fim do contrato/.test(s)) return "87";
+  if (/com justa causa/.test(s)) return "80";
+  if (/sem justa causa/.test(s) && /empregador/.test(s)) return "81";
+  if (/pedido de demissao|iniciativa do empregado|pelo empregado/.test(s)) return "83";
+  const m = String(cod || causa || "").toUpperCase().match(/\b(SJ2|JC2|SJ1|FT1)\b/);
+  return m ? ({ SJ2:"81", JC2:"80", SJ1:"83", FT1:"87" })[m[1]] : "";
+}
+// TRCT que já veio em PDF com texto: tenta ler nome (campo 11) e causa (campo 22)
+function trctInfoFromText(text) {
+  const flat = text.replace(/\s+/g, " ");
+  const n = flat.match(/11\s*Nome\s*(?:\d+\s*-\s*)?([A-ZÀ-Ý][A-ZÀ-Ý' ]{3,80}?)\s+(?:11\.1|Ra[çc]a|12\s)/);
+  const c = flat.match(/22\s*Causa do Afastamento\s*(.{3,100}?)\s+(?:23\s|24\s)/i);
+  return { nome: n ? upperName(n[1]) : "", causa: c ? c[1] : "" };
+}
+
+/* ================= Leitura de PDF, página a página ================= */
+async function readPdfPages(buffer) {
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buffer.slice(0)) }).promise;
+  const out = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+    let text = "", lastY = null, lastEnd = null;
+    for (const it of tc.items) {
+      const tr = it.transform || null;
+      const y = tr ? Math.round(tr[5]) : null, x = tr ? tr[4] : null;
+      const fs = tr ? Math.max(Math.abs(tr[0]), Math.abs(tr[3]), 1) : 10;
+      if (lastY !== null && y !== null && Math.abs(y - lastY) > 3) { text += "\n"; lastEnd = null; }
+      else if (lastEnd !== null && x !== null && !/\s$/.test(text)) { if (x - lastEnd > fs * 0.18) text += " "; }
+      else if (text && !/\s$/.test(text)) text += " ";
+      text += it.str;
+      if (it.hasEOL) { text += "\n"; lastEnd = null; } else lastEnd = (x !== null && typeof it.width === "number") ? x + it.width : null;
+      lastY = y;
+    }
+    let thumb = "", blue = 0;
+    try {
+      const vp0 = page.getViewport({ scale: 1 });
+      const vp = page.getViewport({ scale: 150 / vp0.width });
+      const cv = document.createElement("canvas");
+      cv.width = Math.ceil(vp.width); cv.height = Math.ceil(vp.height);
+      await page.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise;
+      thumb = cv.toDataURL("image/jpeg", 0.75);
+      // faixas azul-claras da ficha de registro (Datasul): ajuda a reconhecer a ficha quando a página é só imagem
+      try {
+        const d = cv.getContext("2d").getImageData(0, 0, cv.width, cv.height).data; let n = 0;
+        for (let i = 0; i < d.length; i += 4) if (Math.abs(d[i] - 153) < 30 && Math.abs(d[i + 1] - 204) < 30 && d[i + 2] > 225) n++;
+        blue = n / (d.length / 4);
+      } catch {}
+    } catch (e) { console.warn("miniatura", e); }
+    out.push({ text, thumb, blue });
+    page.cleanup();
+  }
+  pdf.destroy();
+  return out;
+}
+async function renderPageImage(u, width) {
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(srcs.get(u.src).buffer.slice(0)) }).promise;
+  const page = await pdf.getPage(u.page + 1);
+  const vp0 = page.getViewport({ scale: 1 });
+  const vp = page.getViewport({ scale: width / vp0.width });
+  const cv = document.createElement("canvas");
+  cv.width = Math.ceil(vp.width); cv.height = Math.ceil(vp.height);
+  await page.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise;
+  pdf.destroy();
+  return cv;
+}
+
+/* ================= TRCT (HTML) ================= */
+const MM = 96 / 25.4, SRC_W = 872;
+const PAPERS = { A4:[210,297], Carta:[215.9,279.4] };
+let trctCssLoaded = false;
+const opts = () => ({
+  paper: $("paper").value,
+  margin: Math.min(25, Math.max(0, +$("margin").value || 0)),
+  valign: $("valign").value,
+  quality: +$("quality").value,
+  compact: $("compact").checked,
+  c150: document.querySelector("input[name=c150]:checked").value
+});
+function decodeHtml(buf) {
+  try { return new TextDecoder("utf-8", { fatal:true }).decode(buf); }
+  catch { return new TextDecoder("windows-1252").decode(buf); }
+}
+function scopeCss(css) {
+  return css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/([^{}]+)\{/g, (m, sel) =>
+    sel.split(",").map(s => {
+      s = s.trim(); if (!s) return s;
+      if (/^@/.test(s)) return s;
+      if (/^(html|body)$/i.test(s)) return ".trct";
+      return ".trct " + s;
+    }).join(", ") + " {");
+}
+const textOf = el => (el ? el.textContent : "").replace(/\s+/g, " ").trim();
+function fieldValue(root, labelStart) {
+  const td = [...root.querySelectorAll("td")].find(t => textOf(t).startsWith(labelStart));
+  return td ? textOf(td.querySelector(".conteudo")) : "";
+}
+function parseTrct(buffer) {
+  const parsed = new DOMParser().parseFromString(decodeHtml(buffer), "text/html");
+  parsed.querySelectorAll("script").forEach(s => s.remove());
+  const trct = parsed.querySelector("#trct"), homolog = parsed.querySelector("#homolog");
+  if (!trct || !homolog) return null;
+  homolog.remove();
+  if (!trctCssLoaded) {
+    $("trct-css").textContent = [...parsed.querySelectorAll("style")].map(s => scopeCss(s.textContent)).join("\n") +
+      `\n.trct #titulo-homo-quita{page-break-before:auto!important;break-before:auto!important}
+       .trct [style*="page-break"]{display:none!important}
+       .trct #trct,.trct #homolog{float:none}`;
+    trctCssLoaded = true;
+  }
+  const nome = fieldValue(trct, "11 Nome").replace(/^\d+\s*-\s*/, "");
+  const liqTd = [...trct.querySelectorAll("td")].find(t => /^valor liquido$/.test(norm(textOf(t))));
+  const liquido = liqTd && liqTd.nextElementSibling ? parseMoney(textOf(liqTd.nextElementSibling)) : null;
+  return { trct, homolog, nome: upperName(nome), causa: fieldValue(trct, "22 Causa"), cod: fieldValue(trct, "27 C"), liquido };
+}
+function applyCampo150(h, mode) {
+  const a = h.querySelector("#assinat-150");
+  if (!a || mode === "original") return;
+  const m = a.innerHTML.match(/_{5,}/);
+  const rot = "150 Assinatura do Empregador ou Preposto";
+  a.innerHTML = mode === "nome" ? `&nbsp;<br>${m ? m[0] : ""}<br>${rot}` : `&nbsp;<br>&nbsp;<br>${rot}`;
+}
+function buildPage(node, o) {
+  const [pw, ph] = PAPERS[o.paper];
+  const page = document.createElement("div");
+  page.className = "page"; page.style.width = pw + "mm"; page.style.height = ph + "mm";
+  const inner = document.createElement("div");
+  inner.className = "inner trct" + (o.compact ? " compact" : "");
+  inner.appendChild(node); page.appendChild(inner);
+  return page;
+}
+function fitPage(page, o) {
+  const [pw, ph] = PAPERS[o.paper];
+  const inner = page.querySelector(".inner");
+  const aw = (pw - 2 * o.margin) * MM, ah = (ph - 2 * o.margin) * MM;
+  inner.style.transform = "none";
+  const h = inner.offsetHeight;
+  const s = Math.min(aw / SRC_W, ah / h);
+  inner.style.transform = `scale(${s})`;
+  inner.style.left = (o.margin * MM + (aw - SRC_W * s) / 2) + "px";
+  inner.style.top = (o.margin * MM + (o.valign === "center" ? (ah - h * s) / 2 : 0)) + "px";
+  return s;
+}
+function trctPages(u, o) {
+  const t = u.trct.trct.cloneNode(true), h = u.trct.homolog.cloneNode(true);
+  applyCampo150(h, o.c150);
+  return [buildPage(t, o), buildPage(h, o)];
+}
+async function trctToPdf(u, o) {
+  if (!window.jspdf || !window.html2canvas) throw new Error("bibliotecas de PDF não carregaram");
+  const [pw, ph] = PAPERS[o.paper];
+  const pdf = new window.jspdf.jsPDF({ unit:"mm", format:[pw, ph], orientation:"portrait" });
+  const off = $("stage-off");
+  let first = true;
+  for (const page of trctPages(u, o)) {
+    off.innerHTML = ""; off.appendChild(page); fitPage(page, o);
+    const canvas = await html2canvas(page, { scale:o.quality, backgroundColor:"#ffffff", logging:false, useCORS:true });
+    if (!first) pdf.addPage([pw, ph], "portrait");
+    first = false;
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pw, ph, undefined, "FAST");
+  }
+  off.innerHTML = "";
+  return pdf.output("arraybuffer");
+}
+
+/* ================= Ficha de registro em Excel → PDF =================
+   Lê a planilha (valores pelo SheetJS; bordas, preenchimentos, fontes, mesclagens,
+   larguras, quebras de página e imagens direto do XML do .xlsx) e desenha cada
+   página como no Excel, em PDF. */
+const XL_INDEXED = "000000 FFFFFF FF0000 00FF00 0000FF FFFF00 FF00FF 00FFFF 000000 FFFFFF FF0000 00FF00 0000FF FFFF00 FF00FF 00FFFF 800000 008000 000080 808000 800080 008080 C0C0C0 808080 9999FF 993366 FFFFCC CCFFFF 660066 FF8080 0066CC CCCCFF 000080 FF00FF FFFF00 00FFFF 800080 800000 008080 0000FF 00CCFF CCFFFF CCFFCC FFFF99 99CCFF FF99CC CC99FF FFCC99 3366FF 33CCCC 99CC00 FFCC00 FF9900 FF6600 666699 969696 003366 339966 003300 333300 993300 993366 333399 333333".split(" ");
+const XL_BORDER = { thin:[1,"solid"], hair:[1,"dotted"], dotted:[1,"dotted"], dashed:[1,"dashed"], dashDot:[1,"dashed"], dashDotDot:[1,"dashed"],
+  medium:[2,"solid"], mediumDashed:[2,"dashed"], mediumDashDot:[2,"dashed"], mediumDashDotDot:[2,"dashed"], slantDashDot:[2,"dashed"], thick:[3,"solid"], double:[3,"double"] };
+const XL_MAX_R = 3000, XL_MAX_C = 120, PX_PT = 96 / 72;
+const xq = (el, tag) => el ? [...el.getElementsByTagNameNS("*", tag)] : [];
+const x1 = (el, tag) => xq(el, tag)[0] || null;
+const xa = (el, a) => el ? el.getAttribute(a) : null;
+const xon = v => v === "1" || v === "true";
+const xrel = (el, local) => el ? ([...el.attributes].find(a => a.localName === local && a.prefix)?.value || "") : "";
+const xlNum = (v, d) => v === null || v === undefined || v === "" || isNaN(+v) ? d : +v;
+function xlColIdx(s) { let n = 0; for (const ch of s.toUpperCase()) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; }
+function xlAddr(ref) { const m = /^\$?([A-Z]{1,3})\$?(\d+)$/i.exec(ref || ""); return m ? { c: xlColIdx(m[1]), r: +m[2] - 1 } : null; }
+function xlRange(ref) {
+  const [a, b] = String(ref || "").split(":"), s = xlAddr(a), e = b ? xlAddr(b) : s;
+  return s && e ? { r0: Math.min(s.r, e.r), c0: Math.min(s.c, e.c), r1: Math.max(s.r, e.r), c1: Math.max(s.c, e.c) } : null;
+}
+function xlTint(hex, tint) {
+  if (!tint) return hex;
+  let [r, g, b] = [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  let h = 0, s = 0, l = (mx + mn) / 2;
+  if (mx !== mn) {
+    const d = mx - mn; s = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
+    h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h /= 6;
+  }
+  l = tint < 0 ? l * (1 + tint) : l * (1 - tint) + tint;
+  const f = (p, q, t) => { t = (t + 1) % 1; return t < 1/6 ? p + (q - p) * 6 * t : t < 1/2 ? q : t < 2/3 ? p + (q - p) * (2/3 - t) * 6 : p; };
+  if (!s) r = g = b = l;
+  else { const q = l < .5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q; r = f(p, q, h + 1/3); g = f(p, q, h); b = f(p, q, h - 1/3); }
+  return [r, g, b].map(v => Math.round(v * 255).toString(16).padStart(2, "0")).join("");
+}
+function xlColor(el, theme) {
+  if (!el) return null;
+  const rgb = xa(el, "rgb"), th = xa(el, "theme"), ix = xa(el, "indexed");
+  let hex = null;
+  if (rgb) hex = rgb.length === 8 ? rgb.slice(2) : rgb;
+  else if (th !== null) hex = theme[+th] || null;
+  else if (ix !== null) hex = +ix === 64 ? "000000" : +ix === 65 ? "FFFFFF" : XL_INDEXED[+ix] || null;
+  else if (xon(xa(el, "auto"))) hex = "000000";
+  return hex && /^[0-9a-f]{6}$/i.test(hex) ? "#" + xlTint(hex, xlNum(xa(el, "tint"), 0)) : null;
+}
+function xlPath(base, target) {
+  if (target.startsWith("/")) return target.slice(1);
+  const parts = base.split("/"); parts.pop();
+  for (const seg of target.split("/")) { if (seg === "..") parts.pop(); else if (seg && seg !== ".") parts.push(seg); }
+  return parts.join("/");
+}
+const xlRelsOf = p => { const i = p.lastIndexOf("/"); return p.slice(0, i + 1) + "_rels/" + p.slice(i + 1) + ".rels"; };
+async function xlXml(zip, p) {
+  const f = p && zip.file(p);
+  return f ? new DOMParser().parseFromString(await f.async("string"), "application/xml") : null;
+}
+async function xlRels(zip, p) {
+  const m = new Map();
+  xq(await xlXml(zip, xlRelsOf(p)), "Relationship").forEach(r => {
+    if (xa(r, "TargetMode") !== "External") m.set(xa(r, "Id"), xlPath(p, xa(r, "Target") || ""));
+  });
+  return m;
+}
+function xlStyles(doc, theme) {
+  const font = f => {
+    const v = (t, d = "1") => { const e = x1(f, t); return e ? xa(e, "val") ?? d : null; };
+    return { b: !!v("b") && v("b", "1") !== "0" && v("b", "1") !== "false", i: !!v("i") && v("i", "1") !== "0" && v("i", "1") !== "false",
+      u: !!v("u") && v("u", "single") !== "none", st: !!v("strike") && v("strike", "1") !== "0",
+      sz: xlNum(v("sz"), 11), name: v("name") || v("rFont") || "Calibri", color: xlColor(x1(f, "color"), theme) };
+  };
+  const fonts = xq(x1(doc, "fonts"), "font").map(font);
+  const fills = xq(x1(doc, "fills"), "fill").map(f => {
+    const p = x1(f, "patternFill");
+    if (p && xa(p, "patternType") && xa(p, "patternType") !== "none") return xlColor(x1(p, "fgColor"), theme) || xlColor(x1(p, "bgColor"), theme);
+    const g = x1(f, "gradientFill");
+    return g ? xlColor(x1(g, "color"), theme) : null;
+  });
+  const borders = xq(x1(doc, "borders"), "border").map(b => {
+    const side = n => { const e = x1(b, n); const st = xa(e, "style"); return st && XL_BORDER[st] ? [...XL_BORDER[st], xlColor(x1(e, "color"), theme) || "#000"] : null; };
+    return { l: side("left") || side("start"), r: side("right") || side("end"), t: side("top"), b: side("bottom") };
+  });
+  const xfs = xq(x1(doc, "cellXfs"), "xf").map(x => {
+    const al = x1(x, "alignment");
+    return { font: fonts[xlNum(xa(x, "fontId"), 0)] || fonts[0], fill: fills[xlNum(xa(x, "fillId"), 0)] || null,
+      border: borders[xlNum(xa(x, "borderId"), 0)] || {}, h: xa(al, "horizontal") || "general", v: xa(al, "vertical") || "bottom",
+      wrap: xon(xa(al, "wrapText")), indent: xlNum(xa(al, "indent"), 0), rot: xlNum(xa(al, "textRotation"), 0) };
+  });
+  return { fonts, xfs };
+}
+async function xlDrawing(zip, path) {
+  const doc = await xlXml(zip, path); if (!doc) return [];
+  const rels = await xlRels(zip, path), out = [];
+  const anchors = [...doc.documentElement.children].filter(e => /Anchor$/.test(e.localName));
+  for (const an of anchors) {
+    for (const pic of xq(an, "pic")) {
+      const blip = x1(pic, "blip"), target = rels.get(xrel(blip, "embed"));
+      if (!target || !/\.(png|jpe?g|gif|bmp|webp)$/i.test(target)) continue;
+      const f = zip.file(target); if (!f) continue;
+      const ext = target.split(".").pop().toLowerCase();
+      const url = `data:image/${ext === "jpg" ? "jpeg" : ext};base64,${await f.async("base64")}`;
+      const pos = el => el && { c: xlNum(x1(el, "col")?.textContent, 0), co: xlNum(x1(el, "colOff")?.textContent, 0) / 9525,
+        r: xlNum(x1(el, "row")?.textContent, 0), ro: xlNum(x1(el, "rowOff")?.textContent, 0) / 9525 };
+      const from = pos(x1(an, "from")), to = pos(x1(an, "to"));
+      const ext0 = [...an.children].find(e => e.localName === "ext") || x1(pic, "ext");
+      const ap = x1(an, "pos");
+      out.push({ url, from, to: an.localName === "twoCellAnchor" ? to : null,
+        cx: xlNum(xa(ext0, "cx"), 0) / 9525, cy: xlNum(xa(ext0, "cy"), 0) / 9525,
+        abs: an.localName === "absoluteAnchor" && ap ? { x: xlNum(xa(ap, "x"), 0) / 9525, y: xlNum(xa(ap, "y"), 0) / 9525 } : null });
+    }
+  }
+  return out;
+}
+function xlSheetInfo(doc) {
+  const fmt = x1(doc, "sheetFormatPr"), ps = x1(doc, "pageSetup"), pm = x1(doc, "pageMargins");
+  const info = {
+    defRowH: xlNum(xa(fmt, "defaultRowHeight"), 15), defColW: xa(fmt, "defaultColWidth") !== null ? +xa(fmt, "defaultColWidth") : null,
+    baseColW: xlNum(xa(fmt, "baseColWidth"), 8), cols: [], rows: new Map(), cells: new Map(), breaks: new Set(),
+    margins: pm ? { l: xlNum(xa(pm, "left"), .7), r: xlNum(xa(pm, "right"), .7), t: xlNum(xa(pm, "top"), .75), b: xlNum(xa(pm, "bottom"), .75) } : null,
+    landscape: xa(ps, "orientation") === "landscape", scale: xlNum(xa(ps, "scale"), 100),
+    fit: xon(xa(x1(doc, "pageSetUpPr"), "fitToPage")), fitW: xlNum(xa(ps, "fitToWidth"), 1), fitH: xlNum(xa(ps, "fitToHeight"), 1),
+    hCenter: xon(xa(x1(doc, "printOptions"), "horizontalCentered")), drawing: xrel(x1(doc, "drawing"), "id"), images: []
+  };
+  xq(x1(doc, "cols"), "col").forEach(c => info.cols.push({ min: xlNum(xa(c, "min"), 1) - 1, max: xlNum(xa(c, "max"), 1) - 1,
+    w: xa(c, "width") !== null ? +xa(c, "width") : null, hidden: xon(xa(c, "hidden")), s: xa(c, "style") !== null ? +xa(c, "style") : null }));
+  let ri = -1;
+  xq(x1(doc, "sheetData"), "row").forEach(r => {
+    ri = xa(r, "r") ? +xa(r, "r") - 1 : ri + 1;
+    info.rows.set(ri, { ht: xa(r, "ht") !== null ? +xa(r, "ht") : null, hidden: xon(xa(r, "hidden")), s: xon(xa(r, "customFormat")) ? xlNum(xa(r, "s"), 0) : null });
+    let ci = -1;
+    xq(r, "c").forEach(c => { const a = xlAddr(xa(c, "r")); ci = a ? a.c : ci + 1; if (xa(c, "s") !== null) info.cells.set(ri * 16384 + ci, +xa(c, "s")); });
+  });
+  xq(x1(doc, "rowBreaks"), "brk").forEach(b => info.breaks.add(xlNum(xa(b, "id"), 0)));
+  return info;
+}
+async function xlReadPackage(buffer) {
+  const zip = await JSZip.loadAsync(buffer);
+  const root = xq(await xlXml(zip, "_rels/.rels"), "Relationship").find(r => /officeDocument$/.test(xa(r, "Type") || ""));
+  const wbPath = root ? xlPath("", xa(root, "Target")) : "xl/workbook.xml";
+  const wbDoc = await xlXml(zip, wbPath); if (!wbDoc) return null;
+  const rels = await xlRels(zip, wbPath);
+  const relTargets = [...rels.values()];
+  const theme = [];
+  const thDoc = await xlXml(zip, relTargets.find(t => /theme\d*\.xml$/.test(t)));
+  if (thDoc) {
+    const cs = x1(thDoc, "clrScheme"), get = n => { const e = cs && [...cs.children].find(c => c.localName === n); const v = e && (x1(e, "srgbClr") ? xa(x1(e, "srgbClr"), "val") : xa(x1(e, "sysClr"), "lastClr")); return v || null; };
+    ["lt1","dk1","lt2","dk2","accent1","accent2","accent3","accent4","accent5","accent6","hlink","folHlink"].forEach(n => theme.push(get(n)));
+  }
+  const stDoc = await xlXml(zip, relTargets.find(t => /styles\.xml$/.test(t)));
+  const styles = stDoc ? xlStyles(stDoc, theme) : null;
+  const sheets = new Map();
+  for (const s of xq(x1(wbDoc, "sheets"), "sheet")) {
+    const p = rels.get(xrel(s, "id")); if (!p) continue;
+    const doc = await xlXml(zip, p); if (!doc || !x1(doc, "sheetData")) continue;
+    const info = xlSheetInfo(doc);
+    if (info.drawing) { try { const sr = await xlRels(zip, p); if (sr.get(info.drawing)) info.images = await xlDrawing(zip, sr.get(info.drawing)); } catch (e) { console.warn("imagens do Excel", e); } }
+    sheets.set(xa(s, "name"), info);
+  }
+  return { styles, sheets };
+}
+/* Número como aparece no Excel em português: 1.234,56 */
+function xlText(cell) {
+  if (!cell || cell.v === undefined || cell.v === null) return cell && cell.w ? cell.w : "";
+  let w = cell.w !== undefined ? cell.w : String(cell.v);
+  if (cell.t === "n" && !(cell.z && XLSX.SSF.is_date(cell.z))) w = w.replace(/\d[\d.,]*/g, m => m.replace(/[.,]/g, ch => ch === "." ? "," : "."));
+  if (cell.t === "b") w = cell.v ? "VERDADEIRO" : "FALSO";
+  return w;
+}
+const XL_EMPTY = { font: { b:false, i:false, u:false, st:false, sz:11, name:"Calibri", color:null }, fill:null, border:{}, h:"general", v:"bottom", wrap:false, indent:0, rot:0 };
+function xlModel(wb, idx, ws, info, styles) {
+  const plain = !info || !styles;
+  const LINE = [1, "solid", "#B7B7B7"];
+  const XL_PLAIN = { ...XL_EMPTY, border: { l:LINE, r:LINE, t:LINE, b:LINE } };
+  const pa = (wb.Workbook?.Names || []).find(n => /^_xlnm\.Print_Area$/i.test(n.Name) && n.Sheet === idx);
+  let rg = pa ? xlRange(String(pa.Ref).split(",")[0].split("!").pop().replace(/\$/g, "")) : null;
+  const full = xlRange(ws["!ref"]);
+  if (!full && !rg) return null;
+  const xfOf = (r, c) => {
+    if (plain) return XL_PLAIN;
+    let s = info.cells.get(r * 16384 + c);
+    if (s === undefined) { const row = info.rows.get(r); if (row && row.s !== null) s = row.s; }
+    if (s === undefined) { const col = info.cols.find(k => c >= k.min && c <= k.max); if (col && col.s !== null) s = col.s; }
+    return styles.xfs[s || 0] || XL_EMPTY;
+  };
+  const visible = xf => xf.fill || xf.border.l || xf.border.r || xf.border.t || xf.border.b;
+  if (!rg) {
+    // área usada de verdade: valores, bordas/preenchimentos e imagens
+    let r1 = -1, c1 = -1, r0 = Infinity, c0 = Infinity;
+    const grow = (r, c) => { r0 = Math.min(r0, r); c0 = Math.min(c0, c); r1 = Math.max(r1, r); c1 = Math.max(c1, c); };
+    for (const k of Object.keys(ws)) { if (k[0] === "!") continue; const a = xlAddr(k); if (a && xlText(ws[k]).trim()) grow(a.r, a.c); }
+    if (!plain) {
+      for (const [k, s] of info.cells) { const xf = styles.xfs[s]; if (xf && visible(xf)) grow(Math.floor(k / 16384), k % 16384); }
+      for (const im of info.images) if (im.from) { grow(im.from.r, im.from.c); if (im.to) grow(im.to.r, im.to.c); }
+    }
+    for (const m of ws["!merges"] || []) if (m.s.r <= r1 && m.s.c <= c1) grow(m.e.r, m.e.c);
+    if (r1 < 0) return null;
+    rg = { r0: Math.max(0, Math.min(r0, full ? full.r0 : r0)), c0: Math.max(0, Math.min(c0, full ? full.c0 : c0)), r1, c1 };
+  }
+  rg.r1 = Math.min(rg.r1, rg.r0 + XL_MAX_R - 1); rg.c1 = Math.min(rg.c1, rg.c0 + XL_MAX_C - 1);
+  // larguras e alturas em px
+  const colW = c => {
+    if (plain) { const k = (ws["!cols"] || [])[c]; if (k && k.hidden) return 0; return k ? Math.round(k.wpx || (k.wch ? k.wch * 7 + 5 : 0) || (k.width ? k.width * 7 : 0) || 64) : 64; }
+    const k = info.cols.find(x => c >= x.min && c <= x.max);
+    if (k && k.hidden) return 0;
+    if (k && k.w !== null) return Math.round(k.w * 7);
+    return info.defColW !== null ? Math.round(info.defColW * 7) : info.baseColW * 7 + 8;
+  };
+  const rowH = r => {
+    if (plain) { const k = (ws["!rows"] || [])[r]; if (k && k.hidden) return 0; return k ? (k.hpx || (k.hpt ? k.hpt * PX_PT : 20)) : 20; }
+    const k = info.rows.get(r);
+    if (k && k.hidden) return 0;
+    return (k && k.ht !== null ? k.ht : info.defRowH) * PX_PT;
+  };
+  const nC = rg.c1 - rg.c0 + 1, nR = rg.r1 - rg.r0 + 1;
+  const X = [0], Y = [0];
+  for (let i = 0; i < nC; i++) X.push(X[i] + colW(rg.c0 + i));
+  for (let i = 0; i < nR; i++) Y.push(Y[i] + rowH(rg.r0 + i));
+  const W = X[nC], H = Y[nR];
+  if (!W || !H) return null;
+  const xAt = c => { if (c >= rg.c0 && c <= rg.c1 + 1) return X[c - rg.c0]; let x = c < rg.c0 ? 0 : W; if (c < rg.c0) for (let k = c; k < rg.c0; k++) x -= colW(k); else for (let k = rg.c1 + 1; k < c; k++) x += colW(k); return x; };
+  const yAt = r => { if (r >= rg.r0 && r <= rg.r1 + 1) return Y[r - rg.r0]; let y = r < rg.r0 ? 0 : H; if (r < rg.r0) for (let k = r; k < rg.r0; k++) y -= rowH(k); else for (let k = rg.r1 + 1; k < r; k++) y += rowH(k); return y; };
+  // mesclagens
+  const mergeAt = new Map(), covered = new Set();
+  for (const m of ws["!merges"] || []) {
+    if (m.e.r < rg.r0 || m.s.r > rg.r1 || m.e.c < rg.c0 || m.s.c > rg.c1) continue;
+    mergeAt.set(m.s.r * 16384 + m.s.c, m);
+    for (let r = m.s.r; r <= m.e.r; r++) for (let c = m.s.c; c <= m.e.c; c++) if (r !== m.s.r || c !== m.s.c) covered.add(r * 16384 + c);
+  }
+  const textAt = (r, c) => xlText(ws[XLSX.utils.encode_cell({ r, c })]);
+  const fills = [], lines = [], texts = [], plainText = [];
+  const fontCss = f => `font-family:'${String(f.name).replace(/['"<>&]/g, "")}',Calibri,Carlito,Arial,'Liberation Sans',sans-serif;font-size:${(f.sz * PX_PT).toFixed(2)}px;` +
+    `${f.b ? "font-weight:700;" : ""}${f.i ? "font-style:italic;" : ""}${f.u || f.st ? `text-decoration:${f.u ? "underline" : ""} ${f.st ? "line-through" : ""};` : ""}color:${f.color || "#000"};`;
+  const hLine = (x, y, w, s) => lines.push(`<div style="position:absolute;left:${x - s[0] / 2}px;top:${y - s[0] / 2}px;width:${w + s[0]}px;height:0;border-top:${s[0]}px ${s[1]} ${s[2]}"></div>`);
+  const vLine = (x, y, h, s) => lines.push(`<div style="position:absolute;left:${x - s[0] / 2}px;top:${y - s[0] / 2}px;width:0;height:${h + s[0]}px;border-left:${s[0]}px ${s[1]} ${s[2]}"></div>`);
+  for (let r = rg.r0; r <= rg.r1; r++) {
+    const rowTxt = [];
+    for (let c = rg.c0; c <= rg.c1; c++) {
+      const key = r * 16384 + c;
+      if (covered.has(key)) continue;
+      const m = mergeAt.get(key);
+      const er = m ? Math.min(m.e.r, rg.r1) : r, ec = m ? Math.min(m.e.c, rg.c1) : c;
+      const x = X[c - rg.c0], y = Y[r - rg.r0], w = X[ec - rg.c0 + 1] - x, h = Y[er - rg.r0 + 1] - y;
+      const txt = textAt(r, c);
+      if (txt.trim()) rowTxt.push(txt.trim());
+      if (!w || !h) continue;
+      const xf = xfOf(r, c);
+      if (xf.fill) fills.push(`<div style="position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${h}px;background:${xf.fill}"></div>`);
+      // bordas (em mescla: topo/esquerda da 1ª célula, direita/fundo das células da borda)
+      if (plain || !m) {
+        const b = xf.border;
+        if (b.t) hLine(x, y, w, b.t); if (b.b) hLine(x, y + h, w, b.b);
+        if (b.l) vLine(x, y, h, b.l); if (b.r) vLine(x + w, y, h, b.r);
+      } else {
+        for (let cc = c; cc <= ec; cc++) {
+          const cx = X[cc - rg.c0], cw = X[cc - rg.c0 + 1] - cx; if (!cw) continue;
+          const tb = xfOf(r, cc).border.t || xf.border.t, bb = xfOf(er, cc).border.b || xf.border.b;
+          if (tb) hLine(cx, y, cw, tb); if (bb) hLine(cx, y + h, cw, bb);
+        }
+        for (let rr = r; rr <= er; rr++) {
+          const ry = Y[rr - rg.r0], rh = Y[rr - rg.r0 + 1] - ry; if (!rh) continue;
+          const lb = xfOf(rr, c).border.l || xf.border.l, rb = xfOf(rr, ec).border.r || xf.border.r;
+          if (lb) vLine(x, ry, rh, lb); if (rb) vLine(x + w, ry, rh, rb);
+        }
+      }
+      if (!txt) continue;
+      const cell = ws[XLSX.utils.encode_cell({ r, c })];
+      let ha = xf.h === "general" ? (cell && (cell.t === "n" || cell.t === "d") ? "right" : cell && cell.t === "b" ? "center" : "left")
+        : xf.h === "centerContinuous" ? "center" : xf.h === "fill" ? "left" : xf.h === "distributed" ? "justify" : xf.h;
+      let tx = x, tw = w;
+      if (!xf.wrap && !m) {
+        // texto sem quebra "transborda" para as células vazias ao lado, como no Excel
+        const free = dir => { let px = 0; for (let k = c + dir; k >= rg.c0 && k <= rg.c1; k += dir) { const kk = r * 16384 + k; if (covered.has(kk) || mergeAt.has(kk) || textAt(r, k)) break; px += X[k - rg.c0 + 1] - X[k - rg.c0]; } return px; };
+        if (ha === "left") tw = w + free(1);
+        else if (ha === "right") { const l = free(-1); tx = x - l; tw = w + l; }
+        else if (ha === "center") { const s = Math.min(free(-1), free(1)); tx = x - s; tw = w + 2 * s; }
+      }
+      const va = xf.v === "top" ? "flex-start" : xf.v === "center" || xf.v === "justify" || xf.v === "distributed" ? "center" : "flex-end";
+      const pad = 2 + xf.indent * 9;
+      const rotated = xf.rot === 90 || xf.rot === 180 ? "transform:rotate(-90deg);" : xf.rot === 255 ? "writing-mode:vertical-rl;text-orientation:upright;" : "";
+      texts.push(`<div style="position:absolute;left:${tx}px;top:${y}px;width:${tw}px;height:${h}px;overflow:hidden;display:flex;flex-direction:column;justify-content:${va};${rotated && xf.rot !== 255 ? "align-items:center;" : ""}padding:0 ${ha === "right" ? pad : 2}px 0 ${ha === "left" ? pad : 2}px;box-sizing:border-box">` +
+        `<div style="${fontCss(xf.font)}line-height:1.18;text-align:${ha};white-space:${xf.wrap ? "pre-wrap" : "pre"};${xf.wrap ? "overflow-wrap:anywhere;" : ""}${rotated}">${esc(txt)}</div></div>`);
+    }
+    if (rowTxt.length) plainText.push(rowTxt.join(" "));
+  }
+  const imgs = [];
+  if (!plain) for (const im of info.images) {
+    let x, y, w, h;
+    if (im.abs) { x = im.abs.x - xAt(rg.c0) + xAt(0); y = im.abs.y - yAt(rg.r0) + yAt(0); w = im.cx; h = im.cy; }
+    else if (im.from) {
+      x = xAt(im.from.c) + im.from.co; y = yAt(im.from.r) + im.from.ro;
+      if (im.to) { w = xAt(im.to.c) + im.to.co - x; h = yAt(im.to.r) + im.to.ro - y; } else { w = im.cx; h = im.cy; }
+    } else continue;
+    if (w > 0 && h > 0) imgs.push(`<img src="${im.url}" alt="" style="position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${h}px">`);
+  }
+  // quebras de página manuais (índice da linha em que começa a nova página)
+  const breaks = new Set();
+  if (!plain) for (const b of info.breaks) if (b > rg.r0 && b <= rg.r1) breaks.add(b - rg.r0);
+  return { W, H, Y, nR, breaks, info: plain ? null : info,
+    html: `<div style="position:absolute;inset:0">${fills.join("")}</div><div style="position:absolute;inset:0">${imgs.join("")}</div><div style="position:absolute;inset:0">${lines.join("")}</div><div style="position:absolute;inset:0">${texts.join("")}</div>`,
+    text: plainText.join("\n") };
+}
+function xlPaginate(md, o) {
+  const inf = md.info;
+  let [pw, ph] = PAPERS[o.paper];
+  if (inf && inf.landscape) [pw, ph] = [ph, pw];
+  const mg = inf && inf.margins ? inf.margins : { l: .7, r: .7, t: .75, b: .75 };
+  const ml = Math.min(25, mg.l * 25.4), mr = Math.min(25, mg.r * 25.4), mt = Math.min(25, mg.t * 25.4), mb = Math.min(25, mg.b * 25.4);
+  const aw = (pw - ml - mr) * MM, ah = (ph - mt - mb) * MM;
+  let s;
+  if (inf && inf.fit) s = Math.min(inf.fitW ? aw * inf.fitW / md.W : Infinity, inf.fitH ? ah * inf.fitH / md.H : Infinity, 4);
+  else s = Math.min((inf ? inf.scale : 100) / 100, aw / md.W);
+  if (!isFinite(s) || s <= 0) s = aw / md.W;
+  s = Math.min(s, aw / md.W);
+  // um pouco maior que uma página e sem quebra manual: cabe em uma só
+  if (!md.breaks.size && md.H * s > ah && md.H * s <= ah * 1.12) s = ah / md.H;
+  const pages = [];
+  let start = 0;
+  for (let i = 0; i < md.nR; i++) {
+    const over = (md.Y[i + 1] - md.Y[start]) * s > ah + 0.5;
+    if (i > start && (md.breaks.has(i) || over)) { pages.push([start, i]); start = i; }
+  }
+  pages.push([start, md.nR]);
+  return { pw, ph, ml, mt, aw, s, pages: pages.filter(([a, b]) => md.Y[b] - md.Y[a] > 0) };
+}
+async function excelToPdf(buffer, o) {
+  if (!window.XLSX || !window.jspdf || !window.html2canvas) throw new Error("bibliotecas de Excel/PDF não carregaram");
+  const wb = XLSX.read(new Uint8Array(buffer), { type: "array", cellNF: true, cellStyles: true, cellDates: false, dateNF: "dd/mm/yyyy" });
+  const u8 = new Uint8Array(buffer, 0, 4);
+  let pkg = null;
+  if (u8[0] === 0x50 && u8[1] === 0x4B && window.JSZip) { try { pkg = await xlReadPackage(buffer); } catch (e) { console.warn("formatação do Excel", e); } }
+  const off = $("stage-off");
+  let pdf = null;
+  const outPages = [];
+  for (let i = 0; i < wb.SheetNames.length; i++) {
+    const name = wb.SheetNames[i], meta = wb.Workbook?.Sheets?.[i];
+    if (meta && meta.Hidden) continue;
+    const ws = wb.Sheets[name]; if (!ws) continue;
+    const info = pkg && pkg.sheets.get(name);
+    const md = xlModel(wb, i, ws, info || null, info && pkg.styles);
+    if (!md) continue;
+    const pg = xlPaginate(md, o);
+    for (const [a, b] of pg.pages) {
+      const page = document.createElement("div");
+      page.style.cssText = `position:relative;width:${pg.pw}mm;height:${pg.ph}mm;background:#fff;overflow:hidden`;
+      const cw = md.W * pg.s, ch = (md.Y[b] - md.Y[a]) * pg.s;
+      const left = info && info.hCenter ? (pg.pw * MM - cw) / 2 : pg.ml * MM;
+      page.innerHTML = `<div style="position:absolute;left:${left}px;top:${pg.mt * MM}px;width:${cw}px;height:${ch}px;overflow:hidden">` +
+        `<div style="position:absolute;left:0;top:${-md.Y[a] * pg.s}px;width:${md.W}px;height:${md.H}px;transform:scale(${pg.s});transform-origin:0 0">${md.html}</div></div>`;
+      off.innerHTML = ""; off.appendChild(page);
+      await Promise.all([...page.querySelectorAll("img")].map(im => im.decode ? im.decode().catch(() => {}) : null));
+      const canvas = await html2canvas(page, { scale: o.quality, backgroundColor: "#ffffff", logging: false, useCORS: true });
+      const orient = pg.pw > pg.ph ? "landscape" : "portrait";
+      if (!pdf) pdf = new window.jspdf.jsPDF({ unit: "mm", format: [pg.pw, pg.ph], orientation: orient });
+      else pdf.addPage([pg.pw, pg.ph], orient);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pg.pw, pg.ph, undefined, "FAST");
+      outPages.push({ sheet: name, text: md.text });
+    }
+  }
+  off.innerHTML = "";
+  if (!pdf) throw new Error("planilha vazia");
+  return { pdf: pdf.output("arraybuffer"), pages: outPages };
+}
+
+/* ================= Colaboradores ================= */
+function addPerson(name, motivo, extra = {}) {
+  name = upperName(name);
+  if (!name) return null;
+  const key = tokensOf(name).join(" ");
+  const ex = people.find(p => tokensOf(p.name).join(" ") === key);
+  if (ex) { if (motivo && !ex.motivo) ex.motivo = motivo; return ex; }
+  const p = { id: ++pid, name, motivo: motivo || "", ...extra };
+  people.push(p);
+  return p;
+}
+function parsePaste(text) {
+  const out = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim(); if (!line) continue;
+    const cells = raw.split("\t").map(c => c.trim()).filter(Boolean);
+    let motivo = "", name = "";
+    if (cells.length > 1) {
+      for (const c of cells) {
+        const m = c.match(/^(\d{2})(?:\s*[-–]|\s*$)/);
+        if (m && MOTIVOS[m[1]] && !motivo) motivo = m[1];
+      }
+      const cand = cells.filter(c => /[A-Za-zÀ-ÿ]/.test(c) && !/\d/.test(c) && c.trim().split(/\s+/).length >= 2);
+      name = cand.sort((a, b) => b.length - a.length)[0] || "";
+    } else {
+      const m = line.match(/(^|[\s;,|\-–])(80|81|83|84|87|88|89|95)(?=\s|$|\s*[-–])/);
+      if (m) { motivo = m[2]; name = line.slice(0, m.index).replace(/[\s;,|\-–]+$/, ""); }
+      else name = line;
+      name = name.replace(/\d+/g, " ");
+    }
+    if (/^nome$/i.test(name.trim())) continue;
+    if (tokensOf(name).length >= 1) out.push({ name, motivo });
+  }
+  return out;
+}
+function importRows(rows) {
+  let n = 0;
+  for (const r of rows) { if (addPerson(r.name, r.motivo)) n++; }
+  renderPeople(); recompute();
+  return n;
+}
+function autoAddFromTrct(nome, causa, cod) {
+  if (!nome || tokensOf(nome).length < 2) return;
+  const sug = suggestMotivo(causa, cod);
+  const p = matchPerson(nome);
+  if (!p) { addPerson(nome, sug, { auto:true, motivoSug:sug }); renderPeople(); }
+  else if (!p.motivo && sug) { p.motivo = sug; p.motivoSug = sug; p.auto = true; renderPeople(); }
+}
+
+/* ================= Arquivos ================= */
+function kindOf(f) {
+  if (/\.html?$/i.test(f.name) || f.type === "text/html") return "html";
+  if (/\.(xlsx|xlsm|xls)$/i.test(f.name) || /spreadsheetml|ms-excel/.test(f.type)) return "xls";
+  if (/\.pdf$/i.test(f.name) || f.type === "application/pdf") return "pdf";
+  if (/\.(jpe?g|png)$/i.test(f.name) || /^image\/(jpeg|png)$/.test(f.type)) return "img";
+  return "";
+}
+const blank = () => ({ autoType:"", docType:"", typeSrc:"", typeManual:false, personId:null, personSource:"", trct:null, text:"", hasText:false, thumb:"" });
+async function addFiles(list) {
+  const arr = [...list], skipped = [], bad = [];
+  let pagesRead = 0;
+  for (const f of arr) {
+    const kind = kindOf(f);
+    if (!kind) { skipped.push(f.name); continue; }
+    const buffer = await f.arrayBuffer();
+    const src = { id: ++sid, fname: f.name, kind, buffer };
+    setStatus(`Lendo ${f.name}…`);
+    if (kind === "html") {
+      const t = parseTrct(buffer);
+      if (!t) { bad.push(f.name); continue; }
+      srcs.set(src.id, src);
+      units.push({ ...blank(), id: ++uid, seq: ++seq, src: src.id, fname: f.name, kind, page: 0, pages: 1, trct: t, text: t.nome, hasText: true, autoType: "trct", liquido: t.liquido });
+      autoAddFromTrct(t.nome, t.causa, t.cod);
+    } else if (kind === "xls") {
+      // ficha de registro em Excel: vira PDF já na entrada e segue como um PDF comum
+      let conv, pages = [];
+      try { setStatus(`Convertendo ${f.name} em PDF…`); conv = await excelToPdf(buffer, opts()); pages = await readPdfPages(conv.pdf); }
+      catch (e) { console.warn(f.name, e); bad.push(f.name + ` (Excel não convertido: ${e.message})`); continue; }
+      srcs.set(src.id, { ...src, kind: "pdf", buffer: conv.pdf, xls: true });
+      pages.forEach((pg, i) => {
+        const text = (conv.pages[i] && conv.pages[i].text) || "";
+        units.push({ ...blank(), id: ++uid, seq: ++seq, src: src.id, fname: f.name, kind: "pdf", xls: true, page: i, pages: pages.length,
+          text, hasText: true, thumb: pg.thumb, autoType: "reg" });
+      });
+      pagesRead += pages.length;
+    } else if (kind === "pdf") {
+      let pages = [];
+      try { pages = await readPdfPages(buffer); }
+      catch (e) { console.warn(f.name, e); bad.push(f.name + " (PDF protegido ou corrompido)"); continue; }
+      srcs.set(src.id, src);
+      pages.forEach((pg, i) => {
+        const hasText = pg.text.replace(/\s+/g, "").length > 20;
+        const u = { ...blank(), id: ++uid, seq: ++seq, src: src.id, fname: f.name, kind, page: i, pages: pages.length, text: pg.text, hasText, thumb: pg.thumb, liquido: liquidoFromText(pg.text) };
+        if (hasText) { const r = typeFromPdfText(pg.text); u.autoType = r.t; u.autoBy = r.by; }
+        else if (pg.blue >= 0.005) { u.autoType = "reg"; u.autoBy = "cor"; }
+        units.push(u);
+        if (u.autoType === "trct") { const info = trctInfoFromText(pg.text); autoAddFromTrct(info.nome, info.causa, ""); }
+      });
+      pagesRead += pages.length;
+    } else {
+      srcs.set(src.id, src);
+      const url = URL.createObjectURL(new Blob([buffer]));
+      units.push({ ...blank(), id: ++uid, seq: ++seq, src: src.id, fname: f.name, kind, page: 0, pages: 1, thumb: url });
+    }
+    recompute();
+  }
+  recompute();
+  const toRead = units.filter(u => ((u.kind === "pdf" && !u.hasText) || u.kind === "img") && !u.aiState);
+  const aiRes = toRead.length ? await aiReadPages(toRead) : "";
+  recompute();
+  const msgs = [];
+  if (aiRes === "off") msgs.push(`${toRead.length} página(s) sem texto não foram lidas automaticamente (a leitura por IA funciona no link online); confira pela miniatura.`);
+  if (aiRes === "denied") msgs.push("A leitura por IA não foi autorizada; as páginas sem texto ficaram pela posição. Confira pela miniatura.");
+  if (bad.length) msgs.push(`Não consegui usar: ${bad.join(", ")}.`);
+  if (skipped.length) msgs.push(`Ignorados (formato não aceito): ${skipped.join(", ")}.`);
+  const semTipo = units.filter(u => !u.docType).length, semPessoa = units.filter(u => !u.personId).length;
+  const sup = units.filter(u => u.typeSrc === "posicao").length;
+  if (semTipo || semPessoa) msgs.push(`Revise na tabela: ${semTipo ? semTipo + " página(s) sem tipo" : ""}${semTipo && semPessoa ? " e " : ""}${semPessoa ? semPessoa + " sem colaborador" : ""}.`);
+  if (sup) msgs.push(`${sup} página(s) sem texto foram tratadas como TRCT pela posição; confira pela miniatura.`);
+  setStatus(msgs.join(" ") || `Pronto: ${pagesRead ? pagesRead + " página(s) de PDF avaliadas uma a uma. " : ""}Confira a etapa 3.`, msgs.length ? "err" : "ok");
+}
+
+/* ================= Leitura por IA (páginas que são imagem) ================= */
+const sampleReady = (window.claude && typeof window.claude.use === "function") ? window.claude.use("sample").catch(() => null) : Promise.resolve(null);
+let aiBlocked = false;
+async function pageBlob(u) {
+  if (u.kind === "img") {
+    const b = new Uint8Array(srcs.get(u.src).buffer);
+    return new Blob([b], { type: b[0] === 0x89 ? "image/png" : "image/jpeg" });
+  }
+  const cv = await renderPageImage(u, 1400);
+  return await new Promise(r => cv.toBlob(r, "image/jpeg", 0.85));
+}
+const AI_PROMPT = n => `Você recebe ${n} imagem(ns) de páginas de documentos trabalhistas brasileiros, na ordem 1 a ${n}.
+Para cada imagem informe:
+- "tipo": um destes códigos: "trct" (Termo de Rescisão do Contrato de Trabalho, ou Termo de Homologação/Quitação de Rescisão), "pag" (comprovante de pagamento ao funcionário), "ponto" (espelho ou cartão de ponto), "extrato" (extrato de conta do FGTS da Caixa), "gfd" (GFD - Guia do FGTS Digital), "sd" (requerimento de seguro-desemprego ou comunicação de dispensa), "reg" (ficha de registro do empregado/funcionário, em qualquer layout: dados cadastrais como admissão, CTPS, PIS, filiação, estado civil, cargo, salário, dependentes, às vezes com foto) ou "" se não for nenhum.
+- "nome": nome completo do trabalhador como impresso, sem número de matrícula, ou "".
+- "valor_liquido": só para trct: o valor do campo VALOR LÍQUIDO exatamente como impresso (ex.: "0,00" ou "8.193,31"); no Termo de Homologação, o valor líquido citado no texto; senão null.
+- "causa": só para trct: o texto do campo 22 Causa do Afastamento, ou "".
+Responda somente com JSON neste formato: {"paginas":[{"imagem":1,"tipo":"","nome":"","valor_liquido":null,"causa":""}]}`;
+async function aiReadPages(list) {
+  if (aiBlocked) return "denied";
+  const sample = await sampleReady;
+  if (!sample) return "off";
+  let lim = null; try { lim = await sample.limits(); } catch {}
+  if (!lim || !lim.images) return "off";
+  const per = Math.max(1, Math.min(lim.images.maxCount || 1, 4));
+  for (let i = 0; i < list.length; i += per) {
+    const batch = list.slice(i, i + per);
+    setStatus(`Lendo com IA ${Math.min(i + per, list.length)} de ${list.length} página(s) sem texto…`);
+    batch.forEach(u => u.aiState = "lendo"); renderFiles();
+    try {
+      const blobs = [];
+      for (const u of batch) blobs.push(await pageBlob(u));
+      const res = await sample.json(AI_PROMPT(batch.length), { images: blobs });
+      const arr = Array.isArray(res) ? res : (res && res.paginas) || [];
+      batch.forEach((u, j) => {
+        const r = arr.find(x => +x.imagem === j + 1) || arr[j] || {};
+        u.aiState = "ok";
+        if (TYPE_LABEL[r.tipo]) u.aiType = r.tipo;
+        if (r.nome) u.aiName = upperName(r.nome);
+        if (r.tipo === "trct") {
+          const v = parseMoney(r.valor_liquido);
+          if (v !== null && typeof u.liquido !== "number") u.liquido = v;
+          if (u.aiName) autoAddFromTrct(u.aiName, r.causa || "", "");
+        }
+      });
+    } catch (e) {
+      batch.forEach(u => u.aiState = "erro");
+      if (["not_granted","sampling_disabled","images_unavailable"].includes(e && e.code)) { aiBlocked = true; list.forEach(u => { if (u.aiState === "lendo") u.aiState = ""; }); return "denied"; }
+      console.warn("IA", e);
+    }
+    recompute();
+  }
+  return "ok";
+}
+
+/* ================= Recalcular: tipo e colaborador por página ================= */
+function needs(p, k) { return !(p.motivo && MOTIVOS[p.motivo].nao.includes(k)); }
+/* Valor líquido do TRCT: quando for R$ 0,00 o comprovante de pagamento não se aplica */
+function parseMoney(s) {
+  const m = String(s || "").match(/-?[\d.]+,\d{2}/);
+  return m ? parseFloat(m[0].replace(/\./g, "").replace(",", ".")) : null;
+}
+function liquidoFromText(text) {
+  const m = norm(text).replace(/\s+/g, " ").match(/valor liquido\s*(?:de\s*)?(?:r\$\s*)?(-?[\d.]+,\d{2})/);
+  return m ? parseMoney(m[1]) : null;
+}
+const prevOf = (u, list) => { const i = list.indexOf(u); const p = list[i - 1]; return p && p.src === u.src && p.page === u.page - 1 ? p : null; };
+function recompute() {
+  const list = [...units].sort((a, b) => a.seq - b.seq);
+  const fileType = new Map();
+  // 1) tipo de cada página
+  for (const u of list) {
+    if (u.typeManual) { u.typeSrc = "manual"; continue; }
+    const prev = prevOf(u, list);
+    let t = u.autoType, src = t ? (u.kind === "html" ? "html" : u.xls ? "excel" : (u.autoBy || "titulo")) : "";
+    if (!t && u.aiType) { t = u.aiType; src = "ia"; }
+    // página só imagem logo depois de página com texto é outro documento (ex.: ficha escaneada depois do SD), não continuação
+    if (!t && prev && prev.docType && !(prev.hasText && !u.hasText && u.kind === "pdf")) { t = prev.docType; src = "continua"; }
+    if (!t) {
+      if (!fileType.has(u.src)) { const s = srcs.get(u.src); fileType.set(u.src, earliest(fnNorm(s.fname), SPECIFIC) || earliest(fnNorm(s.fname), GENERIC)); }
+      t = fileType.get(u.src); if (t) src = "arquivo";
+    }
+    if (!t && u.hasText) { t = earliest(norm(u.text), GENERIC); if (t) src = "generico"; }
+    u.docType = t || ""; u.typeSrc = t ? src : "";
+  }
+  // páginas sem texto no início de um PDF, antes de outros documentos: o TRCT vem primeiro na ordem
+  const bySrc = new Map();
+  list.forEach(u => { if (!bySrc.has(u.src)) bySrc.set(u.src, []); bySrc.get(u.src).push(u); });
+  for (const pages of bySrc.values()) {
+    if (pages[0].kind !== "pdf" || pages.length < 2) continue;
+    const lead = [];
+    for (const u of pages) { if (!u.docType && !u.hasText && !u.typeManual) lead.push(u); else break; }
+    const rest = pages.slice(lead.length);
+    if (lead.length && rest.some(u => u.docType && u.docType !== "trct") && !pages.some(u => u.docType === "trct")) {
+      lead.forEach(u => { u.docType = "trct"; u.typeSrc = "posicao"; });
+      // páginas seguintes sem tipo continuam do TRCT
+    }
+    // páginas sem texto no fim do PDF, depois dos outros documentos: o Registro do Funcionário vem por último na ordem
+    const tail = [];
+    for (let i = pages.length - 1; i >= 0; i--) { const u = pages[i]; if (!u.docType && !u.hasText && !u.typeManual) tail.unshift(u); else break; }
+    const body = pages.slice(0, pages.length - tail.length);
+    if (tail.length && body.some(u => u.docType) && !pages.some(u => u.docType === "reg"))
+      tail.forEach(u => { u.docType = "reg"; u.typeSrc = "fimreg"; });
+  }
+  // 2) colaborador de cada página (exceto GFD)
+  for (const u of list) {
+    if (u.personSource === "manual" && people.some(p => p.id === u.personId)) continue;
+    if (u.personSource === "manual") u.personSource = "";
+    u.personId = null; u.personSource = "";
+    if (u.docType === "gfd") continue;
+    let p = null, how = "";
+    if (u.kind === "html") { p = matchPerson(u.trct.nome); how = "trct"; }
+    if (!p && u.hasText) { p = matchPerson(u.text); how = "conteudo"; }
+    if (!p && u.hasText) { p = matchPersonCompact(u.text); how = "conteudo"; }
+    if (!p && u.aiName) { p = matchPerson(u.aiName); how = "ia"; }
+    if (!p) { p = matchPerson(fnNorm(u.fname)); how = "arquivo"; }
+    if (!p) { const prev = prevOf(u, list); if (prev && prev.personId && prev.docType !== "gfd") { p = people.find(x => x.id === prev.personId); how = "pagina"; } }
+    u.personId = p ? p.id : null; u.personSource = p ? how : "nenhum";
+  }
+  // páginas sem nome (ex.: sem texto) num PDF em que todas as outras páginas são de um único colaborador
+  for (const u of list) {
+    if (u.personId || u.docType === "gfd") continue;
+    const others = new Set((bySrc.get(u.src) || []).filter(x => x !== u && x.docType !== "gfd" && x.personId).map(x => x.personId));
+    if (others.size === 1) { u.personId = [...others][0]; u.personSource = "mesmo"; }
+  }
+  {
+    const orphanSrcs = [...new Set(list.filter(u => u.docType === "reg" && !u.personId).map(u => u.src))];
+    const withReg = new Set(list.filter(u => u.docType === "reg" && u.personId).map(u => u.personId));
+    const semFicha = people.filter(p => !withReg.has(p.id));
+    if (orphanSrcs.length === 1 && semFicha.length === 1)
+      list.filter(u => u.src === orphanSrcs[0] && u.docType === "reg" && !u.personId).forEach(u => { u.personId = semFicha[0].id; u.personSource = "unica"; });
+  }
+  // 3) GFD: nome do arquivo > mesmo PDF de um único colaborador > ordem de envio
+  const gfds = list.filter(u => u.docType === "gfd" && u.personSource !== "manual");
+  for (const u of gfds) {
+    const prev = prevOf(u, list);
+    if (prev && prev.docType === "gfd" && prev.personId) { u.personId = prev.personId; u.personSource = prev.personSource; continue; }
+    let p = matchPerson(fnNorm(u.fname)), how = "arquivo";
+    if (!p) {
+      const others = new Set((bySrc.get(u.src) || []).filter(x => x.docType !== "gfd" && x.personId).map(x => x.personId));
+      if (others.size === 1) { p = people.find(x => x.id === [...others][0]); how = "mesmo"; }
+    }
+    if (p) { u.personId = p.id; u.personSource = how; }
+  }
+  const hasGfd = new Set(list.filter(u => u.docType === "gfd" && u.personId).map(u => u.personId));
+  const elig = people.filter(p => !hasGfd.has(p.id) && needs(p, "gfd"));
+  let k = 0;
+  for (const u of gfds) {
+    if (u.personId) continue;
+    const prev = prevOf(u, list);
+    if (prev && prev.docType === "gfd" && prev.personSource === "ordem") { u.personId = prev.personId; u.personSource = "ordem"; continue; }
+    const p = elig[k++];
+    u.personId = p ? p.id : null; u.personSource = p ? "ordem" : "nenhum";
+  }
+  renderFiles(); renderChecks(); renderSteps();
+}
+
+/* ================= Conferência ================= */
+function checkOf(p) {
+  const mine = units.filter(u => u.personId === p.id).sort((a, b) => a.seq - b.seq);
+  const liqs = mine.filter(u => u.docType === "trct" && typeof u.liquido === "number").map(u => u.liquido);
+  const autoZero = liqs.length > 0 && liqs.every(v => v === 0);
+  const zeroLiq = p.liqZero === true || autoZero;
+  const hasTrct = mine.some(u => u.docType === "trct");
+  const rows = DOC_TYPES.map(d => {
+    const us = mine.filter(u => u.docType === d.k);
+    const byLiq = d.k === "pag" && zeroLiq;
+    const need = needs(p, d.k) && !byLiq;
+    const state = need ? (us.length ? "have" : "miss") : (us.length ? "extra" : "na");
+    return { ...d, us, need, state, why: byLiq ? (autoZero ? "Valor líquido do TRCT: R$ 0,00" : "Marcado: valor líquido do TRCT R$ 0,00") : "" };
+  });
+  return { rows, miss: rows.filter(r => r.state === "miss"), untyped: mine.filter(u => !u.docType), total: mine.length, zeroLiq, autoZero, liqKnown: liqs.length > 0, hasTrct };
+}
+// "arquivo.pdf · pág. 1–2, 5"
+function describeUnits(us) {
+  const g = new Map();
+  for (const u of us) { if (!g.has(u.src)) g.set(u.src, { fname: u.fname, kind: u.kind, pages: u.pages, list: [] }); g.get(u.src).list.push(u.page + 1); }
+  return [...g.values()].map(x => {
+    if (x.kind !== "pdf" || x.pages === 1) return esc(x.fname);
+    const nums = x.list.sort((a, b) => a - b), parts = [];
+    for (let i = 0; i < nums.length; i++) {
+      let j = i; while (j + 1 < nums.length && nums[j + 1] === nums[j] + 1) j++;
+      parts.push(i === j ? `${nums[i]}` : `${nums[i]}–${nums[j]}`); i = j;
+    }
+    return `${esc(x.fname)} · pág. ${parts.join(", ")}`;
+  }).join("<br>");
+}
+
+/* ================= Renderização ================= */
+function motivoOptions(sel) {
+  return `<option value="">Escolha o motivo…</option>` +
+    Object.keys(MOTIVOS).map(c => `<option value="${c}" ${c === sel ? "selected" : ""}>${esc(motLabel(c))}</option>`).join("");
+}
+function renderPeople() {
+  const tb = $("peopleRows");
+  const rows = people.map((p, i) => `<tr data-p="${p.id}">
+      <td class="rn">${i + 2}</td>
+      <td class="c"><input data-name="${p.id}" value="${esc(p.name)}" aria-label="Nome, linha ${i + 2}" autocomplete="off" spellcheck="false"></td>
+      <td class="c"><select data-mot="${p.id}" class="${p.motivo ? "" : "unset"}" aria-label="Motivo, linha ${i + 2}">${motivoOptions(p.motivo)}</select></td>
+      <td class="del"><button class="iconbtn" data-delp="${p.id}" aria-label="Remover ${esc(p.name)}">×</button></td>
+    </tr>`).join("");
+  const n = people.length + 2;
+  tb.innerHTML = rows + `<tr class="newrow">
+      <td class="rn">${n}</td>
+      <td class="c"><input data-new="1" placeholder="Digite ou cole o nome aqui" aria-label="Novo colaborador" autocomplete="off" spellcheck="false"></td>
+      <td class="c"><select disabled aria-hidden="true"><option></option></select></td><td></td></tr>`;
+}
+const HOW = {
+  trct: ["Nome no TRCT", ""], conteudo: ["Nome na página", ""], arquivo: ["Nome do arquivo", ""],
+  pagina: ["Página anterior", ""], ia: ["Nome lido por IA", ""], mesmo: ["Mesmo PDF", ""], ordem: ["Ordem de envio (GFD)", "gfd"],
+  unica: ["Única ficha sem dono, confira", "gfd"], manual: ["Ajuste manual", "man"], nenhum: ["Não identificado", "none"]
+};
+const TYPE_NOTE = {
+  continua: ["continuação da página anterior", ""], ia: ["lido por IA (página sem texto)", ""], arquivo: ["pelo nome do arquivo", ""], generico: ["por palavra-chave, confira", "warn"],
+  posicao: ["sem texto: suposto TRCT pela posição, confira", "warn"], manual: ["ajuste manual", "man"], excel: ["Excel convertido em PDF", ""], campos: ["ficha em PDF, pelos campos da ficha", ""],
+  cor: ["ficha pelo layout (página sem texto)", ""], fimreg: ["sem texto no fim do PDF: suposta ficha, confira", "warn"]
+};
+function renderFiles() {
+  const tb = $("fileRows");
+  const det = $("filesDet");
+  det.hidden = !units.length;
+  if (units.length) {
+    const rev = units.filter(u => !u.docType || !u.personId || u.typeSrc === "posicao" || u.typeSrc === "generico").length;
+    const nArq = new Set(units.map(u => u.src)).size;
+    $("filesSum").innerHTML = `${units.length} página(s) separada(s) de ${nArq} arquivo(s) ${rev ? `<span class="chip warn">${rev} para conferir</span>` : `<span class="chip ok">Tudo identificado</span>`}<span class="hide">${det.open ? "Ocultar" : "Mostrar"}</span>`;
+  }
+  if (!units.length) { tb.innerHTML = `<tr><td colspan="7" class="empty-note">Nenhum documento ainda.</td></tr>`; return; }
+  const list = [...units].sort((a, b) => a.seq - b.seq);
+  let lastSrc = null;
+  tb.innerHTML = list.map(u => {
+    const newFile = u.src !== lastSrc; lastSrc = u.src;
+    const typeSel = `<select data-type="${u.id}" class="${u.docType ? "" : "unset"}" aria-label="Tipo da página ${u.page + 1} de ${esc(u.fname)}">
+        <option value="">Não identificado</option>${DOC_TYPES.map((d, i) => `<option value="${d.k}" ${d.k === u.docType ? "selected" : ""}>${i + 1}. ${esc(d.label)}</option>`).join("")}</select>`;
+    const note = TYPE_NOTE[u.typeSrc];
+    const pSel = `<select data-person="${u.id}" class="${u.personId ? "" : "unset"}" aria-label="Colaborador da página ${u.page + 1} de ${esc(u.fname)}">
+        <option value="">—</option>${people.map(p => `<option value="${p.id}" ${p.id === u.personId ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select>`;
+    const how = HOW[u.personSource] || ["", ""];
+    const where = u.kind === "html" ? "HTML · vira PDF de 2 páginas" : u.kind === "img" ? "Imagem · vira 1 página"
+      : u.xls ? `Excel · PDF página ${u.page + 1} de ${u.pages}`
+      : `Página ${u.page + 1} de ${u.pages}${u.hasText ? "" : " · sem texto"}`;
+    const aiNote = u.aiState === "lendo" ? " · lendo com IA…" : u.aiState === "ok" && u.liquido !== undefined && u.docType === "trct" && typeof u.liquido === "number" ? ` · líquido R$ ${u.liquido.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "";
+    const thumb = u.kind === "html"
+      ? `<button class="thumb html" data-pv="${u.id}" aria-label="Prévia do TRCT">TRCT<br>HTML</button>`
+      : u.thumb ? `<button class="thumb" data-view="${u.id}" aria-label="Ver página ${u.page + 1} de ${esc(u.fname)}"><img src="${u.thumb}" alt=""></button>` : `<span class="thumb none"></span>`;
+    return `<tr class="${newFile ? "first" : "cont"}">
+      <td class="ord">${u.seq}</td>
+      <td class="th">${thumb}</td>
+      <td class="fn">${newFile || u.kind !== "pdf" ? esc(u.fname) : `<span class="dim">${esc(u.fname)}</span>`}<small>${where}${aiNote}</small></td>
+      <td>${typeSel}${note ? `<small class="tnote ${note[1]}">${note[0]}</small>` : ""}</td>
+      <td>${pSel}</td>
+      <td><span class="how ${how[1]}">${how[0]}</span></td>
+      <td style="white-space:nowrap">${u.xls && newFile ? `<button class="iconbtn" data-dlx="${u.src}" title="Baixar a ficha em PDF" aria-label="Baixar ${esc(u.fname)} em PDF">⤓</button>` : ""}<button class="iconbtn" data-delu="${u.id}" aria-label="Remover página ${u.page + 1} de ${esc(u.fname)}">×</button></td>
+    </tr>`;
+  }).join("");
+}
+function renderChecks() {
+  const box = $("checks");
+  if (!people.length) {
+    box.innerHTML = `<p class="empty-note">A conferência aparece quando houver colaboradores na lista.</p>`;
+    $("summary").innerHTML = ""; $("orphans").innerHTML = "";
+    $("genZip").disabled = $("copyPend").disabled = true; return;
+  }
+  let ok = 0, pend = 0, nomot = 0;
+  box.innerHTML = people.map(p => {
+    const c = checkOf(p);
+    const cls = !p.motivo ? "pend" : c.miss.length ? "bad" : "ok";
+    if (!p.motivo) nomot++; else if (c.miss.length) pend++; else ok++;
+    const chip = !p.motivo ? `<span class="chip warn">Sem motivo</span>` : c.miss.length ? `<span class="chip bad">Falta documento (${c.miss.length})</span>` : `<span class="chip ok">Ok</span>`;
+    const items = c.rows.map((r, i) => {
+      const s = { have:"Ok", miss:"Falta documento", na:"Não se aplica", extra:"Não se aplica" }[r.state];
+      const icon = { have:"✓", miss:"!", na:"", extra:"" }[r.state];
+      const notes = [r.why, r.us.length ? describeUnits(r.us) : "", r.state === "extra" ? "enviado, fica fora do PDF" : ""].filter(Boolean);
+      let pgs = notes.length ? `<small>${notes.join("<br>")}</small>` : "";
+      if (r.k === "pag" && p.liqZero === true && !c.autoZero) pgs += `<button class="linkbtn mini" data-liqundo="${p.id}">Desfazer</button>`;
+      else if (r.k === "pag" && !c.zeroLiq && c.hasTrct && !c.liqKnown && needs(p, "pag")) pgs += `<button class="linkbtn mini" data-liq="${p.id}">O líquido do TRCT é R$ 0,00?</button>`;
+      return `<li class="${r.state === "extra" ? "na" : r.state}"><span class="i">${icon}</span>
+        <span class="t">${i + 1}. ${esc(r.label)}${pgs}</span><span class="s">${s}</span></li>`;
+    }).join("");
+    const extra = c.untyped.length ? `<li class="extra"><span class="i">?</span><span class="t">Páginas sem tipo<small>${describeUnits(c.untyped)}</small></span><span class="s">Vão no final</span></li>` : "";
+    return `<article class="person ${cls}">
+      <header><h3>${esc(p.name)} ${chip}</h3><div class="mot">${p.motivo ? esc(motLabel(p.motivo)) : "Escolha o motivo na etapa 1 para conferir os documentos"}${p.auto && p.motivoSug === p.motivo && p.motivo ? " · sugerido pelo TRCT, confirme" : ""}</div></header>
+      <ul class="doclist">${items}${extra}</ul>
+      <footer><small>HOMOLOGAÇÃO - ${esc(p.name)}.pdf</small><button class="btn" data-gen="${p.id}" ${c.total ? "" : "disabled"}>Baixar PDF</button></footer>
+    </article>`;
+  }).join("");
+  $("summary").innerHTML =
+    `<span class="chip ok">${ok} completo(s)</span>` +
+    (pend ? `<span class="chip bad">${pend} com pendência</span>` : "") +
+    (nomot ? `<span class="chip warn">${nomot} sem motivo</span>` : "");
+  const orph = units.filter(u => !u.personId);
+  $("orphans").innerHTML = orph.length ? `<div class="orphan"><b>${orph.length} página(s) sem colaborador</b>: escolha o colaborador na tabela da etapa 2 para entrarem no PDF.<div style="margin-top:6px">${describeUnits(orph)}</div></div>` : "";
+  $("genZip").disabled = !people.some(p => checkOf(p).total); $("copyPend").disabled = false;
+}
+function renderSteps() {
+  const li = n => document.querySelector(`#steps li[data-s="${n}"]`);
+  const set = (n, cls, txt) => { li(n).className = cls; $("s" + n).textContent = txt; };
+  const semMot = people.filter(p => !p.motivo).length;
+  set(1, !people.length ? "doing" : semMot ? "alert" : "done", !people.length ? "Nome e motivo" : semMot ? `${semMot} sem motivo` : `${people.length} colaborador(es)`);
+  const loose = units.filter(u => !u.personId || !u.docType).length;
+  set(2, !units.length ? (people.length ? "doing" : "") : loose ? "alert" : "done",
+    !units.length ? "Documentos" : loose ? `${loose} página(s) para revisar` : `${units.length} página(s) separadas`);
+  const pend = people.filter(p => p.motivo && checkOf(p).miss.length).length;
+  set(3, !people.length || !units.length ? "" : pend ? "alert" : "done", !people.length || !units.length ? "O que falta" : pend ? `${pend} com pendência` : "Tudo certo");
+  set(4, units.length && people.length ? "doing" : "", "Por colaborador");
+}
+
+/* ================= Prévias ================= */
+function openTrctPreview(u) {
+  const o = opts(), dlg = $("pv"), body = $("pvBody");
+  $("pvTitle").textContent = `Prévia do TRCT · ${u.trct.nome || u.fname}`;
+  body.innerHTML = ""; dlg.showModal();
+  const [pw, ph] = PAPERS[o.paper];
+  const pxW = pw * MM, pxH = ph * MM;
+  const z = Math.min(0.62, Math.max(0.3, (body.clientWidth - 80) / 2 / pxW));
+  trctPages(u, o).forEach((page, i) => {
+    const slot = document.createElement("div"); slot.className = "slot";
+    slot.style.width = pxW * z + "px"; slot.style.height = pxH * z + "px";
+    page.style.transform = `scale(${z})`;
+    slot.appendChild(page);
+    const lab = document.createElement("div"); lab.className = "pg-label";
+    lab.textContent = i === 0 ? "Página 1 · Termo de Rescisão" : "Página 2 · Termo de Homologação";
+    slot.appendChild(lab); body.appendChild(slot);
+    fitPage(page, o);
+  });
+}
+async function openPageView(u) {
+  const dlg = $("pv"), body = $("pvBody");
+  $("pvTitle").textContent = `${u.fname}${u.kind === "pdf" ? ` · página ${u.page + 1} de ${u.pages}` : ""} · ${u.docType ? TYPE_LABEL[u.docType] : "sem tipo"}`;
+  body.innerHTML = `<p class="empty-note">Carregando página…</p>`; dlg.showModal();
+  try {
+    const w = Math.min(900, body.clientWidth - 40);
+    if (u.kind === "img") { body.innerHTML = `<img class="bigpage" src="${u.thumb}" alt="" style="max-width:${w}px">`; return; }
+    const cv = await renderPageImage(u, w * (window.devicePixelRatio || 1));
+    cv.className = "bigpage"; cv.style.width = w + "px";
+    body.innerHTML = ""; body.appendChild(cv);
+  } catch (e) { body.innerHTML = `<p class="empty-note">Não foi possível mostrar a página: ${esc(e.message)}</p>`; }
+}
+
+/* ================= Gerar PDFs ================= */
+const dlReady = (window.claude && typeof window.claude.use === "function") ? window.claude.use("downloads").catch(() => null) : Promise.resolve(null);
+async function saveFile(filename, blob) {
+  const dl = await dlReady;
+  if (dl) {
+    try { await dl.save({ filename, data: blob }); return "saved"; }
+    catch (e) {
+      if (e && e.code === "declined") return "declined";
+      if (e && e.code === "rate_limited") { await new Promise(r => setTimeout(r, 1500)); return saveFile(filename, blob); }
+      if (!e || !["unavailable","not_granted","capability_disabled","capability_removed"].includes(e.code)) throw new Error(e?.message || "falha ao salvar");
+    }
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 8000);
+  return "saved";
+}
+async function appendUnit(doc, u, o, failed, cache) {
+  try {
+    if (u.kind === "html") {
+      const src = await PDFLib.PDFDocument.load(await trctToPdf(u, o));
+      (await doc.copyPages(src, src.getPageIndices())).forEach(p => doc.addPage(p));
+    } else if (u.kind === "pdf") {
+      if (!cache.has(u.src)) cache.set(u.src, await PDFLib.PDFDocument.load(srcs.get(u.src).buffer.slice(0), { ignoreEncryption:true }));
+      const [pg] = await doc.copyPages(cache.get(u.src), [u.page]);
+      doc.addPage(pg);
+    } else {
+      const bytes = new Uint8Array(srcs.get(u.src).buffer.slice(0));
+      const isPng = bytes[0] === 0x89 && bytes[1] === 0x50;
+      const img = isPng ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
+      const W = 595.28, H = 841.89, M = 28;
+      const s = Math.min((W - 2 * M) / img.width, (H - 2 * M) / img.height, 1.5);
+      const page = doc.addPage([W, H]);
+      page.drawImage(img, { x:(W - img.width * s) / 2, y:H - M - img.height * s, width:img.width * s, height:img.height * s });
+    }
+  } catch (e) { console.error(u.fname, e); failed.push(u.kind === "pdf" ? `${u.fname} pág. ${u.page + 1}` : u.fname); }
+}
+async function buildPersonPdf(p, o, failed) {
+  const incExtra = $("incExtra").checked, cache = new Map();
+  const doc = await PDFLib.PDFDocument.create();
+  doc.setTitle(`HOMOLOGAÇÃO - ${p.name}`);
+  const c = checkOf(p);
+  for (const r of c.rows) {
+    if (r.state === "extra" && !incExtra) continue;
+    for (const u of r.us) await appendUnit(doc, u, o, failed, cache);
+  }
+  for (const u of c.untyped) await appendUnit(doc, u, o, failed, cache);
+  if (!doc.getPageCount()) return null;
+  return new Blob([await doc.save()], { type:"application/pdf" });
+}
+const pdfName = p => `HOMOLOGAÇÃO - ${safeFile(p.name)}.pdf`;
+async function genOne(p, btn) {
+  btn.disabled = true;
+  const failed = [];
+  try {
+    setStatus(`Montando o PDF de ${p.name}…`);
+    const blob = await buildPersonPdf(p, opts(), failed);
+    if (!blob) { setStatus(`Nenhum documento para ${p.name}.`, "err"); return; }
+    const r = await saveFile(pdfName(p), blob);
+    const c = checkOf(p);
+    setStatus(r === "declined" ? "Download cancelado." :
+      `${pdfName(p)} gerado.` + (c.miss.length ? ` Atenção: faltam ${c.miss.map(x => x.label).join(", ")}.` : "") +
+      (failed.length ? ` Não foi possível incluir: ${failed.join(", ")}.` : ""),
+      failed.length || c.miss.length ? "err" : "ok");
+  } catch (e) { setStatus("Não foi possível gerar o PDF: " + e.message, "err"); }
+  finally { btn.disabled = false; }
+}
+async function genZip() {
+  const btn = $("genZip"); btn.disabled = true;
+  const o = opts(), zip = new JSZip(), failed = [];
+  const list = people.filter(p => checkOf(p).total);
+  try {
+    for (const [i, p] of list.entries()) {
+      setStatus(`Montando ${i + 1} de ${list.length}: ${p.name}`);
+      const blob = await buildPersonPdf(p, o, failed);
+      if (blob) zip.file(pdfName(p), blob);
+    }
+    zip.file("CONFERENCIA - PENDENCIAS.txt", pendText());
+    const blob = await zip.generateAsync({ type:"blob" }, m => setStatus(`Compactando… ${Math.round(m.percent)}%`));
+    const d = new Date();
+    const r = await saveFile(`HOMOLOGAÇÕES ${String(d.getDate()).padStart(2,"0")}-${String(d.getMonth()+1).padStart(2,"0")}-${d.getFullYear()}.zip`, blob);
+    const pend = list.filter(p => checkOf(p).miss.length).length;
+    setStatus(r === "declined" ? "Download cancelado." :
+      `ZIP com ${list.length} PDF(s) e o relatório de pendências.` + (pend ? ` ${pend} colaborador(es) com documento faltando.` : "") +
+      (failed.length ? ` Não foi possível incluir: ${failed.join(", ")}.` : ""), pend || failed.length ? "err" : "ok");
+  } catch (e) { setStatus("Não foi possível gerar o ZIP: " + e.message, "err"); }
+  finally { btn.disabled = false; }
+}
+function pendText() {
+  const d = new Date().toLocaleDateString("pt-BR");
+  const lines = [`CONFERÊNCIA DE HOMOLOGAÇÃO - ${d}`, ""];
+  for (const p of people) {
+    const c = checkOf(p);
+    lines.push(`${p.name} (${p.motivo ? motLabel(p.motivo) : "SEM MOTIVO"})`);
+    if (!p.motivo) lines.push("  Definir o motivo do desligamento.");
+    c.rows.forEach(r => lines.push(`  ${r.label}: ${{ have:"Ok", miss:"Falta documento", na:"Não se aplica", extra:"Não se aplica" }[r.state]}${r.why ? " (" + r.why + ")" : ""}`));
+    lines.push("");
+  }
+  const orph = units.filter(u => !u.personId);
+  if (orph.length) { lines.push("PÁGINAS SEM COLABORADOR:"); orph.forEach(u => lines.push(`  ${u.fname}${u.kind === "pdf" ? " pág. " + (u.page + 1) : ""}`)); }
+  return lines.join("\n");
+}
+async function copyPend() {
+  const t = pendText();
+  try { await navigator.clipboard.writeText(t); setStatus("Pendências copiadas. Cole no e-mail ou no chat.", "ok"); }
+  catch {
+    const ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch {}
+    ta.remove();
+    setStatus(ok ? "Pendências copiadas." : "O navegador bloqueou a cópia. O relatório também vai dentro do ZIP.", ok ? "ok" : "err");
+  }
+}
+function setStatus(msg, cls) { const s = $("status"); s.textContent = msg; s.className = "status " + (cls || ""); }
+
+/* ================= Eventos ================= */
+const tbP = $("peopleRows");
+let rt;
+tbP.addEventListener("input", e => {
+  const id = +e.target.dataset.name;
+  if (id) { const p = people.find(x => x.id === id); p.name = upperName(e.target.value); clearTimeout(rt); rt = setTimeout(recompute, 400); }
+});
+tbP.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.mot) {
+    const p = people.find(x => x.id === +t.dataset.mot); p.motivo = t.value;
+    t.classList.toggle("unset", !t.value); recompute();
+  } else if (t.dataset.name) {
+    const p = people.find(x => x.id === +t.dataset.name);
+    if (!p.name) { people.splice(people.indexOf(p), 1); renderPeople(); }
+    recompute();
+  } else if (t.dataset.new) {
+    const v = t.value.trim(); if (!v) return;
+    const p = addPerson(v, "");
+    renderPeople(); recompute();
+    if (p) document.querySelector(`[data-mot="${p.id}"]`)?.focus();
+  }
+});
+tbP.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches("input")) { e.preventDefault(); e.target.blur(); } });
+tbP.addEventListener("paste", e => {
+  if (!e.target.matches("input")) return;
+  const text = (e.clipboardData || window.clipboardData).getData("text");
+  if (!/[\t\n]/.test(text.trim())) return;
+  e.preventDefault();
+  const rows = parsePaste(text);
+  if (e.target.dataset.name) {
+    const p = people.find(x => x.id === +e.target.dataset.name);
+    if (p && rows.length && !p.name) people.splice(people.indexOf(p), 1);
+  }
+  const n = importRows(rows);
+  setStatus(n ? `${n} linha(s) importada(s) do Excel.` : "Não encontrei nome e motivo no que foi colado.", n ? "ok" : "err");
+});
+tbP.addEventListener("click", e => {
+  const id = +e.target.dataset.delp; if (!id) return;
+  people.splice(people.findIndex(p => p.id === id), 1);
+  renderPeople(); recompute();
+});
+$("addRow").addEventListener("click", () => { document.querySelector('[data-new="1"]')?.focus(); });
+$("togglePaste").addEventListener("click", () => { $("pastebox").classList.toggle("open"); if ($("pastebox").classList.contains("open")) $("pasteArea").focus(); });
+$("doPaste").addEventListener("click", () => {
+  const n = importRows(parsePaste($("pasteArea").value));
+  if (n) { $("pasteArea").value = ""; $("pastebox").classList.remove("open"); }
+  setStatus(n ? `${n} linha(s) importada(s).` : "Não encontrei nome e motivo no texto colado.", n ? "ok" : "err");
+});
+
+const drop = $("drop"), input = $("fileInput");
+drop.addEventListener("click", () => input.click());
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
+input.addEventListener("change", () => { addFiles(input.files); input.value = ""; });
+["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+document.addEventListener("dragover", e => e.preventDefault());
+document.addEventListener("drop", e => { e.preventDefault(); if (e.target.closest("#drop")) return; if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+
+$("fileRows").addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.type) {
+    const u = units.find(x => x.id === +t.dataset.type);
+    u.docType = t.value; u.typeManual = !!t.value;
+    if (!t.value) u.typeManual = false;
+    recompute();
+  } else if (t.dataset.person) {
+    const u = units.find(x => x.id === +t.dataset.person);
+    u.personId = t.value ? +t.value : null; u.personSource = t.value ? "manual" : "";
+    recompute();
+  }
+});
+$("fileRows").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.dlx) { const s = srcs.get(+b.dataset.dlx); saveFile(s.fname.replace(/\.[a-z0-9]+$/i, "") + ".pdf", new Blob([s.buffer.slice(0)], { type: "application/pdf" })); }
+  else if (b.dataset.delu) { units.splice(units.findIndex(u => u.id === +b.dataset.delu), 1); recompute(); }
+  else if (b.dataset.pv) openTrctPreview(units.find(u => u.id === +b.dataset.pv));
+  else if (b.dataset.view) openPageView(units.find(u => u.id === +b.dataset.view));
+});
+$("checks").addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if (b && (b.dataset.liq || b.dataset.liqundo)) {
+    const p = people.find(x => x.id === +(b.dataset.liq || b.dataset.liqundo));
+    p.liqZero = b.dataset.liq ? true : undefined; recompute(); return;
+  }
+  const id = +e.target.dataset.gen; if (!id) return;
+  genOne(people.find(p => p.id === id), e.target);
+});
+$("genZip").addEventListener("click", genZip);
+$("copyPend").addEventListener("click", copyPend);
+$("clearAll").addEventListener("click", () => {
+  if ((people.length || units.length) && !confirm("Limpar colaboradores e documentos?")) return;
+  people.length = 0; units.length = 0; srcs.clear(); seq = 0; setStatus(""); renderPeople(); recompute();
+});
+$("filesDet").addEventListener("toggle", () => { const h = document.querySelector("#filesSum .hide"); if (h) h.textContent = $("filesDet").open ? "Ocultar" : "Mostrar"; });
+$("pvClose").addEventListener("click", () => $("pv").close());
+$("pv").addEventListener("click", e => { if (e.target === $("pv")) $("pv").close(); });
+
+renderPeople(); recompute();
+})();
+</script>
+<script>
+/* ================= 5. Aviso por WhatsApp ================= */
+(() => {
+const $ = id => document.getElementById(id);
+const TPL = `Olá, {nome}! Tudo bem?
+
+Aqui é do *Time People - WAP*.
+
+Seus *documentos rescisórios* foram enviados para o seu e-mail pessoal:
+*{email}*
+
+Pedimos, por gentileza, que você:
+1. Acesse o e-mail e confira os documentos com atenção;
+2. Faça a assinatura conforme as orientações enviadas{prazo}.
+
+Sua assinatura é importante para formalizar o encerramento do contrato e manter a documentação arquivada conforme a legislação trabalhista.
+
+Não encontrou o e-mail? Confira também as pastas *Spam/Lixo eletrônico* e *Promoções*. Se ainda tiver dúvidas, é só responder esta mensagem.
+
+Atenciosamente,
+{assinatura}`;
+$("wzTpl").value = TPL;
+
+let rows = []; // {nome, cel, email, enviado}
+let sel = -1;
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const dig = s => String(s || "").replace(/\D/g, "");
+const key = s => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " ").trim();
+const upper = s => String(s || "").replace(/\s+/g, " ").trim().toUpperCase();
+const firstName = n => { const f = String(n || "").trim().split(/\s+/)[0] || ""; return f ? f[0].toUpperCase() + f.slice(1).toLowerCase() : ""; };
+function normCel(raw) {
+  let d = dig(raw);
+  if (d.startsWith("00")) d = d.slice(2);
+  if (d.startsWith("0") && (d.length === 11 || d.length === 12)) d = d.slice(1); // 0 de DDD (016...)
+  if (d.length === 10 || d.length === 11) d = "55" + d;
+  return d;
+}
+function fmtCel(d) { const m = String(d || "").match(/^55(\d{2})(\d{4,5})(\d{4})$/); return m ? `(${m[1]}) ${m[2]}-${m[3]}` : (d || ""); }
+const mailOk = e => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(e || "");
+function issues(r) {
+  const out = [];
+  if (!r.cel) out.push(["bad", "Sem celular"]);
+  else if (!/^55\d{10,11}$/.test(r.cel)) out.push(["bad", "Celular inválido"]);
+  else if (r.cel.length === 12) out.push(["warn", /^55\d{2}[2-5]/.test(r.cel) ? "Parece fixo" : "Sem o 9º dígito?"]);
+  if (!r.email) out.push(["bad", "Sem e-mail"]); else if (!mailOk(r.email)) out.push(["bad", "E-mail inválido"]);
+  if (!r.nome) out.push(["warn", "Sem nome"]);
+  return out;
+}
+
+/* ---- organizador de texto bagunçado ---- */
+const RE_MAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+const RE_TEL = /(?:\+?\s*55[\s.-]*)?(?:\(?\s*0?\d{2}\s*\)?[\s.-]*)?9?[\s.-]?\d{4}[\s.-]?\d{4}/g;
+function organizar(txt) {
+  const out = []; let cur = null;
+  const novo = () => { cur = { nome: "", cel: "", email: "", enviado: false }; out.push(cur); };
+  txt.split(/\r?\n/).forEach(l => {
+    if (!l.trim()) { cur = null; return; }
+    const mails = l.match(RE_MAIL) || []; let resto = l.replace(RE_MAIL, " ");
+    const tels = (resto.match(RE_TEL) || []).filter(t => dig(t).length >= 8); resto = resto.replace(RE_TEL, " ");
+    const nome = resto.replace(/\b(nome|celular|cel|telefone|tel|whats(app)?|zap|e-?mail|fone|contato)\b\s*[:=-]?/gi, " ")
+      .replace(/[;,|\t:\-–_/\\()\[\]"'*•]+/g, " ").replace(/\d+/g, " ").replace(/\s+/g, " ").trim();
+    const temNome = nome.replace(/[^A-Za-zÀ-ÿ]/g, "").length >= 2;
+    if (!cur || (temNome && cur.nome) || (mails.length && cur.email && !temNome) || (tels.length && cur.cel && !temNome)) novo();
+    if (temNome && !cur.nome) cur.nome = upper(nome);
+    if (mails[0] && !cur.email) cur.email = mails[0].toLowerCase();
+    if (tels[0] && !cur.cel) cur.cel = normCel(tels[0]);
+  });
+  return out.filter(r => r.nome || r.cel || r.email);
+}
+function merge(n) {
+  const ex = rows.find(r => (n.nome && key(r.nome) === key(n.nome)) || (n.cel && r.cel === n.cel) || (n.email && r.email === n.email));
+  if (!ex) { rows.push(n); return; }
+  if (!ex.nome && n.nome) ex.nome = n.nome;
+  if (n.cel && n.cel !== ex.cel) { ex.cel = n.cel; ex.enviado = false; }
+  if (n.email && n.email !== ex.email) { ex.email = n.email; ex.enviado = false; }
+}
+
+/* ---- mensagem ---- */
+function msg(r) {
+  const p = $("wzPrazo").value;
+  return $("wzTpl").value
+    .replace(/\{nome\}/g, firstName(r.nome) || "tudo bem")
+    .replace(/\{email\}/g, r.email || "[e-mail não informado]")
+    .replace(/\{prazo\}/g, p ? ` até *${p.split("-").reverse().join("/")}*` : "")
+    .replace(/\{assinatura\}/g, $("wzAss").value.trim());
+}
+const qs = r => "send?phone=" + r.cel + "&text=" + encodeURIComponent(msg(r));
+const linkWeb = r => "https://web.whatsapp.com/" + qs(r);
+const linkApp = r => "whatsapp://" + qs(r);
+const modo = () => $("wzMode").value;
+const HELP = {
+  app: "Abre direto no app do WhatsApp do computador, sem recarregar nada: é só apertar Enter lá, voltar aqui e o próximo já abre. Precisa do WhatsApp Desktop instalado e logado no número do Time People (na 1ª vez o navegador pergunta se pode abrir o app: marque “Sempre permitir”).",
+  web: "Usa uma única aba do WhatsApp Web, que é reaproveitada a cada colaborador: aperte Enter lá, volte aqui e o próximo abre na mesma aba."
+};
+function abrir(r) {
+  if (modo() === "app") { const a = document.createElement("a"); a.href = linkApp(r); a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); }
+  else window.open(linkWeb(r), "wz_whatsapp");
+}
+const podeEnviar = r => !issues(r).some(x => x[0] === "bad");
+const pendentes = () => rows.map((r, i) => i).filter(i => !rows[i].enviado && podeEnviar(rows[i]));
+
+/* ---- render ---- */
+function setStep() {
+  const env = rows.filter(r => r.enviado).length, b = $("wzBadge");
+  b.textContent = rows.length ? `${env}/${rows.length}` : "";
+  b.className = "badge" + (rows.length && env === rows.length ? " ok" : "");
+}
+function preview() {
+  const r = rows[sel], b = $("wzPrev");
+  b.className = "wz-bubble" + (r ? "" : " empty");
+  b.textContent = r ? msg(r) : "Clique em um colaborador para ver a mensagem.";
+}
+function render() {
+  const tb = $("wzRows");
+  if (!rows.length) {
+    tb.innerHTML = `<tr><td colspan="6" class="empty-note">Nenhum colaborador ainda. Cole os dados acima ou traga os nomes do Kit.</td></tr>`;
+  } else tb.innerHTML = rows.map((r, i) => {
+    const iss = issues(r), block = iss.some(x => x[0] === "bad");
+    const st = r.enviado ? `<span class="chip ok">Enviado</span>` : iss.length ? iss.map(x => `<span class="chip ${x[0]}">${x[1]}</span>`).join(" ") : `<span class="chip ok">Pronto para enviar</span>`;
+    return `<tr data-i="${i}" class="${i === sel ? "sel" : ""} ${r.enviado ? "sent" : ""}">
+      <td class="ord">${i + 1}</td>
+      <td class="c"><input class="nm" data-k="nome" value="${esc(r.nome)}" placeholder="NOME"></td>
+      <td class="c"><input data-k="cel" value="${esc(fmtCel(r.cel))}" placeholder="(DDD) 9xxxx-xxxx" inputmode="tel"></td>
+      <td class="c"><input data-k="email" value="${esc(r.email)}" placeholder="email@pessoal.com" inputmode="email"></td>
+      <td>${st}</td>
+      <td class="acts">
+        <button class="btn wa" data-a="wa" ${block ? "disabled" : ""} title="Abrir a conversa com a mensagem pronta">WhatsApp</button>
+        <button class="btn ghost" data-a="cp" title="Copiar a mensagem">Copiar</button>
+        <button class="linkbtn" data-a="ok" title="Marcar ou desmarcar como enviado">${r.enviado ? "Desfazer" : "Marcar enviado"}</button>
+        <button class="iconbtn" data-a="rm" aria-label="Remover">×</button>
+      </td></tr>`;
+  }).join("");
+  const env = rows.filter(r => r.enviado).length;
+  $("wzCount").textContent = rows.length ? `${rows.length} colaborador(es) · ${env} enviado(s) · ${rows.length - env} pendente(s)` : "";
+  setStep(); preview(); renderQ();
+}
+
+/* ---- fila "enviar para todos" ---- */
+let q = null; // {list:[índices], pos, at, saiu}
+function renderQ() {
+  const box = $("wzQ");
+  const np = pendentes().length;
+  $("wzAll").textContent = np ? `Enviar para todos (${np})` : "Enviar para todos";
+  $("wzAll").disabled = !np || !!q; $("wzTabs").disabled = !np || !!q;
+  if (!q) { box.hidden = true; return; }
+  const r = rows[q.list[q.pos]];
+  box.hidden = false;
+  $("wzQPos").textContent = `${q.pos + 1} de ${q.list.length}`;
+  $("wzQName").textContent = r ? (r.nome || fmtCel(r.cel)) : "";
+  $("wzQTip").textContent = $("wzAuto").checked ? "Aperte Enter no WhatsApp para enviar e volte para esta tela: o próximo abre sozinho." : "Aperte Enter no WhatsApp para enviar, volte aqui e clique em “Enviado, próximo” (ou tecle Enter).";
+  $("wzQFill").style.width = (100 * q.pos / q.list.length) + "%";
+}
+function abrirAtual() {
+  const i = q.list[q.pos]; sel = i; q.at = Date.now(); q.saiu = false;
+  abrir(rows[i]); render();
+}
+function iniciarFila() {
+  const list = pendentes();
+  if (!list.length) { alert("Não há ninguém pendente e com dados válidos para enviar."); return; }
+  q = { list, pos: 0 }; abrirAtual();
+}
+function proximo(marcar) {
+  if (!q) return;
+  const r = rows[q.list[q.pos]]; if (marcar && r) r.enviado = true;
+  q.pos++;
+  // pula quem saiu da lista ou ficou inválido no meio do caminho
+  while (q.pos < q.list.length && (!rows[q.list[q.pos]] || rows[q.list[q.pos]].enviado || !podeEnviar(rows[q.list[q.pos]]))) q.pos++;
+  if (q.pos >= q.list.length) { const tot = q.list.length; q = null; render(); setTimeout(() => alert(`Pronto! Fila concluída (${tot} colaborador(es)). Exporte o CSV para arquivar o controle.`), 50); return; }
+  abrirAtual();
+}
+function pararFila() { q = null; render(); }
+$("wzAll").addEventListener("click", iniciarFila);
+$("wzQNext").addEventListener("click", () => proximo(true));
+$("wzQSkip").addEventListener("click", () => proximo(false));
+$("wzQRe").addEventListener("click", () => { if (q) abrirAtual(); });
+$("wzQStop").addEventListener("click", pararFila);
+// voltou para esta tela depois de enviar → abre o próximo
+const saiu = () => { if (q) q.saiu = true; };
+window.addEventListener("blur", saiu);
+document.addEventListener("visibilitychange", () => { if (document.hidden) saiu(); else voltou(); });
+window.addEventListener("focus", voltou);
+function voltou() {
+  if (!q || !q.saiu || !$("wzAuto").checked) return;
+  if (Date.now() - q.at < 2500) { q.saiu = false; return; } // diálogo "abrir app?" do navegador, não conta
+  q.saiu = false; proximo(true);
+}
+document.addEventListener("keydown", e => {
+  if (!q || $("tabWz").hidden) return;
+  if (e.target.closest("input, textarea, select, button")) return;
+  if (e.key === "Enter") { e.preventDefault(); proximo(true); }
+  else if (e.key === "Escape") pararFila();
+});
+$("wzAuto").addEventListener("change", renderQ);
+
+/* ---- abrir todos de uma vez (uma aba por colaborador) ---- */
+$("wzTabs").addEventListener("click", () => {
+  const list = pendentes(); if (!list.length) return;
+  if (!confirm(`Vai abrir ${list.length} aba(s) do WhatsApp Web, uma por colaborador, cada uma com a mensagem pronta.\n\n• O navegador precisa permitir pop-ups deste arquivo.\n• O WhatsApp Web só fica ativo em uma aba por vez: em cada aba, clique em “Usar aqui” e aperte Enter.\n\nContinuar?`)) return;
+  let ok = 0, bloq = 0;
+  list.forEach((i, n) => {
+    const w = window.open(linkWeb(rows[i]), "wz_tab_" + Date.now() + "_" + n);
+    if (w) { rows[i].enviado = true; ok++; } else bloq++;
+  });
+  render();
+  if (bloq) alert(`${ok} aba(s) abertas e ${bloq} bloqueada(s) pelo navegador.\n\nPara liberar: clique no ícone de pop-up bloqueado na barra de endereço → “Sempre permitir pop-ups” e clique de novo em “Abrir todos de uma vez” (só os pendentes serão abertos).`);
+});
+
+/* ---- modo de abertura ---- */
+try { const m = localStorage.getItem("wzMode"); if (m === "app" || m === "web") $("wzMode").value = m; } catch (e) {}
+const helpTxt = () => { $("wzHelp").textContent = HELP[modo()]; };
+$("wzMode").addEventListener("change", () => { try { localStorage.setItem("wzMode", modo()); } catch (e) {} helpTxt(); });
+helpTxt();
+
+/* ---- eventos ---- */
+$("wzRows").addEventListener("click", e => {
+  const tr = e.target.closest("tr[data-i]"); if (!tr) return;
+  const i = +tr.dataset.i, r = rows[i], a = e.target.closest("[data-a]")?.dataset.a;
+  sel = i;
+  if (a === "wa") { abrir(r); r.enviado = true; }
+  else if (a === "cp") { navigator.clipboard.writeText(msg(r)).then(() => { e.target.textContent = "Copiado!"; setTimeout(render, 900); }); return preview(); }
+  else if (a === "ok") r.enviado = !r.enviado;
+  else if (a === "rm") { rows.splice(i, 1); if (sel >= rows.length) sel = rows.length - 1; }
+  else { document.querySelectorAll("#wzRows tr").forEach(t => t.classList.toggle("sel", t === tr)); return preview(); }
+  render();
+});
+$("wzRows").addEventListener("change", e => {
+  const inp = e.target.closest("input[data-k]"); if (!inp) return;
+  const r = rows[+inp.closest("tr").dataset.i], k = inp.dataset.k;
+  r[k] = k === "cel" ? normCel(inp.value) : k === "email" ? inp.value.trim().toLowerCase() : upper(inp.value);
+  if (k !== "nome") r.enviado = false;
+  render();
+});
+$("wzOrg").addEventListener("click", () => {
+  const novos = organizar($("wzIn").value);
+  if (!novos.length) return;
+  novos.forEach(merge); $("wzIn").value = ""; if (sel < 0) sel = 0; render();
+});
+$("wzPull").addEventListener("click", () => {
+  const ppl = (window.kitPeople || []).filter(p => p.name);
+  if (!ppl.length) { alert("Ainda não há colaboradores no Kit de homologação."); return; }
+  ppl.forEach(p => merge({ nome: upper(p.name), cel: "", email: "", enviado: false }));
+  if (sel < 0) sel = 0; render();
+});
+$("wzAdd").addEventListener("click", () => { rows.push({ nome: "", cel: "", email: "", enviado: false }); sel = rows.length - 1; render(); document.querySelector(`#wzRows tr[data-i="${sel}"] input`)?.focus(); });
+$("wzClear").addEventListener("click", () => { if (rows.length && confirm("Limpar a lista de aviso por WhatsApp?")) { rows = []; sel = -1; render(); } });
+$("wzReset").addEventListener("click", () => { $("wzTpl").value = TPL; preview(); });
+["wzTpl", "wzAss", "wzPrazo"].forEach(id => $(id).addEventListener("input", preview));
+$("wzCsv").addEventListener("click", () => {
+  if (!rows.length) return;
+  const q = s => '"' + String(s ?? "").replace(/"/g, '""') + '"';
+  const hoje = new Date().toLocaleDateString("pt-BR");
+  const csv = "\ufeffNome;Celular;E-mail pessoal;Situação;Data\n" + rows.map(r => [q(r.nome), q(fmtCel(r.cel)), q(r.email), q(r.enviado ? "Enviado" : "Pendente"), q(hoje)].join(";")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  a.download = "aviso_whatsapp_rescisao_" + hoje.replace(/\//g, "-") + ".csv"; a.click();
+});
+render();
+
+/* ---- troca de abas ---- */
+const TABS = { est:["tbEst","tabEst"], kit:["tbKit","tabKit"], wz:["tbWz","tabWz"] };
+function showTab(t) {
+  if (!TABS[t]) t = "est";
+  Object.entries(TABS).forEach(([k, [b, p]]) => { $(p).hidden = k !== t; $(b).setAttribute("aria-selected", k === t); });
+  try { localStorage.setItem("kitTab", t); } catch (e) {}
+  if (t === "est" && window.estabFit) window.estabFit();
+  window.scrollTo(0, 0);
+}
+Object.entries(TABS).forEach(([k, [b]]) => $(b).addEventListener("click", () => showTab(k)));
+let start = "est"; try { start = localStorage.getItem("kitTab") || "est"; } catch (e) {}
+showTab(start);
+})();
+</script>
+<script>
+/* ================= Análise de estabilidade ================= */
+(() => {
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const LOGO = "data:image/png;base64,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";
+const MESES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const ITENS = [
+  { k:"cct",   t:"Data base CCT", g:"Observar a data base da CCT (maio): desligamento com projeção dentro da janela de 30 dias que antecede a data base." },
+  { k:"cipa",  t:"CIPA", g:"Verificar com Segurança do Trabalho as estabilidades." },
+  { k:"acid",  t:"Acidente de trabalho", g:"12 meses após o fim do auxílio-doença acidentário (art. 118 da Lei nº 8.213/91)." },
+  { k:"afast", t:"Afastamento – doença", g:"Não há limite de data." },
+  { k:"fer",   t:"Férias", g:"Estabilidade de 30 dias após o retorno." },
+  { k:"mat",   t:"Licença-maternidade", g:"150 dias após o parto." },
+  { k:"ind",   t:"Indenização 45 anos ou 10 anos de trabalho", g:"Empregados com 45 anos de idade ou mais, ou com 10 anos ou mais de trabalho, têm direito a indenização de 15 dias de salário." },
+  { k:"apos",  t:"Aposentadoria", g:"Com no mínimo 8 anos de empresa: estabilidade nos 24 meses anteriores à aposentadoria, mediante comunicação por escrito. Verificar abono na CCT." }
+];
+const st = {}; ITENS.forEach(i => st[i.k] = { sim:false, obs:"", manual:false });
+
+/* ---- datas ---- */
+const pd = v => { if (!v) return null; const [y,m,d] = v.split("-").map(Number); return new Date(y, m-1, d); };
+const iso = d => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+const br = d => d ? String(d.getDate()).padStart(2,"0") + "/" + String(d.getMonth()+1).padStart(2,"0") + "/" + d.getFullYear() : "—";
+const addD = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const diasEntre = (a, b) => Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) - Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())) / 864e5);
+function ymd(a, b) {
+  let y = b.getFullYear() - a.getFullYear(), m = b.getMonth() - a.getMonth(), d = b.getDate() - a.getDate();
+  if (d < 0) { m--; d += new Date(b.getFullYear(), b.getMonth(), 0).getDate(); }
+  if (m < 0) { y--; m += 12; }
+  return { y, m, d };
+}
+const pl = (n, s, p) => n + " " + (n === 1 ? s : p);
+function ymdTxt(o) {
+  const p = [];
+  if (o.y) p.push(pl(o.y, "ano", "anos"));
+  if (o.m) p.push(pl(o.m, "mês", "meses"));
+  if (o.d || !p.length) p.push(pl(o.d, "dia", "dias"));
+  return p.length > 1 ? p.slice(0,-1).join(", ") + " e " + p[p.length-1] : p[0];
+}
+const ddmm = (s, y) => { const m = /^(\d{1,2})\/(\d{1,2})$/.exec((s||"").trim()); return m ? new Date(y, +m[2]-1, +m[1]) : null; };
+
+function calc() {
+  const adm = pd($("esAdm").value), dem = pd($("esDem").value);
+  const r = { adm, dem, ok: !!(adm && dem && dem >= adm) };
+  if (!r.ok) return r;
+  r.dias = diasEntre(adm, dem);
+  r.tempo = ymd(adm, dem);
+  r.adic = Math.min(60, 3 * r.tempo.y);
+  r.aviso = 30 + r.adic;
+  r.proj = addD(dem, r.aviso);
+  const y = r.proj.getFullYear(), ini = ddmm($("esJanIni").value, y), fim = ddmm($("esJanFim").value, y);
+  if (ini && fim) {
+    r.jan = $("esJanIni").value.trim() + " a " + $("esJanFim").value.trim();
+    r.naJanela = r.proj >= ini && r.proj <= fim;
+  }
+  return r;
+}
+
+/* ---- formulário ---- */
+function renderItems() {
+  $("esItems").innerHTML = ITENS.map(i => `
+    <li data-k="${i.k}">
+      <div class="nm">${esc(i.t)}<span class="est-auto" data-auto="${i.k}"></span><small>${esc(i.g)}</small></div>
+      <div class="seg" role="group" aria-label="${esc(i.t)}">
+        <button type="button" class="y" data-v="1">Sim</button><button type="button" class="n" data-v="0">Não</button>
+      </div>
+      <input class="obs" type="text" placeholder="Observação" data-obs="${i.k}">
+    </li>`).join("");
+}
+function syncItems() {
+  ITENS.forEach(i => {
+    const li = $("esItems").querySelector(`li[data-k="${i.k}"]`), s = st[i.k];
+    li.classList.toggle("yes", s.sim);
+    li.querySelector(".y").setAttribute("aria-pressed", s.sim);
+    li.querySelector(".n").setAttribute("aria-pressed", !s.sim);
+    const inp = li.querySelector(".obs"); if (document.activeElement !== inp) inp.value = s.obs;
+  });
+}
+$("esItems").addEventListener("click", e => {
+  const b = e.target.closest(".seg button"); if (!b) return;
+  const k = b.closest("li").dataset.k;
+  st[k].sim = b.dataset.v === "1"; if (k === "cct") st.cct.manual = true;
+  update();
+});
+$("esItems").addEventListener("input", e => {
+  const k = e.target.dataset.obs; if (!k) return;
+  st[k].obs = e.target.value; if (k === "cct") st.cct.manual = true;
+  update();
+});
+
+function autoCct(r) {
+  const tag = $("esItems").querySelector('[data-auto="cct"]');
+  if (!r.ok || !r.jan) { tag.textContent = ""; return; }
+  tag.textContent = st.cct.manual ? "" : "· automático";
+  if (st.cct.manual) return;
+  st.cct.sim = !!r.naJanela;
+  st.cct.obs = "Projeção " + br(r.proj) + (r.naJanela ? " dentro" : " fora") + " da janela " + r.jan + ".";
+}
+
+function renderCalc(r) {
+  if (!r.ok) {
+    $("esCalc").innerHTML = `<div style="grid-column:1/-1">${$("esAdm").value && $("esDem").value ? "A demissão precisa ser depois da admissão." : "Informe admissão e data prevista da demissão para calcular o aviso e a projeção."}</div>`;
+    return;
+  }
+  $("esCalc").innerHTML = `
+    <div>Tempo de contrato<b>${r.dias} dias</b><small>${ymdTxt(r.tempo)}</small></div>
+    <div>Aviso prévio<b>${r.aviso} dias</b><small>30 normal + ${r.adic} adicional</small></div>
+    <div>Projeção do aviso<b>${br(r.proj)}</b><small>${r.jan ? (r.naJanela ? "Dentro da janela da data base" : "Fora da janela da data base") : ""}</small></div>`;
+}
+
+/* ---- documento ---- */
+function dataExtenso(d) { return String(d.getDate()).padStart(2,"0") + " de " + MESES[d.getMonth()] + " de " + d.getFullYear(); }
+function docHTML(r) {
+  const v = id => $(id).value.trim();
+  const nome = v("esNome").toUpperCase(), mat = v("esMat");
+  const dDoc = pd($("esData").value) || new Date();
+  const local = v("esLocal") || "São José dos Pinhais";
+  const sims = ITENS.filter(i => st[i.k].sim);
+  const conc = !r.ok ? "Dados de admissão e demissão incompletos."
+    : sims.length ? `Foi identificada situação de estabilidade em: ${sims.map(i => i.t).join(", ")}. O desligamento deve ser avaliado antes de prosseguir.`
+    : "Não foram identificadas situações de estabilidade nos itens analisados.";
+  const linha = (lb, val, cls) => `<div${cls ? ` class="${cls}"` : ""}><span>${lb}</span><b>${esc(val || "—")}</b></div>`;
+  return `<div class="estdoc">
+    <img class="lg" src="${LOGO}" alt="WAP · WAAW">
+    <div class="tt">ANÁLISE DE ESTABILIDADE</div>
+    <div class="st">Verificação prévia ao desligamento</div>
+    <div class="dt">${esc(local)}, ${dataExtenso(dDoc)}.</div>
+    <div class="who"><div><span>Funcionário(a): </span><b>${esc(nome || "—")}</b></div><div><span>Matrícula: </span><b>${esc(mat || "—")}</b></div></div>
+    <div class="dl">
+      ${linha("Área", v("esArea").toUpperCase())}
+      ${linha("Gestor", v("esGestor").toUpperCase())}
+      ${linha("Data de admissão", r.adm ? br(r.adm) : "")}
+      ${linha("Data prevista da demissão", r.dem ? br(r.dem) : "")}
+      ${linha("Tempo de contrato", r.ok ? r.dias + " dias (" + ymdTxt(r.tempo) + ")" : "", "full")}
+      ${linha("Aviso prévio", r.ok ? r.aviso + " dias (30 + " + r.adic + ")" : "")}
+      ${linha("Projeção do aviso prévio", r.ok ? br(r.proj) : "")}
+    </div>
+    <h4>Situações analisadas</h4>
+    <table>
+      <thead><tr><th>Situação</th><th class="c">Sim</th><th class="c">Não</th><th>Observação</th></tr></thead>
+      <tbody>${ITENS.map(i => { const s = st[i.k]; return `<tr class="${s.sim ? "sim" : ""}">
+        <td class="it"><b>${esc(i.t)}</b><small>${esc(i.g)}</small></td>
+        <td class="c"><span class="bx">${s.sim ? "X" : ""}</span></td>
+        <td class="c"><span class="bx">${s.sim ? "" : "X"}</span></td>
+        <td class="ob">${esc(s.obs)}</td></tr>`; }).join("")}</tbody>
+    </table>
+    <p class="cc"><b>Conclusão: </b>${esc(conc)}</p>
+    <div class="ft"><span>Fresnomaq Ind. de Máq. S/A · Departamento Pessoal</span><span>Emitido em ${br(dDoc)}</span></div>
+  </div>`;
+}
+
+const PW = 595.3 * 4 / 3, PH = 841.9 * 4 / 3;
+function fit() {
+  const box = $("esPrevBox"), slot = $("esSlot"); if (!box.clientWidth) return;
+  const w = Math.min(box.clientWidth - 28, PW), sc = w / PW;
+  slot.style.width = w + "px"; slot.style.height = PH * sc + "px";
+  const pg = slot.querySelector(".estdoc"); if (pg) { pg.style.transform = `scale(${sc})`; pg.style.transformOrigin = "top left"; pg.style.position = "absolute"; pg.style.left = 0; pg.style.top = 0; }
+}
+
+function update() {
+  const r = calc();
+  autoCct(r); syncItems(); renderCalc(r);
+  $("esSlot").innerHTML = docHTML(r); fit();
+  save();
+}
+
+/* ---- guardar rascunho ---- */
+const IDS = ["esNome","esMat","esArea","esGestor","esAdm","esDem","esLocal","esData","esJanIni","esJanFim"];
+function save() { try { const o = { st }; IDS.forEach(id => o[id] = $(id).value); localStorage.setItem("estabRasc", JSON.stringify(o)); } catch (e) {} }
+function load() {
+  try {
+    const o = JSON.parse(localStorage.getItem("estabRasc") || "null"); if (!o) return;
+    IDS.forEach(id => { if (id !== "esData" && o[id] != null) $(id).value = o[id]; });
+    if (o.st) ITENS.forEach(i => o.st[i.k] && Object.assign(st[i.k], o.st[i.k]));
+  } catch (e) {}
+}
+
+/* ---- PDF / impressão ---- */
+const fname = () => "ESTABILIDADE - " + ($("esNome").value.trim().toUpperCase() || "COLABORADOR").replace(/[\\/:*?"<>|]/g, "") + ".pdf";
+$("esPdf").addEventListener("click", async () => {
+  const s = $("esStatus"); s.className = "status"; s.textContent = "Gerando PDF…";
+  try {
+    if (!window.jspdf || !window.html2canvas) throw new Error("bibliotecas de PDF não carregaram");
+    const stage = document.createElement("div"); stage.style.cssText = "position:fixed;left:-20000px;top:0";
+    stage.innerHTML = docHTML(calc()); document.body.appendChild(stage);
+    const img = stage.querySelector("img"); if (!img.complete) await new Promise(r => { img.onload = img.onerror = r; });
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    const cv = await html2canvas(stage.firstElementChild, { scale: 3, backgroundColor: "#ffffff", logging: false });
+    stage.remove();
+    const pdf = new window.jspdf.jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+    pdf.addImage(cv.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, 210, 297);
+    pdf.save(fname());
+    s.className = "status ok"; s.textContent = "PDF baixado: " + fname();
+  } catch (e) { s.className = "status err"; s.textContent = "Não foi possível gerar o PDF: " + e.message; }
+});
+$("esPrint").addEventListener("click", () => {
+  const css = [...document.styleSheets].map(ss => { try { return [...ss.cssRules].map(r => r.cssText).filter(t => t.includes(".estdoc")).join("\n"); } catch (e) { return ""; } }).join("\n");
+  const w = window.open("", "_blank"); if (!w) { alert("Permita pop-ups deste arquivo para imprimir."); return; }
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(fname().replace(/\.pdf$/, ""))}</title><style>@page{size:A4;margin:0}html,body{margin:0}${css}</style></head><body>${docHTML(calc())}</body></html>`);
+  w.document.close();
+  const go = () => { w.focus(); w.print(); };
+  const im = w.document.querySelector("img"); if (im && !im.complete) im.onload = go; else setTimeout(go, 150);
+});
+$("esClear").addEventListener("click", () => {
+  if (!confirm("Limpar a análise de estabilidade?")) return;
+  ["esNome","esMat","esArea","esGestor","esAdm","esDem"].forEach(id => $(id).value = "");
+  $("esData").value = iso(new Date()); $("esDem").value = iso(new Date());
+  ITENS.forEach(i => st[i.k] = { sim:false, obs:"", manual:false });
+  $("esStatus").textContent = ""; update();
+});
+
+renderItems();
+$("esData").value = iso(new Date()); $("esDem").value = iso(new Date());
+load();
+IDS.forEach(id => $(id).addEventListener("input", update));
+window.addEventListener("resize", fit);
+window.estabFit = fit;
+update();
+})();
+</script>
+</body>
+</html>
