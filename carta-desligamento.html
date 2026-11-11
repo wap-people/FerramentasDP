@@ -102,7 +102,20 @@ html.embed .voltar{display:none}
   .page{box-shadow:none;width:210mm;min-height:0;height:296.5mm;overflow:hidden}
 }
 </style>
-<style>.voltar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;margin-right:4px;border-radius:50%;border:1px solid #DCE1E5;background:#fff;color:#1E2226;text-decoration:none;transition:background .15s}.voltar:hover{background:#F1F3F5}.voltar svg{width:18px;height:18px}@media print{.voltar{display:none!important}}</style></head>
+<style>.voltar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;margin-right:4px;border-radius:50%;border:1px solid #DCE1E5;background:#fff;color:#1E2226;text-decoration:none;transition:background .15s}.voltar:hover{background:#F1F3F5}.voltar svg{width:18px;height:18px}@media print{.voltar{display:none!important}}</style><style id="padrao-visual">
+/* Padrão visual comum a todas as etapas (fonte, botões e títulos) */
+:root{--pri:#14707C;--pri-hover:#0F5C66;--pri-ink:#FFFFFF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pri:#4FB8C6;--pri-hover:#6FCAD4;--pri-ink:#0B1A1D}}
+:root[data-theme="dark"]{--pri:#4FB8C6;--pri-hover:#6FCAD4;--pri-ink:#0B1A1D}
+body{font-family:"Segoe UI",Roboto,system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif!important;font-size:15px;line-height:1.5}
+:root{--accent:var(--pri);--accent-ink:var(--pri-ink)}
+@media (prefers-color-scheme:light){:root{--bg:#EEF0F2;--line:#DCE1E5;--muted:#5D6871;--field:#F4F6F7}}
+:root[data-theme="light"]{--bg:#EEF0F2;--line:#DCE1E5;--muted:#5D6871;--field:#F4F6F7}
+button{font-family:inherit;font-weight:600;font-size:.95rem}
+button:hover{background:var(--pri-hover)}
+h1{font-size:1.15rem;font-weight:700}
+</style>
+</head>
 <body>
 <script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("embed")</script>
 <header class="topo">
