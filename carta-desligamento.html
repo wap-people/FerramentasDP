@@ -90,6 +90,9 @@ main{padding:32px;overflow:auto;display:flex;justify-content:center}
   .app{grid-template-columns:1fr} aside{position:static;height:auto}
   main{padding:16px} .page{transform-origin:top left}
 }
+html.embed .topo{display:none}
+html.embed .app{min-height:100vh}
+html.embed .voltar{display:none}
 @page{size:A4;margin:0}
 @media print{
   body{background:#fff}
@@ -101,6 +104,7 @@ main{padding:32px;overflow:auto;display:flex;justify-content:center}
 </style>
 <style>.voltar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;margin-right:4px;border-radius:50%;border:1px solid #DCE1E5;background:#fff;color:#1E2226;text-decoration:none;transition:background .15s}.voltar:hover{background:#F1F3F5}.voltar svg{width:18px;height:18px}@media print{.voltar{display:none!important}}</style></head>
 <body>
+<script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("embed")</script>
 <header class="topo">
   <div class="faixa"><i></i><i></i><i></i><i></i></div>
   <div class="marca">
