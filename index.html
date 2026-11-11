@@ -28,68 +28,97 @@ a{color:inherit}
 .ctx strong{font-size:1.3rem;font-weight:800;line-height:1.2;letter-spacing:-.01em}
 .topo .barras{position:absolute;right:0;top:-2px;height:80px;width:auto;pointer-events:none}
 
-main{flex:1;width:100%;max-width:984px;margin:0 auto;padding:36px 22px 48px}
-.hero h1{margin:0 0 4px;font-size:clamp(1.6rem,3.2vw,2.1rem);font-weight:800;letter-spacing:-.02em;line-height:1.15}
-.hero p{margin:0;color:var(--muted)}
 
-.processos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-@media (max-width:760px){.processos{grid-template-columns:1fr}}
-.proc{position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;
-  opacity:0;transform:translateY(8px);animation:entra .45s ease forwards;transition:box-shadow .2s,border-color .2s}
-.proc:nth-child(2){animation-delay:.06s}.proc:nth-child(3){animation-delay:.12s}.proc:nth-child(4){animation-delay:.18s}
-@keyframes entra{to{opacity:1;transform:none}}
-.proc:hover{box-shadow:0 10px 28px rgba(20,30,40,.09);border-color:color-mix(in srgb,var(--cor) 45%,var(--line))}
-.proc::before{content:"";position:absolute;left:0;top:18px;height:5px;width:44px;border-radius:0 99px 99px 0;background:var(--cor)}
-.proc-h{padding:30px 18px 2px}
-.tag{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:20px;font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-.status{letter-spacing:.02em;text-transform:none;font-size:.72rem;font-weight:600;padding:1px 9px;border-radius:99px;background:color-mix(in srgb,var(--amarelo) 22%,var(--surface));color:#8A5A00;display:inline-flex;align-items:center;gap:6px}
-.status::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--amarelo);animation:pisca 1.6s ease-in-out infinite}
-@keyframes pisca{50%{opacity:.3}}
-:root[data-theme="dark"] .status{color:#F7C25A}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .status{color:#F7C25A}}
-.proc h2{margin:0;font-size:1.08rem;font-weight:700;letter-spacing:-.01em}
-.proc-h p{margin:2px 0 0;color:var(--muted);font-size:.86rem}
+/* ---------- Layout: lateral de temas + área principal ---------- */
+.layout{flex:1;width:100%;max-width:1180px;margin:0 auto;display:flex;align-items:flex-start;gap:28px;padding:28px 22px 40px}
+mark{background:color-mix(in srgb,var(--amarelo) 40%,transparent);color:inherit;border-radius:3px;padding:0 1px}
 
-.etapas{list-style:none;margin:8px 0 0;padding:0 8px;flex:1}
-.etapas li{position:relative}
-.etapas li + li::before{content:"";position:absolute;left:21px;top:-6px;height:12px;width:2px;background:var(--line)}
-.etapa{display:grid;grid-template-columns:26px 1fr 16px;gap:10px;align-items:center;padding:7px 10px;border-radius:8px;text-decoration:none;transition:background .15s}
-.etapa .n{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;border:2px solid var(--c);color:var(--c);font-weight:700;font-size:.82rem;background:var(--surface);transition:background .15s,color .15s}
-.etapa b{display:block;font-weight:600;font-size:.9rem;line-height:1.3}
-.etapa small{display:block;color:var(--muted);font-size:.8rem;line-height:1.3}
-.etapa .seta{width:16px;height:16px;color:var(--muted);opacity:0;transform:translateX(-4px);transition:opacity .15s,transform .15s}
-.etapa:hover{background:var(--soft)}
-.etapa:hover .n{background:var(--c);color:#fff}
-.etapa:hover .seta{opacity:1;transform:none}
+.busca{position:relative}
+.busca svg{position:absolute;left:11px;top:50%;width:16px;height:16px;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.busca input{width:100%;font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px 12px 9px 34px}
+.busca input::placeholder{color:var(--muted)}
+.busca input:focus{border-color:var(--focus);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 20%,transparent)}
 
-.proc-f{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;padding:10px 18px;border-top:1px solid var(--line);background:var(--soft)}
-.proc-f small{color:var(--muted);font-size:.8rem}
+.lateral{position:sticky;top:16px;flex:none;width:270px;max-height:calc(100vh - 32px);overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 10px}
+.lateral .busca{margin:0 4px 12px}
+.rotulo{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:4px 10px 6px}
+.tema-btn{width:100%;display:flex;align-items:center;gap:10px;border:0;background:none;font:inherit;color:var(--ink);text-align:left;cursor:pointer;padding:9px 10px;border-radius:8px;font-weight:600;font-size:.9rem;line-height:1.3}
+.tema-btn .ponto{flex:none;width:10px;height:10px;border-radius:3px;background:var(--cor)}
+.tema-btn .nome{flex:1;min-width:0}
+.tema-btn .seta{flex:none;width:15px;height:15px;color:var(--muted);transition:transform .18s}
+.tema-btn .selo{flex:none;font-size:.66rem;font-weight:600;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:0 7px}
+.tema:hover>.tema-btn,.tema.ativo>.tema-btn{background:var(--soft)}
+.tema.ativo>.tema-btn{box-shadow:inset 3px 0 0 var(--cor)}
+.assuntos{display:none;margin:2px 0 8px 15px;padding-left:12px;border-left:2px solid color-mix(in srgb,var(--cor) 45%,var(--line))}
+.tema.aberto>.assuntos{display:block}
+.tema.aberto>.tema-btn .seta{transform:rotate(90deg)}
+/* passar o cursor abre os assuntos */
+@media (hover:hover){
+  .tema:hover>.assuntos{display:block}
+  .tema:hover>.tema-btn .seta{transform:rotate(90deg)}
+}
+.assuntos a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;text-decoration:none;color:var(--muted);font-size:.86rem}
+.assuntos a:hover{background:var(--soft);color:var(--ink)}
+.assuntos .n{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--cor);color:var(--cor);font-size:.7rem;font-weight:700}
+.assuntos .construcao{display:block;padding:6px 10px;color:var(--muted);font-size:.84rem;font-style:italic}
+.vazio-lat{color:var(--muted);font-size:.86rem;padding:8px 10px;margin:0}
+
+main{flex:1;min-width:0}
+.cab{display:flex;gap:10px;align-items:center;margin-bottom:22px}
+.cab .busca{flex:1;max-width:520px;margin:0 auto}
+.busca.grande input{padding:11px 14px 11px 38px;font-size:.95rem;border-radius:10px}
+.busca.grande svg{left:13px}
+.menu{display:none;align-items:center;gap:6px;font:inherit;font-weight:600;font-size:.88rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px 12px;cursor:pointer}
+.menu svg{width:18px;height:18px}
+.filtro{display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:var(--muted);font-size:.88rem;margin:-8px 0 18px}
+.filtro b{color:var(--ink)}
+.filtro button{font:inherit;font-size:.82rem;font-weight:600;color:var(--focus);background:none;border:0;cursor:pointer;padding:0;text-decoration:underline}
+
+.tema-sec{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 20px 8px;margin-bottom:18px;scroll-margin-top:16px;position:relative;overflow:hidden}
+.tema-sec::before{content:"";position:absolute;left:0;top:22px;height:5px;width:44px;border-radius:0 99px 99px 0;background:var(--cor)}
+.tema-h{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 0 14px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.tag{display:block;font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.tema-h h2{margin:2px 0 0;font-size:1.2rem;font-weight:800;letter-spacing:-.01em}
 .abrir{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:8px;background:var(--cor);color:#fff;font-weight:600;font-size:.85rem;text-decoration:none;transition:filter .15s,gap .15s}
 .abrir:hover{filter:brightness(1.07);gap:10px}
 .abrir svg{width:14px;height:14px}
-.proc.breve{border-style:dashed}
-.proc.breve:hover{box-shadow:none;border-color:var(--line)}
-.proc.breve::before{opacity:.55}
-.proc.breve .etapa{cursor:default}
-.proc.breve .etapa .n{border-style:dashed;color:var(--muted);border-color:var(--line)}
-.proc.breve .etapa:hover{background:none}
-.proc.breve .etapa:hover .n{background:var(--surface);color:var(--muted)}
 .abrir.off{background:var(--soft);color:var(--muted);border:1px dashed var(--line);cursor:default}
 .abrir.off:hover{filter:none;gap:7px}
 
+.tema-h p{margin:2px 0 0;color:var(--muted);font-size:.86rem}
+.grade{margin-bottom:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.ferr{display:flex;flex-direction:column;gap:4px;min-width:0;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-decoration:none;transition:border-color .15s,box-shadow .15s}
+.ferr .num{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;border:2px solid var(--cor);color:var(--cor);font-weight:700;font-size:.82rem;margin-bottom:4px}
+.ferr.off .num{border-style:dashed;border-color:var(--line);color:var(--muted)}
+.ferr b{font-weight:600;font-size:.94rem;line-height:1.3}
+.ferr small{color:var(--muted);font-size:.82rem;line-height:1.4;flex:1}
+.ferr .ir{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:.8rem;font-weight:600;color:var(--cor)}
+.ferr .ir .seta{width:14px;height:14px;transition:transform .15s}
+a.ferr:hover{border-color:color-mix(in srgb,var(--cor) 55%,var(--line));box-shadow:0 8px 22px rgba(20,30,40,.08)}
+a.ferr:hover .seta{transform:translateX(3px)}
+.ferr.off{border-style:dashed;background:var(--soft)}
+.ferr.off .ir{color:var(--muted)}
+.vazio{text-align:center;color:var(--muted);padding:40px 0}
+
 footer{text-align:center;color:var(--muted);font-size:.8rem;padding:0 16px 28px}
+.veu{display:none}
 
 @media (max-width:900px){ .topo .barras{opacity:.35} }
+@media (max-width:820px){
+  .layout{padding:20px 16px 32px}
+  .lateral{position:fixed;inset:0 auto 0 0;z-index:30;width:min(86vw,300px);max-height:none;border-radius:0 12px 12px 0;transform:translateX(-105%);transition:transform .22s ease;padding-top:max(14px,env(safe-area-inset-top,0px))}
+  .layout.gaveta .lateral{transform:none}
+  .layout.gaveta .veu{display:block;position:fixed;inset:0;z-index:25;background:rgba(10,14,18,.45)}
+  .menu{display:inline-flex}
+}
 @media (max-width:640px){
   .topo-in{gap:12px;padding:10px 16px;min-height:62px}
   .topo .wap{height:32px} .topo .waaw{height:20px} .topo .tl{height:24px}
   .topo .barras{display:none}
   .topo .waaw,.topo .tl,.topo .sep{display:none} .ctx{margin-left:6px} .ctx strong{font-size:1.08rem}
-  main{padding:26px 16px 40px}
-  .proc-h{padding:28px 16px 2px} .etapas{padding:0 6px} .proc-f{padding:10px 16px}
-  .etapa .seta{opacity:1;transform:none}
+  .tema-sec{padding:18px 14px 6px}
 }
-@media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} .proc{opacity:1;transform:none} }
+@media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
 </style></head><body>
 <div class="listra" aria-hidden="true"></div>
 <header class="topo">
@@ -107,80 +136,139 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:0 16px 28px}
   <img class="barras" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAnUAAACUCAYAAAD1cN9aAAAXPElEQVR42u3de4xmd13H8e/3d87M7rJtsQ3XQChQLoFKJOFqwWiEiFgkIZolBDEhBFREjEKCGrXpHyr/GI0RE4mJCUiUcosKSkFDACm3lqu00DakBbTYlu3S7u7MPM85369/zDy7z8ycy+93znlm51ferz+gO3Muv/M9v8vnnHl2Rz9449Wvlx51Lcms4Wuh5esiIrXJyjWdovfS6vhjTdaojnbZkLPXIfLyzh+3GFKrtu1thfUb0G+T++YUt9mGHanj1ont3KVgdVRt66Fds56iHkVna9xFtfatSqrvHn3M8c9d++wPnxUAQBL9wBev/vS5ibVlI/fUw7pYw/HUu86hLUdq/1NqUrCW43cd1Vwi2hXfxH2bW9qleMtJOk/bUtt95/G6ux90XkdoP7aPLlPH9pZ875r2UNs+hyWcO+UattuSPJA6x56J7owr39UmS2yv91XWEvpBdB/084feHoQqIrWqnBH3u7wO1/3pK66/nikaAOKVRx5SvrAvYAwJdd4S6myFoa6vne7NLfUBx0wNdalh1jrbY2l5tiPUecN2bUG3u07aGpjV04J02r0NyQ8jjaHO29tlEzzseESo8wlCncWEtKQ+vv9JzDqvQSP7oJ0/x+KAKhKCirjIbLO69Pf/5efu/LOXf+ybTNMAEEc/cOPLvHdyJ9Qd+lA39E3d7lBnGYY6J9TteVOXXahrOH8oVCqzd60//sdef+2Pv2/GVA0A/QIlAHAYFaF42ezbP/xlKgEAhDoAmaprl3ItXKair/m9D199KRUBAEIdgEzNZ7WI+ovFZs+hGgBAqAOQKTeXcj2UhcgrqQYAEOoAZB3sRFzkZ/7g31/yaKoBAIQ6AJmyykWDPsHcnkE1AIBQByBTLi5FGTRU+pNUAwAIdQCyDnYirvI8KgEAhDoAOYc6F1HxJ/zOe59/jGoAAKEOQMapzlwe+pD1tYdRDAAg1AHINtSJqOtR1yOPpBgA0K6kBAAOeaYTVVmvJPCbJQCgA2/qABz+YKe+VrpfRCUAgFAHINtE56IihaofpRgA0I4fvwLIINhp8KBrFAIA2vGmDkAmuc6NKgAAoQ5A3mqRMKMMAECoA5ArVXH3Wue2QTEAgFAHINdMJyIaZOZe3E81AIBQByBvW3Xh91IGACDUAciVirjp2Y1NvZtiAAChDkCumU5VROXun9KLT1INACDUAcg21ImIyTdOnHhfTTUAgFAHIFPu7hr0c1QCALrxGyUAHFoaVOraNkJpn6caANCNN3UADq2iVBGTrxSnq9uoBgAQ6gDkSEXcRFT9I9ee+ORpCgIAhDoAOWY6Vanndk+5Fj5INQCAUAcgx0AnIuVaEHP5B7n/e9+mIgBAqAOQobWjhcxn9dfE5D3Xnrh5RkUAoF+pQc//yVu28omevn37Cbz5HDr+BD7y+1Psk7x983Vr5/F1knNMeg+sfV89ZJ1eE9uoh3Tw6k7LdMR1T1W//u9q/3aLL7nLfGZ3m8vfv/0VH7uJaRoAYkPdAa5YeogXyMO3YGcmdIf5lQf2hH00sY06RZt8+uvWxPq2XYf7itoeewxfmh+CSjXzSlz+8uRjHv8OZgIASAh1dWXXLf5gLROvJR/WmudwC61HMw+NS48npAOrh6wr3Ve3uyYhYZ3bfdy2pmnL6evOa0hcZTvewFnLxXpipXxfMtDz+9j4lOCNkcRFxNrb5fG1DRLEEltmltL+gSPJu44ZGm9MLYnj2Hv6miX0g/bo2P7nnf/0oJul1fdcJPqNi+vqM3/yrHfWf/uJy49OM9U9XuSOtu/d0bh5nu5s+frlEx8v5th3xp3iVqn112TOcgyMp7d/8cR7F9O0+TQP6to27VvYt+R4z3sES2mJp0dR71iGRER8148VvffooWWLvgU1RC7/bgPCgUdGz50OEJJCgXWewpoTYHQY3lvZsG9bb6+GpbQ1JLanK3B5xCEsal8fcF8t9aks7N7ILeyrcez57fzPUOPv8c4f1wrZvMTm9zw1zG8Vn/tWKI/ta2pdD3zgNEnoKB3ROKW4NvwJdBXnlHrAeebD21PHtcVFaxc7VarftlZVN+kJ4dfBAQOVV5THTvT+bMQTJ4+2RbuImYY9/bi92444ZrF325g2uKR/7i02uHpcAPG9YbTnA5ONn9XziNvT9WbGx9/HveHCE891rhZ9NbCOY3cm7P59ko4b28e6zj+k3gP6jvf9TNVbjtnR7lJ3ftnrmhxpHI9h2Nwh2vHt0DDnFZH3ZODfNbMh19C13aKPh47tQ8O96Lg+j72+tvleO65n6XvqIqYyq+Tjs2Ltd93nN6sOeK0NQMr+oOKr/8sCqziuX8BjrvLafEVtXclxvSXP+MATeMtP4Lv78PbpIoKtTfWQsfvrGhnq/FzF4oqsK+oLfqHGjm6fXDs+6KsxL0HH1ivh2lwG9mUb87fS2vpIXx/3lvvbvN/oz8Im/uRHVV9oIn+39aH114rMbmF5BgaEOrOhoc47Js+4ic5bl7Yhx+1amboW/NRjjpl0YxYc72lC5CLiKZO9xN9jj71fnnTYlSzMqwwpCdurxx/OV1GLXEKd91di7xwQ//EM76hXw+f99s0fPu1z3gV8D+W+urE2JtStl3KsdnnevPI33/tuedvDXiP3s0QDafh36gAAF9ys2lmU1F97/BK5iooAhDoAQKbqWmR9TY5orb/tN8oaFQEIdQCATJmJqOpVG98peVsHEOoAALmqtt/WXaJaX001AEIdACBjVouIy0vsejlONQBCHQAgU9v/brE+eeNUeSXVAAh1AIBMmW//EyehtOdQDYBQBwDIeXEKIqr+TCoBEOoAANnTy92lpA4AoQ4AkCnf/mVGjzj9QbmMagCEOgBApsxExOXSNZeHUg2AUAcAyNTO76i9WIs1/lkTgFAHAMg61KkcVfOjVAMg1AEAcg112/9zRAK/AxYg1AEAsqYiQZx1CiDUAQCy5iq1qBiVAAh1AIBMqYqIS1VVUlMNgFAHAMg11G3/32YRdJNqAIQ6AECuoU5F1OUBL/QM1QDi8OtXAACHTlARD3Kqrmf3Uw0gctxQAgDAYaNBRNV/cLKSU1QDINQBADLmIt993Ctlg0oAhDoAQIZURKpKRFW/RjUAQh0AIGOViQW1G6gEQKgDAGSqLERE5fZyU26hGgChDgCQKVWR4P6J8Eo5STWAhAciSgAAOCyKIDKrZCbB/5VqAGl4UwcAODTKNRERv+FIkM9TDYBQBwDIMdAVInUlp131n/Tlci8VAQh1AIAMqYpUtXz26NzeQzUAQh0AIDNlIXLkIpGqli/WLn+sJ+Q0VQEGjCVdNxHxjk285dvt+6h3Hc96mjT0uHsP41HHlORjxmwfu93ytUW0tbe9S7V1jWyPd5zWI77k6TVwH3T/RXypTvvPpW1VcY2qgSb2c3GLuobY4263ML7vRI+HqO1saXOd6D4u98fl58c6cgw1XbMN7DvWch+a9vOG+cNb9hw415kNuIbl4+7dLqaPW8P9bb++7VpXEe2pO8aHt1zhzvdUxF1qU//fQuRL4RJ/1/EXyedYmoGBoa6+b+2AQ533TCURx41ay+JCne9tq08R1iK38/RQF72IWGKoa71DLd/sba+3t7arf2jX/egOde33OC7UyaEIddEdPHqctQdxXXGo85aHDEscv+2hzg4g1Pn+Th/9EOLZh7qYezU81KmKiElldfjO6Xse+r7b3vaLn/zv59z9qKLaumA/RTp74Cc4e6DXZ1r4QZ7vSDm32dmw+axvv+ABlWtNsFL6gzf8oSeFnq5pyGOCg/eN+YjFNL5PeuS256ZfH9jf3ROuwqMCRXcW8Amuu+2kPvh6O/dOfGOUfA9j33buOp1HxduEi2xsVEKPjb7e/kDa3Cb3xD7RslNfD/DUkNzTv33MPNC6T8QDmGnT00zTM8ee9ntq4wbPNz71uHAfvI8ntt9F3Gud+aw4XVfF1p4ngISHiMX7+pgHmpQh4AnP7h5/OE1JYnuuUzvqGjEudj/zW0RZGs67yPId8Vu3dz3p7tcfWS//4ie+/tHvEbtWq/dN3fShrvdB7kcn1HnM0jjgDdLIUOerCnUWcVy1hpcmcffEWgqmkaHODkWok4lCXcyY1hWHOm3Y2rvvyCEMdX5uBfT+PuF7Q0buoU6T9/H09msR5Mh6KUeKcticM2Wo2/8CfuJQZ3tLmz7ex4a63UPTh4U6iesiW1Y/unK7eGtWP/rGJ/38Xz379o/y4/VVhrrez9T58Immd1AcQKiL33Y1oa5/IR7y5BjzxuPCvamLCVApoS72XGHkm7pAqBPe1BHqBo/v4aFOXES2RMTrQxDqVv2mbkiom/hN3SShzuJCnbrIuobHBdXHbYid+fzTf+GO5938b98nfq0Gf/sVAACshIvIzE22vBZRf53MZ6+mKoQ6AACQa7hzkTVVlSC/cdOTX/w0KkKoAwAAmard5VgorrCgv0Q1CHUAACBTi39Yx0VedcNjn38ZFSHUAQCATFVuoiJPWT928U9TDUIdAADIlIvIegilBflZl2vIIIQ6AACQKxMRVXnBN5/65eNUg1AHAAAyVbuJu1+5Ec4+imoQ6gAAQKZcRIKGdXd5BtUg1AEAgIwVqmLiV1IJQh0AAMg8fLjoE6kEoQ4AAGQdPlRc9BFUglAHAAAy5uISRNapBKEOAADkH+zIIIQ6AADwIKCUgFAHAADIdCDUAQAAEOoAAAAm4E4NCHUAACBrKuJSUwdCHQAAyJqLqm5QB0IdAADIOtKJiIf/oxLTKikBAAA4SCYuGvw2KjEt3tQBAIADo7L9pq6u9etUY1q8qQMAAAca6mrz+9TtVqoxLd7UAQCAgwseqiLqt1Qbl95FNQh1AAAgU6WouOunrvre+zepBqEOAABkqFCVmfkZK+TjsvOXYEGoAwAAmSlVpRb7kol+hWoQ6gAAQKZqd1Px919188dOUg1CHQAAyNDRUEjlftP86NEPUI3V4J80AQAAK6MiciQUsmV2d+XyN1d99SP/Q1VWFOqKng1iPsU49JOOB/EJSb/AbfEfsX1XUUvPtN1Dj+2HZEyMPY4zlg7sU+B+CNqwOJGPaLCPLKZPcPGeMuEcUJv27uNTtsnj2+QDr8Pcpbb6XlP70PO/9Z/vJnqtMNQF0Qd5qIs5i0Zux0I0av+4W7Fvn9hJ1kdOlr6KInn6sd1Xe9OmOr4f8HWMWRz9Ai3yvqoBl3CeVfenB9sD5WF6GDk8dfKddTKdbnfCDbH6nc++b+vtKlITvVYY6j79tCdct5Snx918d1Ft2s/Se5aldR8b9XRnnTuoDVssrKeFgwaIxYbVxflCR7ts5ApuaffGIk6lXauVTT/R2e6nyfEdrmdDj2mnD2pGsNh9LL1Oi9pofAu3h7Dt64HWe0GJd9JTvm1JO1vKvfblezCoytE9QPf0VY9qpg3s3z71oBj2ps76Dxhbg+CTXEVUm0Y9gC1OYOm9Z9fcMOYal/ba+6aufZU5r9YwPxn09K2PvOyu/3jmlc997MZWWZide3yvRaTqCik9rdo691/V6hNTJUlnK1sOUQ89rZqZ6QPlVnnb6be++t7GueFXPvnV93ZNf57UDc6/93OrO16/RPSE1FDnw6fQWvx8UxqaqnX38LGWSaK6oKGu63qnmoQ9cioYvg74iKkotUcEPz9LxQ46Tb2XDf3UekdV+9HnS0NJoy9Yd64xZWoJu1obf737tzSb9s71ZfHFVRbty1Pn2BYb8jfKLOI6x4S63Vu6yLgQOXCQ2t7xk9AFrWGgeUwX7GhSdJRO+DlvX21DT3XG9IN6py3Bh+zbuwIPegL2xvWovUazMsxPlsUsVPX6RVuzY01H7ZqJyp6XKvOBK+qQMVMs/eQlZh3VlvtSJ474qj7/NOcW7tcgt6vZF87M7/2MvOUtG7vO+apPfc27OrMnFmwx2biPe0Gcur/78JjTN8FrR1sWNdKWN3Vd9RtSokVb4jtkw6I64MQ+ItR17aseOzEN+YGBp9fW02KF7pl8Y86hnf0krf/VS+1QT+/3PrD/2Yhx2d/9Uh/oPKoPhaX7FTMGlsdYGPBhIht6nZ4yN3jDXJ12Xu89n3cu8z4k1C3aPPDn4t76xtsTzxsX6uqeOUA75jgbuBb60ryinh7M5ou1SUQKW80PpoP31Wh3w4uWlx/WGaS6+189Yt5IrUqxtD5UEecNtv++VQNCXb3o74uDFaX41ta33PX1m486coOcOHHukOXu8DQ+1EmGoa53z4hQ1/YTy6lDnSyFusGPpENOPCLUde7roxow7T7uIz6sssIP/rmvqEQD2mI+vu2+gvu2qpo2Nmmq++E9k8oBjYve862yb/e/7Uhr0hT3ZuL50Sf4lOGQFwDL/+8r+rRhTB9fSiNj1rzp53ub9j6PalLkZ0hct0tZVaIqV4jbOx5y95lfPSvylXOhbve74Qn+DpXLBB15yKS7wo/nuk/Qn3ySuSP9Ogl1hLopFy9CHaFuFaFuqs9REuqmXx9Hhrqx17GyUHcA6+DUoW75Q9khlFoUz5Bq9usP/+vr3nrPm06cFuEfHwYAAMiL2fbbxqCvPmubz118mVAHAACQXbCrRYryuKu9Qa75REmoAwAAyDbYmbrqi44/4q6nE+oAAADyDXWi6+sPM69eRKgDAADImbuI2UvlmmsCoQ4AACBX5qIqT7n40suvKKkGAABArqGuFimKR9YuT+JNHQAAQK7cRcryqKs8hVAHAACQM3ORYFcS6gAAAHLmJmLhiYQ6AACA3EOd6GMIdQAAAFmHOhFRfzihDgAAIOtQ56KilxDqAAAA8rdGqAMAAHgQINQBAADkzt0JdQAAADlTFXc5Q6gDAADIP9f9gFAHAACQeaITl+8T6gAAAHIWgniQOwh1AAAAWYe6QkTCtwh1AAAAOavr2sW+SagDAADIVQji8/kpLfU2Qh0AAECuiiAS5M6N6gHe1AEAAGRLg6jIZ+RNbzpNqAMAAMjVbD4vKvuoCL8mDAAAIE9lKSL+5QfWNz9LqAMAAMhRCCJWu4u/W974xvsIdQAAALlR3Q51bl9wPfLP53IelQEAAMjMfDZz1T/f/M1XfXfxpbI8emxpC9+1ve/6iseFx53N3H1UW90tcXuXoWese/bUjmtZ1EgbNtGe+g0p0aItHn1HPOl62usbd+zUfTX6Ng9oc+I+6n7uNBq7T/L48H3H1p69Y+6XtvTB7n3Sx8yiLZowLi253/sUnXPf0cJyuyNqurxF8AHtG3qdnjI3WOJ80DDP954vsr6J84rvug2efMt9YN9xSbteP1flZqF17PnotVAX86THj7m9c5MOnPOj1hJrmgvb92lbJ3Xg/KcD5uAx66B62nmb7lvz9XrveX3pAFqU4mfPbIqEP1rfqj++sbRtWW2c/a++wDIo1ImN6j6WOq/b8FDXt6dKd6izfZP++enW90y+40Nd3ETT1VmGVKo5Y9voexm8L3AfYKgzazhvt8Wr7iphfGhqFTs6Sr28sCQOuXrEGI2tbFOok4lDnfVMFrZ01MX9qj22RsP7fT0m1A24E/H72L6xbT68H7gMf5A/P68k3nOPu7b+dS2uWt7TRzpD3cDi2p511AftP2Woa78P7euRt4bA2PpaR9stejQ2tcyS911ef2NGXtPDh7Wsyt1z3K4/zj3MT7n7LVL6P/7wt157avmbpai+qysFW08Ob19/Rr6pO8AFqhixhNlOZZrCye4bv79+GgaO9KSObB1vl6ZfxBuDj0a96kq+jqnbrEuN0eRzxJ0t1AMK2JHWdOnsqqnXO2Iyj92uabXrrUHawPBg0dfrw7vTCoqkE/R2PTeHDb6fYXg9lhfVYOmd23RYb2x/K61RFUu53CJi++axpztjsx58W+qdsTBmzt5+M7maDq+9Qdmink994DyeGtB3tawYUNO6KZhp0hD3xi9b9GKmFk57vXXzxptf99WmTf8fME9Q0rxJ4TMAAAAASUVORK5CYII=" alt="" aria-hidden="true">
 </header>
 
-<main>
-  <div class="processos">
-    <article class="proc" style="--cor:#7FB043">
-      <div class="proc-h">
-        <span class="tag">Admissão</span>
-        <h2>Processo Admissional</h2>
-        <p>Da conferência dos documentos à montagem do kit de cada admitido.</p>
-      </div>
-      <ol class="etapas">
-        <li><a class="etapa" href="admissional.html#documentos" style="--c:#7FB043">
-          <span class="n">1</span>
-          <span><b>Validação dos documentos admissionais</b><small>Confere os documentos de cada admitido pelo cargo e separa tudo para arquivo.</small></span>
-          <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
-        <li><a class="etapa" href="admissional.html#kit" style="--c:#2FA8B5">
-          <span class="n">2</span>
-          <span><b>Kit admissional</b><small>Contrato, ficha de registro e Manual de Conduta em um único PDF por pessoa.</small></span>
-          <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
-      </ol>
-      <div class="proc-f"><small>2 etapas</small><a class="abrir" href="admissional.html">Abrir processo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
-    </article>
+<div class="layout" id="layout">
+  <aside class="lateral" id="lateral" aria-label="Temas">
+    <div class="busca">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="buscaTema" type="search" placeholder="Pesquisar..." autocomplete="off" aria-label="Pesquisar temas e assuntos">
+    </div>
+    <div class="rotulo">Temas</div>
+    <nav id="listaTemas"></nav>
+  </aside>
+  <div class="veu" id="veu"></div>
 
-    <article class="proc" style="--cor:#D9375D">
-      <div class="proc-h">
-        <span class="tag">Desligamento</span>
-        <h2>Processo Demissional</h2>
-        <p>Do comunicado ao colaborador até o aviso de envio dos documentos.</p>
+  <main>
+    <div class="cab">
+      <button class="menu" id="btnMenu" aria-label="Abrir temas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Temas</button>
+      <div class="busca grande">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="buscaFerramenta" type="search" placeholder="Buscar ferramentas..." autocomplete="off" aria-label="Buscar ferramentas">
       </div>
-      <ol class="etapas">
-        <li><a class="etapa" href="demissional.html#carta" style="--c:#7FB043">
-          <span class="n">1</span>
-          <span><b>Carta de desligamento</b><small>Comunicado conforme o tipo de rescisão e o aviso prévio, pronto em PDF.</small></span>
-          <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
-        <li><a class="etapa" href="demissional.html#kit" style="--c:#2FA8B5">
-          <span class="n">2</span>
-          <span><b>Kit de homologação</b><small>TRCT e documentos conferidos pelo motivo, em um PDF por colaborador.</small></span>
-          <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
-        <li><a class="etapa" href="demissional.html#whatsapp" style="--c:#D9375D">
-          <span class="n">3</span>
-          <span><b>Aviso por WhatsApp</b><small>Mensagem pronta avisando que os documentos foram para o e-mail pessoal.</small></span>
-          <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
-      </ol>
-      <div class="proc-f"><small>3 etapas</small><a class="abrir" href="demissional.html">Abrir processo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
-    </article>
-
-    <article class="proc breve" style="--cor:#F7B22A" aria-label="Processo de Folha de Pagamento, em andamento">
-      <div class="proc-h">
-        <span class="tag">Folha<span class="status">Em andamento</span></span>
-        <h2>Processo de Folha de Pagamento</h2>
-        <p>Ferramentas para a conferência e o fechamento da folha mensal.</p>
-      </div>
-      <ol class="etapas">
-        <li><div class="etapa">
-          <span class="n">…</span>
-          <span><b>Etapas em construção</b><small>Logo fica disponível aqui.</small></span>
-          <span></span></div></li>
-      </ol>
-      <div class="proc-f"><small>Em breve</small><span class="abrir off">Em andamento</span></div>
-    </article>
-
-    <article class="proc breve" style="--cor:#2FA8B5" aria-label="Processo de Ponto, em andamento">
-      <div class="proc-h">
-        <span class="tag">Ponto<span class="status">Em andamento</span></span>
-        <h2>Processo de Ponto</h2>
-        <p>Ferramentas para o controle e o tratamento do ponto dos colaboradores.</p>
-      </div>
-      <ol class="etapas">
-        <li><div class="etapa">
-          <span class="n">…</span>
-          <span><b>Etapas em construção</b><small>Logo fica disponível aqui.</small></span>
-          <span></span></div></li>
-      </ol>
-      <div class="proc-f"><small>Em breve</small><span class="abrir off">Em andamento</span></div>
-    </article>
-  </div>
-</main>
+    </div>
+    <div id="conteudo"></div>
+  </main>
+</div>
 <footer>WAP · Administração de Pessoal</footer>
+
+<script>
+/* =====================================================================
+   TEMAS → ASSUNTOS
+   Para criar um tema novo, copie um bloco abaixo e ajuste.
+   Tema com "assuntos:[]" aparece como "Em andamento".
+   ===================================================================== */
+const TEMAS = [
+  { id:"admissional", nome:"Processo Admissional", tag:"Admissão", cor:"#7FB043", pagina:"admissional.html",
+    desc:"Da conferência dos documentos à montagem do kit de cada admitido.",
+    assuntos:[
+      { nome:"Validação dos documentos admissionais", desc:"Confere os documentos de cada admitido pelo cargo e separa tudo para arquivo.", link:"admissional.html#documentos" },
+      { nome:"Kit admissional", desc:"Contrato, ficha de registro e Manual de Conduta em um único PDF por pessoa.", link:"admissional.html#kit" }
+    ]},
+  { id:"demissional", nome:"Processo Demissional", tag:"Desligamento", cor:"#D9375D", pagina:"demissional.html",
+    desc:"Do comunicado ao colaborador até o aviso de envio dos documentos.",
+    assuntos:[
+      { nome:"Carta de desligamento", desc:"Comunicado conforme o tipo de rescisão e o aviso prévio, pronto em PDF.", link:"demissional.html#carta" },
+      { nome:"Kit de homologação", desc:"TRCT e documentos conferidos pelo motivo, em um PDF por colaborador.", link:"demissional.html#kit" },
+      { nome:"Aviso por WhatsApp", desc:"Mensagem pronta avisando que os documentos foram para o e-mail pessoal.", link:"demissional.html#whatsapp" }
+    ]},
+  { id:"folha", nome:"Processo de Folha de Pagamento", tag:"Folha", cor:"#F7B22A",
+    desc:"Ferramentas para a conferência e o fechamento da folha mensal.",
+    assuntos:[] },
+  { id:"ponto", nome:"Processo de Ponto", tag:"Ponto", cor:"#2FA8B5",
+    desc:"Ferramentas para o controle e o tratamento do ponto dos colaboradores.",
+    assuntos:[] }
+];
+
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const esc  = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const marca = (t,q) => { if(!q) return esc(t); const i=norm(t).indexOf(norm(q)); if(i<0) return esc(t);
+  return esc(t.slice(0,i))+"<mark>"+esc(t.slice(i,i+q.length))+"</mark>"+esc(t.slice(i+q.length)); };
+const seta = '<svg class="seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+const temLink = t => t.assuntos.length>0;
+
+let temaAtivo = null;          // null = todos
+const fixos = new Set();       // temas abertos por clique
+
+/* ---------- Lateral ---------- */
+function desenharLateral(){
+  const q = document.getElementById("buscaTema").value.trim(), nq = norm(q);
+  let h = "";
+  TEMAS.forEach(t=>{
+    const temaBate = !nq || norm(t.nome).includes(nq);
+    const assuntos = t.assuntos.filter(a => temaBate || norm(a.nome).includes(nq) || norm(a.desc).includes(nq));
+    if(!temaBate && !assuntos.length) return;
+    const aberto = fixos.has(t.id) || (nq && !temaBate);
+    h += `<div class="tema${aberto?" aberto":""}${temaAtivo===t.id?" ativo":""}${temLink(t)?"":" breve"}" data-id="${t.id}" style="--cor:${t.cor}">
+      <button class="tema-btn" aria-expanded="${aberto}"><span class="ponto"></span><span class="nome">${marca(t.nome,q)}</span>${temLink(t)?"":'<span class="selo">Em andamento</span>'}${seta}</button>
+      <div class="assuntos">
+        ${assuntos.length?assuntos.map((a,i)=>`<a href="${a.link}"><span class="n">${i+1}</span>${marca(a.nome,q)}</a>`).join(""):'<span class="construcao">Etapas em construção</span>'}
+      </div></div>`;
+  });
+  document.getElementById("listaTemas").innerHTML = h || '<p class="vazio-lat">Nenhum tema ou assunto encontrado.</p>';
+}
+
+document.getElementById("listaTemas").addEventListener("click", e=>{
+  const a = e.target.closest("a"), b = e.target.closest(".tema-btn");
+  if(a) return;
+  if(b){ const id = b.parentElement.dataset.id;
+    if(fixos.has(id) && temaAtivo===id){ fixos.delete(id); } else { fixos.add(id); }
+    escolherTema(id); }
+});
+document.getElementById("buscaTema").addEventListener("input", desenharLateral);
+
+/* ---------- Conteúdo ---------- */
+function desenharConteudo(){
+  const q = document.getElementById("buscaFerramenta").value.trim(), nq = norm(q);
+  const lista = TEMAS.filter(t => !temaAtivo || t.id===temaAtivo);
+  let h = "";
+  if(temaAtivo){
+    const t = TEMAS.find(x=>x.id===temaAtivo);
+    h += `<div class="filtro">Mostrando <b>${esc(t.nome)}</b> <button id="limpar">Ver todos os temas</button></div>`;
+  }
+  lista.forEach(t=>{
+    const temaBate = nq && norm(t.nome+" "+t.desc).includes(nq);
+    const assuntos = t.assuntos.filter(a => !nq || temaBate || norm(a.nome+" "+a.desc).includes(nq));
+    if(nq && !temaBate && !assuntos.length) return;
+    h += `<section class="tema-sec" id="sec-${t.id}" style="--cor:${t.cor}">
+      <header class="tema-h">
+        <div><span class="tag">${esc(t.tag)}</span><h2>${marca(t.nome,q)}</h2><p>${marca(t.desc,q)}</p></div>
+        ${t.pagina?`<a class="abrir" href="${t.pagina}">Abrir processo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`:'<span class="abrir off">Em andamento</span>'}
+      </header>
+      <div class="grade">${assuntos.length ? assuntos.map((a,i)=>`<a class="ferr" href="${a.link}"><span class="num">${i+1}</span><b>${marca(a.nome,q)}</b><small>${marca(a.desc,q)}</small><span class="ir">Acessar ${seta}</span></a>`).join("")
+        : `<div class="ferr off"><span class="num">…</span><b>Etapas em construção</b><small>Logo fica disponível aqui.</small></div>`}</div>
+    </section>`;
+  });
+  if(!lista.length || !h.includes("tema-sec")) h += `<p class="vazio">Nenhuma ferramenta encontrada${q?` para “${esc(q)}”`:""}.</p>`;
+  document.getElementById("conteudo").innerHTML = h;
+  document.getElementById("limpar")?.addEventListener("click", ()=>escolherTema(null));
+}
+document.getElementById("buscaFerramenta").addEventListener("input", desenharConteudo);
+
+function escolherTema(id){
+  temaAtivo = id;
+  if(id) fixos.add(id);
+  desenharLateral(); desenharConteudo();
+  if(id) history.replaceState(null,"", "#"+id); else history.replaceState(null,"",location.pathname);
+}
+
+/* ---------- Gaveta (celular) ---------- */
+const layout = document.getElementById("layout");
+document.getElementById("btnMenu").onclick = ()=>layout.classList.add("gaveta");
+document.getElementById("veu").onclick = fecharGaveta;
+function fecharGaveta(){ layout.classList.remove("gaveta"); }
+
+/* ---------- Início (aceita links como index.html#demissional) ---------- */
+const hTema = location.hash.slice(1);
+if(TEMAS.some(t=>t.id===hTema)){ escolherTema(hTema); }
+else { desenharLateral(); desenharConteudo(); }
+</script>
 </body></html>
