@@ -29,7 +29,7 @@ main{flex:1;width:100%;max-width:984px;margin:0 auto;padding:36px 22px 48px}
 .hero h1{margin:0 0 4px;font-size:clamp(1.6rem,3.2vw,2.1rem);font-weight:800;letter-spacing:-.02em;line-height:1.15}
 .hero p{margin:0;color:var(--muted)}
 
-.processos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
+.processos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 @media (max-width:760px){.processos{grid-template-columns:1fr}}
 .proc{position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;
   opacity:0;transform:translateY(8px);animation:entra .45s ease forwards;transition:box-shadow .2s,border-color .2s}
@@ -100,11 +100,6 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:0 16px 28px}
 </header>
 
 <main>
-  <section class="hero">
-    <h1>Departamento Pessoal</h1>
-    <p>Administração de Pessoal</p>
-  </section>
-
   <div class="processos">
     <article class="proc" style="--cor:#7FB043">
       <div class="proc-h">
