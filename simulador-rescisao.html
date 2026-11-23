@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>
+/* Privacidade: nada fica guardado no navegador. Recarregar a página começa do zero. */
+addEventListener("pageshow", function(e){ if(e.persisted) location.reload(); });
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulador de Rescisão · WAP</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+html{color-scheme:light}body{margin:0}[hidden]{display:none!important}
+/* Layout: ferramenta de RH — entrada (tabela/importação) → quadro em massa → comparativo detalhado no padrão do modelo */
+:root{
+  --bg:#f3f4f6; --surface:#ffffff; --panel:#eef0f3; --ink:#1d2433; --muted:#5b6475; --line:#d9dde4;
+  --head:#1f2633; --head-ink:#ffffff; --green:#0f7a54; --green-bg:#e3f2ea; --amber:#b5720f; --amber-bg:#fcf0dc;
+  --red:#c0322b; --chip:#e1e8f2; --chip-ink:#1f3a5c; --hl:#fbefd9; --focus:#2f6fdb;
+  --font:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12151b; --surface:#1a1e26; --panel:#20252f; --ink:#e7eaf0; --muted:#9aa3b2; --line:#323946;
+  --head:#2a3240; --head-ink:#f3f5f8; --green:#4fc28f; --green-bg:#16302a; --amber:#e3a547; --amber-bg:#33281a;
+  --red:#ef7b72; --chip:#26324a; --chip-ink:#c4d5f0; --hl:#2f2a1f; --focus:#6ea0ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151b; --surface:#1a1e26; --panel:#20252f; --ink:#e7eaf0; --muted:#9aa3b2; --line:#323946;
+  --head:#2a3240; --head-ink:#f3f5f8; --green:#4fc28f; --green-bg:#16302a; --amber:#e3a547; --amber-bg:#33281a;
+  --red:#ef7b72; --chip:#26324a; --chip-ink:#c4d5f0; --hl:#2f2a1f; --focus:#6ea0ff; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.num,td.n,th.n{font-variant-numeric:tabular-nums}
+h1{font-size:24px;font-weight:800;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font-size:16px;font-weight:700;margin:0}
+.sub{color:var(--muted);margin:4px 0 0;max-width:75ch}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.rules{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{background:var(--chip);color:var(--chip-ink);font-weight:600;font-size:12.5px;padding:4px 10px;border-radius:6px}
+label.inl{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0}
+input:focus-visible,button:focus-visible,textarea:focus-visible,tr:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+button{font:inherit;font-weight:600;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+button.pri{background:var(--head);color:var(--head-ink);border-color:var(--head)}
+button.ghost{border-color:transparent;background:transparent;color:var(--muted);padding:4px 8px}
+button.ghost:hover{color:var(--red)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.file{position:relative;overflow:hidden}
+.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+thead th{background:var(--head);color:var(--head-ink);font-weight:600;font-size:12.5px}
+th.n,td.n{text-align:right}
+.entry td{padding:4px 6px}
+.entry input{width:100%}
+.entry td:nth-child(2) input{min-width:200px}
+.entry td:nth-child(3) input{width:110px;text-align:right}
+.entry td:nth-child(6) input{width:80px}
+textarea{width:100%;min-height:70px;font-family:var(--mono);font-size:12px;resize:vertical}
+.hint{font-size:12.5px;color:var(--muted)}
+.msg{font-size:13px;padding:8px 12px;border-radius:6px;background:var(--panel)}
+.msg.ok{background:var(--green-bg);color:var(--green)} .msg.err{background:#0000;border:1px solid var(--red);color:var(--red)}
+.res tbody tr{cursor:pointer}
+.res tbody tr:hover td{background:var(--panel)}
+.res tbody tr.sel td{background:var(--hl)}
+.res tfoot td{font-weight:700;background:var(--panel)}
+.pos{color:var(--green);font-weight:700} .neg{color:var(--red);font-weight:700}
+.badge{font-size:11.5px;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--chip);color:var(--chip-ink)}
+.badge.err{background:transparent;border:1px solid var(--red);color:var(--red)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+/* Detalhe no padrão do modelo */
+.cmp{border:2px solid var(--head);border-radius:12px;padding:20px;background:var(--surface);display:flex;flex-direction:column;gap:14px;min-width:0}
+.cmp h3{margin:0;font-size:18px;font-weight:800}
+.cmp tr.tot td{background:var(--hl);font-weight:800}
+.cmp tr.tot td.ga{color:var(--green)}
+.note{border-left:4px solid var(--green);background:var(--green-bg);padding:12px 16px;border-radius:0 6px 6px 0;line-height:1.5}
+.twin{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:900px){.twin{grid-template-columns:1fr}}
+.sim{background:var(--panel);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.eyebrow{font-size:12.5px;color:var(--muted)}
+.who{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.who b.nm{font-size:19px;font-weight:800;text-transform:uppercase;display:block}
+.dates{display:flex;gap:16px;flex-wrap:wrap}
+.dates div{display:flex;flex-direction:column;align-items:flex-end}
+.dates span{font-size:12px;color:var(--muted)} .dates b{font-size:15px}
+.big{font-size:44px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.big small{font-size:20px;color:var(--muted);margin-right:4px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:480px){.kpis{grid-template-columns:1fr}.big{font-size:34px}}
+.kpi{padding:14px 18px;border-left:5px solid}
+.kpi.g{background:var(--green-bg);border-color:var(--green)} .kpi.a{background:var(--amber-bg);border-color:var(--amber)}
+.kpi b{display:block;font-size:15px} .kpi span{font-size:12px;color:var(--muted)}
+.kpi strong{display:block;font-size:26px;font-weight:800;margin-top:4px}
+.kpi.g strong{color:var(--green)} .kpi.a strong{color:var(--amber)}
+.sim table td{background:var(--surface);white-space:normal}
+.sim h4{margin:6px 0 0;font-size:16px}
+.sim td small{display:block;color:var(--muted);font-size:12px}
+.sim tr.liq td{font-weight:700}
+.sim tr.mul td{background:var(--green-bg);color:var(--green);font-weight:600}
+.sim tr.ct td{background:var(--head);color:var(--head-ink);font-weight:700}
+.dn{color:var(--red)}
+.ttl{display:flex;gap:12px;align-items:flex-start}.voltar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);margin-top:2px}.voltar:hover{background:var(--panel)}.voltar svg{width:18px;height:18px}
+.foot{font-size:12px;color:var(--muted);line-height:1.5}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <div class="ttl"><a class="voltar" href="index.html" title="Voltar ao início" aria-label="Voltar ao início"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></a><div>
+      <h1>Simulador de Rescisão · Contrato de Experiência</h1>
+      <p class="sub">Compara a antecipação do contrato (art. 479 CLT) com o término natural da experiência, colaborador a colaborador ou em massa.</p>
+    </div></div>
+    <div class="rules">
+      <span class="chip" id="chip45">Unidade 1: 45 + 45 dias</span>
+      <span class="chip">Demais: 30 + 30 dias</span>
+    </div>
+  </header>
+
+  <section class="card" aria-labelledby="t-entrada">
+    <div class="bar">
+      <h2 id="t-entrada">1. Colaboradores</h2>
+      <div class="actions">
+        <span class="file"><button class="pri" type="button" tabindex="-1">Importar planilha (.xlsx / .csv)</button><input id="arquivo" type="file" accept=".xlsx,.xls,.csv" aria-label="Importar planilha"></span>
+        <button type="button" id="addRow">+ Linha</button>
+        <button type="button" id="clearAll">Limpar tudo</button>
+      </div>
+    </div>
+    <p class="hint">Colunas da planilha: <b>Nome · Salário · Admissão · Data de desligamento · Unidade</b>. A 1ª linha deve ser o cabeçalho. Também é possível colar as linhas direto do Excel no campo abaixo.</p>
+    <textarea id="colar" placeholder="Cole aqui as linhas copiadas do Excel (com ou sem cabeçalho) e clique em Incluir colados"></textarea>
+    <div class="actions">
+      <button type="button" id="btnColar">Incluir colados</button>
+      <label class="inl">Unidades com 45 + 45 <input id="u45" value="1" size="8" aria-label="Unidades com experiência de 45 + 45 dias"></label>
+      <span class="hint">separe por vírgula; as demais seguem 30 + 30</span>
+    </div>
+    <div id="msg" class="msg" hidden></div>
+    <div class="scroll">
+      <table class="entry">
+        <thead><tr><th>#</th><th>Nome</th><th class="n">Salário (R$)</th><th>Admissão</th><th>Data de desligamento</th><th>Unidade</th><th></th></tr></thead>
+        <tbody id="entryBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="t-res">
+    <div class="bar">
+      <h2 id="t-res">2. Resultado em massa</h2>
+      <div class="actions"><button type="button" id="copiar">Copiar resultado para o Excel</button></div>
+    </div>
+    <div class="scroll">
+      <table class="res">
+        <thead><tr><th>Nome</th><th>Unid.</th><th>Fase</th><th>Antecipação</th><th>Término</th><th class="n">+ dias</th>
+          <th class="n">Desembolso antecipação</th><th class="n">Desembolso término</th><th class="n">Diferença</th>
+          <th class="n">Líquido antecip.</th><th class="n">Líquido término</th></tr></thead>
+        <tbody id="resBody"></tbody>
+        <tfoot id="resFoot"></tfoot>
+      </table>
+    </div>
+    <p class="hint">Clique em um colaborador para ver o comparativo detalhado.</p>
+  </section>
+
+  <section id="detalhe" aria-live="polite"></section>
+</div>
+
+<script>
+/* ===== Motor de cálculo — rescisão de contrato de experiência ===== */
+const DAY = 86400000;
+const r2 = v => Math.round((v + Number.EPSILON) * 100) / 100;
+const D = (y, m, d) => new Date(Date.UTC(y, m - 1, d));
+const Y = d => d.getUTCFullYear(), M = d => d.getUTCMonth() + 1, Dd = d => d.getUTCDate();
+const addDays = (d, n) => new Date(d.getTime() + n * DAY);
+const diffDays = (a, b) => Math.round((b - a) / DAY);
+const lastDay = (y, m) => new Date(Date.UTC(y, m, 0)).getUTCDate();
+const addMonthsClamp = (d, k) => {
+  const t = Y(d) * 12 + (M(d) - 1) + k, y = Math.floor(t / 12), m = (t % 12) + 1;
+  return D(y, m, Math.min(Dd(d), lastDay(y, m)));
+};
+const maxD = (a, b) => (a > b ? a : b), minD = (a, b) => (a < b ? a : b);
+
+/* INSS 2026 (progressiva) */
+const INSS_FAIXAS = [[1621.00, 0.075], [2902.84, 0.09], [4354.27, 0.12], [8475.55, 0.14]];
+function inss(base) {
+  let ant = 0, tot = 0;
+  for (const [lim, al] of INSS_FAIXAS) {
+    if (base <= ant) break;
+    tot += (Math.min(base, lim) - ant) * al; ant = lim;
+  }
+  return r2(tot);
+}
+/* IRRF 2026 — tabela mensal + redução da Lei 15.270/2025 (estimativa) */
+const IR_FAIXAS = [[2428.80, 0, 0], [2826.65, 0.075, 182.16], [3751.05, 0.15, 394.16], [4664.68, 0.225, 675.49], [Infinity, 0.275, 908.73]];
+function irTabela(base) {
+  if (base <= 0) return 0;
+  for (const [lim, al, ded] of IR_FAIXAS) if (base <= lim) return Math.max(0, base * al - ded);
+  return 0;
+}
+function irrf(bruto, deducao) {
+  const imposto = irTabela(bruto - deducao);
+  let red = 0;
+  if (bruto <= 5000) red = Math.min(imposto, 312.89);
+  else if (bruto <= 7350) red = Math.max(0, Math.min(imposto, 978.62 - 0.133145 * bruto));
+  return r2(Math.max(0, imposto - red));
+}
+
+/* Dias trabalhados no mês (calendário, teto 30) */
+function diasMes(adm, y, m, fim) {
+  const ini = maxD(adm, D(y, m, 1)), f = minD(fim, D(y, m, lastDay(y, m)));
+  if (f < ini) return 0;
+  const full = ini.getTime() === D(y, m, 1).getTime() && f.getTime() === D(y, m, lastDay(y, m)).getTime();
+  return full ? 30 : Math.min(30, diffDays(ini, f) + 1);
+}
+/* Avos de 13º no ano: meses com 15+ dias */
+function avos13(adm, y, fim) {
+  let n = 0;
+  for (let m = 1; m <= 12; m++) {
+    const ini = maxD(adm, D(y, m, 1)), f = minD(fim, D(y, m, lastDay(y, m)));
+    if (f >= ini && diffDays(ini, f) + 1 >= 15) n++;
+  }
+  return n;
+}
+/* Avos de férias: períodos mensais a partir da admissão */
+function avosFerias(adm, fim) {
+  let n = 0;
+  for (let k = 0; k < 13; k++) {
+    const ini = addMonthsClamp(adm, k), fimP = addDays(addMonthsClamp(adm, k + 1), -1);
+    if (ini > fim) break;
+    if (fimP <= fim) n++;
+    else { if (diffDays(ini, fim) + 1 >= 15) n++; break; }
+  }
+  return Math.min(n, 12);
+}
+/* Prazo de pagamento: 10 dias corridos; fim de semana antecipa para sexta */
+function prazoPagamento(d) {
+  let p = addDays(d, 10); const w = p.getUTCDay();
+  if (w === 6) p = addDays(p, -1); if (w === 0) p = addDays(p, -2);
+  return p;
+}
+
+function simular(emp, cfg) {
+  const { nome, salario: sal, admissao: adm, desligamento: d1, unidade } = emp;
+  const erros = [];
+  if (!nome) erros.push('Nome vazio');
+  if (!(sal > 0)) erros.push('Salário inválido');
+  if (!adm) erros.push('Admissão inválida');
+  if (!d1) erros.push('Desligamento inválido');
+  if (erros.length) return { emp, erro: erros.join('; ') };
+  const u45 = cfg.isUnidade45(unidade);
+  const P = u45 ? 45 : 30;
+  const fim1 = addDays(adm, P - 1), fim2 = addDays(adm, 2 * P - 1);
+  if (d1 < adm) return { emp, erro: 'Desligamento antes da admissão' };
+  let termEnd, fase;
+  if (d1 < fim1) { termEnd = fim1; fase = `1º período (${P} dias)`; }
+  else if (d1 < fim2) { termEnd = fim2; fase = `Prorrogação (${P}+${P})`; }
+  else return { emp, erro: `Desligamento após o fim da experiência (${fmtD(fim2)})` };
+
+  const diaria = sal / 30;
+  const P1 = y => r2(0.5 * sal / 12 * avos13(adm, y, D(y, 11, 30)));
+  const pagouP1 = d => M(d) >= 11 && D(Y(d), 11, 30) >= adm;
+
+  function rescisao(d, tipo) {
+    const ini = (Y(d) === Y(adm) && M(d) === M(adm)) ? Dd(adm) : 1;
+    let dias = Dd(d) - ini + 1;
+    if (ini === 1 && Dd(d) === lastDay(Y(d), M(d))) dias = 30;
+    dias = Math.min(30, dias);
+    const saldo = r2(dias * diaria);
+    const av13 = avos13(adm, Y(d), d), g13 = r2(sal / 12 * av13);
+    const ded13 = pagouP1(d) ? P1(Y(d)) : 0;
+    const avF = avosFerias(adm, d), fer = r2(sal / 12 * avF), terco = r2(fer / 3);
+    const diasRest = tipo === 'A' ? diffDays(d, termEnd) : 0;
+    const indeniz = r2(0.5 * diasRest * diaria);
+    const inssS = inss(saldo), inss13 = inss(g13);
+    const irS = irrf(saldo, Math.max(inssS, 607.20)), ir13 = irrf(g13, inss13);
+    const bruto = r2(saldo + g13 - ded13 + fer + terco + indeniz);
+    const desc = r2(inssS + inss13 + irS + ir13);
+    const fgts = r2(0.08 * (saldo + g13 - ded13));
+    return { d, tipo, dias, saldo, av13, g13, ded13, avF, fer, terco, diasRest, indeniz,
+      inssS, inss13, irS, ir13, bruto, desc, liquido: r2(bruto - desc), fgts,
+      prazo: prazoPagamento(d) };
+  }
+  const salMes = (y, m, fim) => { const n = diasMes(adm, y, m, fim); return n >= 30 ? sal : r2(n * diaria); };
+  const meses = (a, b) => { const out = []; let y = Y(a), m = M(a); while (y * 12 + m < Y(b) * 12 + M(b)) { out.push([y, m]); m++; if (m > 12) { m = 1; y++; } } return out; };
+
+  /* Opção A — antecipação (art. 479) */
+  const A = rescisao(d1, 'A');
+  let depAnt = 0;
+  for (const [y, m] of meses(adm, d1)) {
+    depAnt += 0.08 * salMes(y, m, d1);
+    if (m === 11) depAnt += 0.08 * P1(y);
+    if (m === 12) depAnt += 0.08 * (r2(sal / 12 * avos13(adm, y, D(y, 12, 31))) - P1(y));
+  }
+  if (M(d1) === 11 && pagouP1(d1)) depAnt += 0.08 * P1(Y(d1));
+  A.depAnt = r2(depAnt);
+  A.multa = r2(0.4 * (A.depAnt + A.fgts));
+  A.custo = r2(A.bruto + A.fgts + A.multa);
+  A.desembolso = A.custo;
+
+  /* Opção B — término do contrato */
+  const B = rescisao(termEnd, 'B');
+  B.multa = 0; B.custo = r2(B.bruto + B.fgts);
+  let folha = 0, dec13 = 0;
+  for (const [y, m] of meses(d1, termEnd)) {
+    folha += salMes(y, m, termEnd);
+    if (m === 11 && M(d1) < 11 && Y(d1) === y) dec13 += P1(y);
+    if (m === 11 && Y(d1) < y) dec13 += P1(y);
+    if (m === 12) dec13 += r2(sal / 12 * avos13(adm, y, D(y, 12, 31))) - P1(y);
+  }
+  B.folha = r2(folha); B.folhaFgts = r2(folha * 1.08);
+  B.dec13 = r2(dec13); B.dec13Fgts = r2(dec13 * 1.08);
+  B.desembolso = r2(B.custo + B.folhaFgts + B.dec13Fgts);
+
+  return { emp, u45, P, fase, fim1, fim2, termEnd, A, B,
+    diasDif: diffDays(d1, termEnd), economia: r2(B.desembolso - A.desembolso) };
+}
+const fmtD = d => d ? `${String(Dd(d)).padStart(2, '0')}/${String(M(d)).padStart(2, '0')}/${Y(d)}` : '';
+if (typeof module !== 'undefined') module.exports = { simular, D, fmtD, inss, irrf };
+
+</script>
+<script>
+const $ = s => document.querySelector(s);
+const brl = v => (v ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+let rows = [], sel = 0;
+
+function cfg() {
+  const list = $('#u45').value.split(/[,;]/).map(norm).filter(Boolean);
+  return { isUnidade45: u => { const n = norm(u), dig = (n.match(/\d+/) || [])[0]; return list.some(x => x === n || (dig && x === dig)); } };
+}
+function parseDate(v) {
+  if (v == null || v === '') return null;
+  if (v instanceof Date && !isNaN(v)) return D(v.getFullYear(), v.getMonth() + 1, v.getDate());
+  if (typeof v === 'number') { const d = new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 86400000); return d; }
+  const s = String(v).trim(); let m;
+  if ((m = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/))) { let y = +m[3]; if (y < 100) y += 2000; return D(y, +m[2], +m[1]); }
+  if ((m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return D(+m[1], +m[2], +m[3]);
+  if (/^\d+(\.\d+)?$/.test(s)) return parseDate(+s);
+  return null;
+}
+function parseMoney(v) {
+  if (typeof v === 'number') return v;
+  let s = String(v ?? '').replace(/[R$\s]/g, '');
+  if (!s) return NaN;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  return parseFloat(s);
+}
+const isoOf = d => d ? d.toISOString().slice(0, 10) : '';
+const keyOf = h => { const n = norm(h); if (n.startsWith('nome')) return 'nome'; if (n.startsWith('sal')) return 'salario';
+  if (n.startsWith('adm')) return 'admissao'; if (n.includes('deslig') || n.includes('demiss')) return 'desligamento'; if (n.startsWith('unid') || n.includes('estab')) return 'unidade'; return null; };
+
+function addFromMatrix(mat) {
+  mat = mat.filter(r => r && r.some(c => String(c ?? '').trim() !== ''));
+  if (!mat.length) return 0;
+  let map = ['nome', 'salario', 'admissao', 'desligamento', 'unidade'];
+  const head = mat[0].map(keyOf);
+  if (head.filter(Boolean).length >= 3) { map = head; mat = mat.slice(1); }
+  let n = 0;
+  for (const r of mat) {
+    const o = {}; map.forEach((k, i) => { if (k) o[k] = r[i]; });
+    rows.push({ nome: String(o.nome ?? '').trim(), salario: parseMoney(o.salario), admissao: parseDate(o.admissao), desligamento: parseDate(o.desligamento), unidade: String(o.unidade ?? '').trim() });
+    n++;
+  }
+  return n;
+}
+function flash(t, kind) { const m = $('#msg'); m.textContent = t; m.className = 'msg ' + (kind || ''); m.hidden = false; }
+
+function renderEntry() {
+  const tb = $('#entryBody');
+  if (!rows.length) rows.push({ nome: '', salario: NaN, admissao: null, desligamento: null, unidade: '' });
+  tb.innerHTML = rows.map((r, i) => `<tr data-i="${i}">
+    <td class="num">${i + 1}</td>
+    <td><input id="nm${i}" data-k="nome" value="${(r.nome || '').replace(/"/g, '&quot;')}" placeholder="Nome do colaborador" aria-label="Nome"></td>
+    <td><input id="sl${i}" data-k="salario" inputmode="decimal" value="${isNaN(r.salario) ? '' : brl(r.salario)}" placeholder="0,00" aria-label="Salário"></td>
+    <td><input id="ad${i}" data-k="admissao" type="date" value="${isoOf(r.admissao)}" aria-label="Admissão"></td>
+    <td><input id="dl${i}" data-k="desligamento" type="date" value="${isoOf(r.desligamento)}" aria-label="Data de desligamento"></td>
+    <td><input id="un${i}" data-k="unidade" value="${(r.unidade || '').replace(/"/g, '&quot;')}" placeholder="1" aria-label="Unidade"></td>
+    <td><button class="ghost" data-del="${i}" aria-label="Remover linha">Remover</button></td></tr>`).join('');
+}
+$('#entryBody').addEventListener('change', e => {
+  const inp = e.target, tr = inp.closest('tr'); if (!tr || !inp.dataset.k) return;
+  const r = rows[+tr.dataset.i], k = inp.dataset.k;
+  if (k === 'salario') { r.salario = parseMoney(inp.value); if (!isNaN(r.salario)) inp.value = brl(r.salario); }
+  else if (k === 'admissao' || k === 'desligamento') r[k] = parseDate(inp.value);
+  else r[k] = inp.value.trim();
+  compute();
+});
+$('#entryBody').addEventListener('click', e => {
+  const b = e.target.closest('[data-del]'); if (!b) return;
+  rows.splice(+b.dataset.del, 1); if (sel >= rows.length) sel = Math.max(0, rows.length - 1);
+  renderEntry(); compute();
+});
+$('#addRow').onclick = () => { rows.push({ nome: '', salario: NaN, admissao: null, desligamento: null, unidade: '' }); renderEntry(); $('#nm' + (rows.length - 1)).focus(); };
+let armed = false;
+$('#clearAll').onclick = e => {
+  if (!armed) { armed = true; e.target.textContent = 'Confirmar limpeza'; setTimeout(() => { armed = false; e.target.textContent = 'Limpar tudo'; }, 3000); return; }
+  armed = false; e.target.textContent = 'Limpar tudo'; rows = []; sel = 0; renderEntry(); compute(); flash('Dados apagados desta tela.', '');
+};
+$('#u45').addEventListener('input', () => { $('#chip45').textContent = 'Unidade ' + ($('#u45').value || '—') + ': 45 + 45 dias'; compute(); });
+const blank = r => !r.nome && isNaN(r.salario) && !r.admissao && !r.desligamento;
+function stripBlank() { rows = rows.filter(r => !blank(r)); }
+
+$('#btnColar').onclick = () => {
+  const txt = $('#colar').value; if (!txt.trim()) { flash('Cole as linhas do Excel no campo antes de incluir.', 'err'); return; }
+  stripBlank();
+  const n = addFromMatrix(txt.split(/\r?\n/).map(l => l.split(l.includes('\t') ? '\t' : ';')));
+  $('#colar').value = ''; renderEntry(); compute(); flash(`${n} colaborador(es) incluído(s).`, 'ok');
+};
+$('#arquivo').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  if (typeof XLSX === 'undefined') { flash('Não foi possível carregar o leitor de planilhas. Use a opção de colar as linhas do Excel.', 'err'); return; }
+  try {
+    const wb = XLSX.read(await f.arrayBuffer(), { type: 'array', cellDates: false });
+    const mat = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: true, defval: '' });
+    stripBlank(); const n = addFromMatrix(mat);
+    renderEntry(); compute(); flash(`${n} colaborador(es) importado(s) de ${f.name}.`, 'ok');
+  } catch (err) { flash('Não consegui ler o arquivo. Confira se é .xlsx ou .csv com o cabeçalho na 1ª linha.', 'err'); }
+  e.target.value = '';
+});
+
+let results = [];
+function compute() {
+  const c = cfg();
+  results = rows.map((r, i) => ({ i, ...(blank(r) ? { vazio: true } : simular(r, c)) }));
+  const valid = results.filter(x => !x.vazio);
+  const tb = $('#resBody');
+  if (!valid.length) { tb.innerHTML = `<tr><td colspan="11" class="empty">Nenhum colaborador lançado. Importe a planilha, cole as linhas do Excel ou preencha a tabela acima.</td></tr>`; $('#resFoot').innerHTML = ''; $('#detalhe').innerHTML = ''; return; }
+  tb.innerHTML = valid.map(x => x.erro
+    ? `<tr data-i="${x.i}" tabindex="0"><td>${esc(x.emp.nome || '(sem nome)')}</td><td>${esc(x.emp.unidade)}</td><td colspan="9"><span class="badge err">${esc(x.erro)}</span></td></tr>`
+    : `<tr data-i="${x.i}" tabindex="0" class="${x.i === sel ? 'sel' : ''}"><td>${esc(x.emp.nome)}</td><td>${esc(x.emp.unidade)}</td><td><span class="badge">${x.fase}</span></td>
+      <td class="num">${fmtD(x.emp.desligamento)}</td><td class="num">${fmtD(x.termEnd)}</td><td class="n">${x.diasDif}</td>
+      <td class="n">${brl(x.A.desembolso)}</td><td class="n">${brl(x.B.desembolso)}</td><td class="n ${x.economia >= 0 ? 'pos' : 'neg'}">${x.economia >= 0 ? '+' : ''}${brl(x.economia)}</td>
+      <td class="n">${brl(x.A.liquido)}</td><td class="n">${brl(x.B.liquido)}</td></tr>`).join('');
+  const ok = valid.filter(x => !x.erro), s = k => ok.reduce((a, x) => a + k(x), 0);
+  $('#resFoot').innerHTML = ok.length ? `<tr><td colspan="6">Total · ${ok.length} colaborador(es)${valid.length - ok.length ? ` · ${valid.length - ok.length} com erro` : ''}</td>
+    <td class="n">${brl(s(x => x.A.desembolso))}</td><td class="n">${brl(s(x => x.B.desembolso))}</td><td class="n">${brl(s(x => x.economia))}</td>
+    <td class="n">${brl(s(x => x.A.liquido))}</td><td class="n">${brl(s(x => x.B.liquido))}</td></tr>` : '';
+  if (!ok.some(x => x.i === sel) && ok.length) sel = ok[0].i;
+  [...tb.querySelectorAll('tr')].forEach(tr => tr.classList.toggle('sel', +tr.dataset.i === sel));
+  renderDetail(results.find(x => x.i === sel && !x.erro && !x.vazio));
+}
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function pick(e) { const tr = e.target.closest('tr[data-i]'); if (!tr) return; sel = +tr.dataset.i; compute(); $('#detalhe').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }
+$('#resBody').addEventListener('click', pick);
+$('#resBody').addEventListener('keydown', e => { if (e.key === 'Enter') pick(e); });
+
+const mesNome = d => ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'][d.getUTCMonth()] + (d.getUTCFullYear() !== new Date().getFullYear() ? '/' + String(d.getUTCFullYear()).slice(2) : '');
+const row = (l, v, cls = '') => `<tr class="${cls}"><td>${l}</td><td class="n">${v}</td></tr>`;
+const neg = v => `<span class="dn">-${brl(v)}</span>`;
+
+function card(x, o, tipo) {
+  const A = tipo === 'A', e = x.emp;
+  let verbas = row(`Saldo de salário (${o.dias} dia${o.dias > 1 ? 's' : ''} de ${mesNome(o.d)})`, brl(o.saldo))
+    + row(`13º proporcional${o.d.getUTCFullYear() !== e.admissao.getUTCFullYear() ? ' ' + o.d.getUTCFullYear() : ''} (${o.av13}/12)`, brl(o.g13))
+    + (o.ded13 ? row('(−) 1ª parcela do 13º paga em 30/11', neg(o.ded13)) : '')
+    + row(`Férias proporcionais (${o.avF}/12)`, brl(o.fer)) + row('1/3 de férias', brl(o.terco))
+    + (A ? row(`Indenização art. 479 (50% de ${o.diasRest} dias)`, brl(o.indeniz)) : '')
+    + row('(−) INSS sobre saldo de salário', neg(o.inssS))
+    + (o.inss13 ? row('(−) INSS sobre 13º', neg(o.inss13)) : '')
+    + (o.irS ? row('(−) IRRF sobre saldo de salário', neg(o.irS)) : '')
+    + (o.ir13 ? row('(−) IRRF sobre 13º', neg(o.ir13)) : '')
+    + row('Líquido', brl(o.liquido), 'liq');
+  const comp = `Verbas rescisórias<small>${A ? 'saldo, 13º' + (o.ded13 ? ' (− 1ª parcela)' : '') + ', férias + 1/3, art. 479' : 'saldo, 13º, férias + 1/3'}</small>`;
+  return `<article class="sim">
+    <div><div class="eyebrow">Simulação de rescisão</div><span class="chip">${A ? 'Antecipação do contrato de experiência (art. 479 CLT)' : 'Término do contrato de experiência'}</span></div>
+    <div class="who"><div><b class="nm">${esc(e.nome)}</b><span class="eyebrow">Unidade ${esc(e.unidade)} · ${x.P} + ${x.P} dias</span></div>
+      <div class="dates num"><div><span>Admissão</span><b>${fmtD(e.admissao)}</b></div><div><span>Desligamento</span><b>${fmtD(o.d)}</b></div><div><span>Pagamento</span><b>${fmtD(o.prazo)}</b></div></div></div>
+    <div><div class="eyebrow">Custo total da rescisão para a empresa</div><div class="big num"><small>R$</small>${brl(o.custo)}</div></div>
+    <div class="kpis">
+      <div class="kpi g"><b>Multa do FGTS (40%)</b><span>${A ? 'Custo exclusivo da empresa' : 'Não devida no término normal'}</span><strong class="num">R$ ${brl(o.multa)}</strong></div>
+      <div class="kpi a"><b>Líquido a pagar</b><span>Prazo legal até ${fmtD(o.prazo)}</span><strong class="num">R$ ${brl(o.liquido)}</strong></div>
+    </div>
+    <h4>Verbas</h4><table><tbody>${verbas}</tbody></table>
+    <h4>Composição do custo</h4><table><tbody>${row(comp, brl(o.bruto))}${row('FGTS sobre a rescisão (8%)', brl(o.fgts))}${row('Multa do FGTS (40%)', brl(o.multa), 'mul')}${row('Custo total', 'R$ ' + brl(o.custo), 'ct')}</tbody></table>
+    <p class="foot">${A ? 'Indenização do art. 479 sem incidência de INSS, FGTS e IRRF.' : 'Salários até o término e 13º (2ª parcela em dezembro) pagos na folha normal.'}</p>
+  </article>`;
+}
+function renderDetail(x) {
+  if (!x) { $('#detalhe').innerHTML = ''; return; }
+  const { A, B, emp: e } = x, mesesB = B.folha ? `Salários na folha normal até o término (+ FGTS 8%)` : '';
+  $('#detalhe').innerHTML = `<div class="wrap" style="gap:20px">
+  <div class="cmp"><h3>Comparativo · ${esc(e.nome)} · salário R$ ${brl(e.salario)}</h3>
+    <div class="scroll"><table><thead><tr><th></th><th class="n">1ª opção · Antecipação (art. 479)</th><th class="n">2ª opção · Término da experiência</th><th class="n">Diferença</th></tr></thead><tbody>
+    <tr><td>Data de desligamento</td><td class="n">${fmtD(e.desligamento)}</td><td class="n">${fmtD(x.termEnd)}</td><td class="n">+ ${x.diasDif} dias</td></tr>
+    <tr><td>Prazo de pagamento da rescisão</td><td class="n">${fmtD(A.prazo)}</td><td class="n">${fmtD(B.prazo)}</td><td></td></tr>
+    <tr><td>Salários na folha normal até o término (+ FGTS 8%)</td><td class="n">— (no saldo da rescisão)</td><td class="n">${brl(B.folhaFgts)}</td><td></td></tr>
+    <tr><td>13º pago na folha (+ FGTS 8%)</td><td class="n">— (na rescisão)</td><td class="n">${brl(B.dec13Fgts)}</td><td></td></tr>
+    <tr><td>Custo da rescisão</td><td class="n">${brl(A.custo)}</td><td class="n">${brl(B.custo)}</td><td></td></tr>
+    <tr><td>Indenização art. 479 / multa 40% FGTS</td><td class="n">${brl(A.indeniz)} / ${brl(A.multa)}</td><td class="n">0,00 / 0,00</td><td></td></tr>
+    <tr class="tot"><td>Desembolso total da empresa (a partir de ${mesNome(e.desligamento)})</td><td class="n ga">R$ ${brl(A.desembolso)}</td><td class="n">R$ ${brl(B.desembolso)}</td><td class="n">${x.economia >= 0 ? '+' : ''} R$ ${brl(x.economia)}</td></tr>
+    <tr><td>Líquido da rescisão para o colaborador</td><td class="n">${brl(A.liquido)}</td><td class="n">${brl(B.liquido)}</td><td></td></tr>
+    </tbody></table></div>
+    <div class="note">${x.economia >= 0
+      ? `A antecipação (pagamento em ${fmtD(A.prazo)}) custa <b>R$ ${brl(x.economia)} a menos</b> que o término (pagamento em ${fmtD(B.prazo)}): a empresa deixa de pagar ${x.diasDif} dias de salário e os avos correspondentes de 13º e férias, e arca com a indenização do art. 479 (R$ ${brl(A.indeniz)}) e a multa de 40% (R$ ${brl(A.multa)}).`
+      : `Neste caso o término custa <b>R$ ${brl(-x.economia)} a menos</b> que a antecipação: a indenização do art. 479 (R$ ${brl(A.indeniz)}) e a multa de 40% (R$ ${brl(A.multa)}) superam os ${x.diasDif} dias de salário evitados.`}</div>
+  </div>
+  <div class="twin">${card(x, A, 'A')}${card(x, B, 'B')}</div>
+  <p class="foot">Valores de simulação. Não inclui encargos patronais sobre a folha (INSS empresa, RAT e terceiros). A 1ª parcela do 13º é considerada paga em 30/11 quando o desligamento ocorre em novembro ou dezembro, e é descontada na rescisão; ela fica fora do desembolso nos dois cenários. Prazo de pagamento: 10 dias corridos, antecipado para sexta quando cai em fim de semana (feriados não considerados). INSS pela tabela 2026; IRRF estimado pela tabela 2026 com a redução da Lei 15.270/2025. Multa de 40% estimada sobre os depósitos de FGTS do período, a confirmar pelo extrato. Fase: ${x.fase}.</p>
+  </div>`;
+}
+
+$('#copiar').onclick = async e => {
+  const ok = results.filter(x => !x.vazio && !x.erro);
+  if (!ok.length) { flash('Não há resultados para copiar.', 'err'); return; }
+  const H = ['Nome', 'Unidade', 'Regra', 'Fase', 'Salário', 'Admissão', 'Desligamento (antecipação)', 'Término', 'Dias a mais',
+    'Antecip. saldo', 'Antecip. 13º', 'Antecip. (−) 1ª parc.', 'Antecip. férias + 1/3', 'Antecip. art. 479', 'Antecip. INSS', 'Antecip. IRRF', 'Antecip. líquido', 'Antecip. FGTS 8%', 'Antecip. multa 40%', 'Antecip. custo rescisão', 'Antecip. pagamento',
+    'Término saldo', 'Término 13º', 'Término (−) 1ª parc.', 'Término férias + 1/3', 'Término INSS', 'Término IRRF', 'Término líquido', 'Término FGTS 8%', 'Término custo rescisão', 'Término folha + FGTS', 'Término 13º folha + FGTS', 'Término pagamento',
+    'Desembolso antecipação', 'Desembolso término', 'Diferença'];
+  const L = ok.map(x => { const A = x.A, B = x.B, f = brl; return [x.emp.nome, x.emp.unidade, `${x.P}+${x.P}`, x.fase, f(x.emp.salario), fmtD(x.emp.admissao), fmtD(x.emp.desligamento), fmtD(x.termEnd), x.diasDif,
+    f(A.saldo), f(A.g13), f(A.ded13), f(A.fer + A.terco), f(A.indeniz), f(A.inssS + A.inss13), f(A.irS + A.ir13), f(A.liquido), f(A.fgts), f(A.multa), f(A.custo), fmtD(A.prazo),
+    f(B.saldo), f(B.g13), f(B.ded13), f(B.fer + B.terco), f(B.inssS + B.inss13), f(B.irS + B.ir13), f(B.liquido), f(B.fgts), f(B.custo), f(B.folhaFgts), f(B.dec13Fgts), fmtD(B.prazo),
+    f(A.desembolso), f(B.desembolso), f(x.economia)].join('\t'); });
+  const txt = [H.join('\t'), ...L].join('\n');
+  try { await navigator.clipboard.writeText(txt); flash(`Resultado de ${ok.length} colaborador(es) copiado. Cole no Excel com Ctrl+V.`, 'ok'); }
+  catch { $('#colar').value = txt; $('#colar').select(); flash('A cópia automática foi bloqueada. O resultado está selecionado no campo de colar: use Ctrl+C e depois limpe o campo.', 'err'); }
+};
+renderEntry(); compute();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</body>
+</html>
