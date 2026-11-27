@@ -336,7 +336,7 @@ function render(){
     <p class="saud">Ao(À) colaborador(a) <b>${d.nome}</b> – Matrícula <b>${d.mat}</b> – CPF <b>${d.cpf}</b>,</p>
     <div class="corpo">${t.ps.map(x=>`<p>${x}</p>`).join("")}</div>
     <p class="fecho">Atenciosamente,</p>
-    <div class="assin"><div class="sig"><div class="sig-top"></div><div class="sig-line"></div><b>${d.empresa}</b><span>Empregador</span></div><div></div></div>`;
+    <p><b>${d.empresa}</b></p>`;
   $("err").textContent="";
 }
 
