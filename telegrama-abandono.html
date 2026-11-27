@@ -56,6 +56,7 @@ input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;bord
 .opc{margin:0 0 1.5mm 6mm}
 button{margin-top:26px;width:100%;padding:12px;border:0;border-radius:8px;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:650;cursor:pointer}
 button:hover{filter:brightness(1.08)}
+.grupo{margin:26px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .err{color:#c0392b;font-size:13px;margin-top:10px;min-height:18px}
 main{padding:32px;overflow:auto;display:flex;justify-content:center}
 
@@ -154,7 +155,13 @@ h1{font-size:1.15rem;font-weight:700}
     </select>
     <div class="hint dica" id="hintFin"></div>
 
-    <label for="nome">Nome do funcionário</label>
+    <div class="grupo">Remetente</div>
+    <label for="empresa">Empresa</label>
+    <input id="empresa" autocomplete="off" value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA" readonly>
+    <div class="hint">Rod. Governador Mário Covas, S/N – Linhares/ES – CEP 29.913-010</div>
+
+    <div class="grupo">Destinatário (colaborador)</div>
+    <label for="nome">Nome do colaborador</label>
     <input id="nome" autocomplete="off" placeholder="Nome completo">
 
     <div class="row">
@@ -168,10 +175,7 @@ h1{font-size:1.15rem;font-weight:700}
       </div>
     </div>
 
-    <label for="empresa">Empresa</label>
-    <input id="empresa" autocomplete="off" value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA" readonly>
-
-    <label for="logradouro">Logradouro</label>
+    <label for="logradouro">Endereço (rua, avenida, estrada)</label>
     <input id="logradouro" autocomplete="off">
 
     <div class="row">
@@ -180,10 +184,13 @@ h1{font-size:1.15rem;font-weight:700}
         <input id="numero" autocomplete="off">
       </div>
       <div>
-        <label for="bairro">Bairro</label>
-        <input id="bairro" autocomplete="off">
+        <label for="compl">Complemento</label>
+        <input id="compl" autocomplete="off" placeholder="Opcional">
       </div>
     </div>
+
+    <label for="bairro">Bairro</label>
+    <input id="bairro" autocomplete="off">
 
     <div class="row">
       <div>
@@ -191,10 +198,15 @@ h1{font-size:1.15rem;font-weight:700}
         <input id="cidade" autocomplete="off">
       </div>
       <div>
-        <label for="cep">CEP</label>
-        <input id="cep" inputmode="numeric" autocomplete="off" maxlength="10">
+        <label for="uf">UF</label>
+        <input id="uf" autocomplete="off" maxlength="2">
       </div>
     </div>
+
+    <label for="cep">CEP</label>
+    <input id="cep" inputmode="numeric" autocomplete="off" maxlength="10">
+
+    <div class="grupo">Ausências</div>
 
     <div class="row">
       <div>
@@ -266,6 +278,8 @@ function dados(){
     empresa: esc($("empresa").value.trim().toUpperCase()) || "",
     logradouro: esc($("logradouro").value.trim().toUpperCase()),
     numero: esc($("numero").value.trim().toUpperCase()),
+    compl: esc($("compl").value.trim().toUpperCase()),
+    uf: esc($("uf").value.trim().toUpperCase()),
     bairro: esc($("bairro").value.trim().toUpperCase()),
     cep: esc($("cep").value.trim()),
     cidade: esc($("cidade").value.trim().toUpperCase()) || "",
@@ -314,10 +328,10 @@ function render(){
   $("page").innerHTML = `<img class="logo" src="${LOGO}" alt="Fresnomaq">
     <div class="cab"><h1>Telegrama</h1><p>${t.titulo}</p></div>
     <div class="tele-opc"><p>Cópia da mensagem: <b>sim</b></p><p>Confirmação de entrega: <b>sim</b></p></div>
-    <p class="data">${d.cidade?d.cidade+", ":""}${d.dataExt}.</p>
+    <p class="data">Linhares/ES, ${d.dataExt}.</p>
     <div class="tele-blocos">
-      <div><h2>Remetente</h2><p><b>${d.empresa}</b></p><p>Logradouro: ${d.logradouro}</p><p>Número: ${d.numero}</p><p>Bairro: ${d.bairro}</p><p>Cidade: ${d.cidade}</p><p>CEP: ${d.cep}</p></div>
-      <div><h2>Destinatário</h2><p><b>${d.nome}</b></p><p>Matrícula: ${d.mat}</p><p>CPF: ${d.cpf}</p></div>
+      <div><h2>Remetente</h2><p><b>${d.empresa}</b></p><p>Endereço: ROD. GOVERNADOR MÁRIO COVAS</p><p>Número: S/N</p><p>Cidade: LINHARES – UF: ES</p><p>CEP: 29.913-010</p></div>
+      <div><h2>Destinatário</h2><p><b>${d.nome}</b></p><p>Matrícula: ${d.mat}</p><p>CPF: ${d.cpf}</p><p>Endereço: ${d.logradouro}</p><p>Número: ${d.numero}${d.compl?" – "+d.compl:""}</p><p>Bairro: ${d.bairro}</p><p>Cidade: ${d.cidade} – UF: ${d.uf}</p><p>CEP: ${d.cep}</p></div>
     </div>
     <p class="saud">Ao(À) colaborador(a) <b>${d.nome}</b> – Matrícula <b>${d.mat}</b> – CPF <b>${d.cpf}</b>,</p>
     <div class="corpo">${t.ps.map(x=>`<p>${x}</p>`).join("")}</div>
@@ -343,20 +357,22 @@ function faltando(){
   if(!$("mat").value.trim()) f.push("matrícula");
   if($("cpf").value.replace(/\D/g,"").length!==11) f.push("CPF");
   if(!$("empresa").value.trim()) f.push("empresa");
-  if(!$("logradouro").value.trim()) f.push("logradouro");
+  if(!$("logradouro").value.trim()) f.push("endereço");
   if(!$("numero").value.trim()) f.push("número");
   if(!$("bairro").value.trim()) f.push("bairro");
   if($("cep").value.replace(/\D/g,"").length!==8) f.push("CEP");
   if(!$("cidade").value.trim()) f.push("cidade");
+  if($("uf").value.trim().length!==2) f.push("UF");
   if(!$("desde").value) f.push("data de início das ausências");
   if(!$("data").value) f.push("data do telegrama");
   if(f.length){ $("err").textContent="Preencha: "+f.join(", ")+"."; return true; }
   return false;
 }
 
+$("uf").addEventListener("input",()=>{ $("uf").value=$("uf").value.replace(/[^a-z]/gi,"").toUpperCase(); });
 $("cpf").addEventListener("input",()=>{ $("cpf").value=fmtCpf($("cpf").value); });
 $("cep").addEventListener("input",()=>{ const d=$("cep").value.replace(/\D/g,"").slice(0,8); $("cep").value=d.length>5?d.slice(0,2)+"."+d.slice(2,5)+"-"+d.slice(5):d.length>2?d.slice(0,2)+"."+d.slice(2):d; });
-["fin","nome","mat","cpf","empresa","logradouro","numero","bairro","cidade","cep","desde","data","prazo"].forEach(id=>$(id).addEventListener("input",render));
+["fin","nome","mat","cpf","empresa","logradouro","numero","compl","bairro","cidade","uf","cep","desde","data","prazo"].forEach(id=>$(id).addEventListener("input",render));
 
 $("copiar").addEventListener("click",async()=>{
   if(faltando()) return;
@@ -376,7 +392,7 @@ $("gerar").addEventListener("click",()=>{
 });
 
 /* segurança: todo carregamento começa com os dados pessoais em branco */
-["nome","mat","cpf","logradouro","numero","bairro","cidade","cep","desde"].forEach(id=>$(id).value="");
+["nome","mat","cpf","logradouro","numero","compl","bairro","cidade","uf","cep","desde"].forEach(id=>$(id).value="");
 $("empresa").value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA";
 $("fin").value="rescisao"; $("prazo").value="72";
 $("data").value = new Date().toISOString().slice(0,10);
