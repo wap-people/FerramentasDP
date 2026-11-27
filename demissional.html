@@ -311,6 +311,7 @@ table.wz td.acts .btn{padding:6px 11px;font-size:13px}
   .apptab .n{width:26px;height:26px;font-size:.85rem}
 }
 #tabWz .block:first-of-type{margin-top:6px}
+@media (min-width:641px){.apptab{padding-right:8px;flex:0 1 auto;min-width:0}.apptab + .apptab{margin-left:6px}.apptab > span:last-child{min-width:0}.apptab small{overflow:hidden;text-overflow:ellipsis}}
 .carta-frame{display:block;width:100%;height:calc(100vh - 152px);min-height:640px;border:0;background:var(--bg)}
 /* ---------- análise de estabilidade ---------- */
 #tabEst .block:first-of-type{margin-top:6px}
@@ -404,18 +405,25 @@ body{font-family:"Segoe UI",Roboto,system-ui,-apple-system,"Helvetica Neue",Aria
       <span class="n">1</span>
       <span><b><span class="longo">Carta de desligamento</span><span class="curto">Carta</span></b><small>comunicado ao colaborador, em PDF</small></span>
     </button>
-    <button class="apptab" id="tbKit" role="tab" aria-controls="tabKit" aria-selected="false" tabindex="-1" style="--cor:#2FA8B5">
+    <button class="apptab" id="tbTele" role="tab" aria-controls="tabTele" aria-selected="false" tabindex="-1" style="--cor:#F2A81D">
       <span class="n">2</span>
+      <span><b><span class="longo">Telegrama de abandono</span><span class="curto">Telegrama</span></b><small>convocação ou rescisão por abandono</small></span>
+    </button>
+    <button class="apptab" id="tbKit" role="tab" aria-controls="tabKit" aria-selected="false" tabindex="-1" style="--cor:#2FA8B5">
+      <span class="n">3</span>
       <span><b><span class="longo">Kit de homologação</span><span class="curto">Kit</span></b><small>TRCT e documentos conferidos, um PDF por pessoa</small></span>
     </button>
     <button class="apptab" id="tbWz" role="tab" aria-controls="tabWz" aria-selected="false" tabindex="-1" style="--cor:#D9375D">
-      <span class="n">3</span>
+      <span class="n">4</span>
       <span><b><span class="longo">Aviso por WhatsApp</span><span class="curto">WhatsApp</span> <span class="badge" id="wzBadge"></span></b><small>avisa que os documentos foram para o e-mail</small></span>
     </button>
   </div>
 </nav>
 <div id="tabCarta" role="tabpanel" aria-labelledby="tbCarta">
   <iframe class="carta-frame" id="cartaFrame" src="carta-desligamento.html?embed=1" title="Carta de desligamento"></iframe>
+</div>
+<div id="tabTele" role="tabpanel" aria-labelledby="tbTele" hidden>
+  <iframe class="carta-frame" id="teleFrame" src="telegrama-abandono.html?embed=1" title="Telegrama de abandono de emprego"></iframe>
 </div>
 
 <div class="wrap" id="tabKit" role="tabpanel" aria-labelledby="tbKit" hidden>
@@ -2219,9 +2227,9 @@ $("wzCsv").addEventListener("click", () => {
 render();
 
 /* ---- troca de abas ---- */
-const TABS = { carta:["tbCarta","tabCarta"], kit:["tbKit","tabKit"], wz:["tbWz","tabWz"] };
-const TAB_NOMES = { carta:"Carta de desligamento", kit:"Kit de homologação", wz:"Aviso por WhatsApp" };
-const TAB_HASH = { carta:"carta", kit:"kit", wz:"whatsapp" };
+const TABS = { carta:["tbCarta","tabCarta"], tele:["tbTele","tabTele"], kit:["tbKit","tabKit"], wz:["tbWz","tabWz"] };
+const TAB_NOMES = { carta:"Carta de desligamento", tele:"Telegrama de abandono", kit:"Kit de homologação", wz:"Aviso por WhatsApp" };
+const TAB_HASH = { carta:"carta", tele:"telegrama", kit:"kit", wz:"whatsapp" };
 function showTab(t, foco) {
   if (!TABS[t]) t = "carta";
   Object.entries(TABS).forEach(([k, [b, p]]) => {
