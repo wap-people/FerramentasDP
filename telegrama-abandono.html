@@ -266,7 +266,7 @@ h1{font-size:1.15rem;font-weight:700}
     <div id="boxEmail" style="display:none">
     <div class="grupo">Enviar por e-mail</div>
     <label for="mPara">Para</label>
-    <input id="mPara" type="email" multiple autocomplete="off" placeholder="email@exemplo.com">
+    <input id="mPara" type="email" multiple autocomplete="off" value="plac@bithome-brasil.com.br" placeholder="email@exemplo.com">
     <label for="mCc">Cc</label>
     <input id="mCc" type="email" multiple autocomplete="off" placeholder="Opcional">
     <label for="mCco">Cco</label>
@@ -700,6 +700,7 @@ $("gerar").addEventListener("click",()=>{
 /* segurança: todo carregamento começa com os dados pessoais em branco */
 ["nome","mat","cpf","logradouro","numero","compl","bairro","cidade","uf","cep","rLog","rNum","rBairro","rCidade","rUf","rCep","rCnpj","desde","mPara","mCc","mCco"].forEach(id=>$(id).value="");
 $("empresa").value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA";
+$("mPara").value="plac@bithome-brasil.com.br";   /* destinatário fixo do envio (Correios / Bithome) */
 $("estab").value=""; $("fin").value="rescisao"; $("prazo").value="72";
 $("data").value = new Date().toISOString().slice(0,10);
 render();
