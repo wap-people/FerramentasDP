@@ -58,6 +58,12 @@ button{margin-top:26px;width:100%;padding:12px;border:0;border-radius:8px;backgr
 button:hover{filter:brightness(1.08)}
 .grupo{margin:26px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .err{color:#c0392b;font-size:13px;margin-top:10px;min-height:18px}
+.assin-mail{min-height:90px;max-height:260px;overflow:auto;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#1a1a1a;font:10pt/1.35 Aptos,Calibri,"Segoe UI",Arial,sans-serif}
+.assin-mail:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.assin-mail:empty:before{content:attr(data-ph);color:#8a949b}
+.assin-mail img{max-width:100%;height:auto}
+button.sec{margin-top:8px;padding:8px;background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}
+button.sec:hover{background:var(--field)}
 main{padding:32px;overflow:auto;display:flex;justify-content:center}
 
 /* ---------- Folha A4 (sempre branca) ---------- */
@@ -252,6 +258,11 @@ h1{font-size:1.15rem;font-weight:700}
     <label for="mCco">Cco</label>
     <input id="mCco" type="email" multiple autocomplete="off" placeholder="Opcional">
     <div class="hint">Separe vários endereços com vírgula.</div>
+    <label for="assinMail">Assinatura do e-mail</label>
+    <div id="assinMail" class="assin-mail" contenteditable="true" role="textbox" aria-multiline="true" data-ph="Cole aqui sua assinatura do Outlook"></div>
+    <div class="hint">No Outlook, abra um e-mail que você enviou, selecione a assinatura (com o logo), copie (Ctrl+C) e cole aqui (Ctrl+V). Fica salva neste navegador e entra no fim de todos os e-mails gerados.</div>
+    <div class="err" id="assinAviso" style="min-height:0"></div>
+    <button id="assinLimpar" type="button" class="sec">Limpar assinatura</button>
     <button id="email" style="margin-top:14px">Gerar e-mail com PDF anexo</button>
     <div class="hint">Baixa um arquivo <b>.eml</b>: ao abrir, o Outlook mostra o rascunho pronto, com o telegrama em PDF anexado. Confira e clique em Enviar.</div>
     </div>
@@ -452,13 +463,62 @@ function corpoEmail(){
   const end = [v("logradouro")+", "+v("numero")+($("compl").value.trim()?" – "+v("compl"):""), v("bairro"), v("cidade")+" – "+v("uf"), "CEP "+esc($("cep").value.trim())].join("<br>");
   return `<div style="font-family:Aptos,Calibri,'Segoe UI',Arial,sans-serif;font-size:11pt;color:#1a1a1a">
 <p>Olá, pessoal,</p>
-<p>Por favor, encaminhem o telegrama em anexo pelos Correios, com <b>cópia da mensagem</b> e <b>confirmação de entrega</b>.</p>
 <p><b>Documento:</b> Convocação para Retorno ao Trabalho<br>
 <b>Colaborador(a):</b> ${v("nome")} – Matrícula ${v("mat")}<br>
 <b>Endereço de entrega:</b><br>${end}</p>
-<p>Peço que, após o envio, me retornem os comprovantes de postagem e de entrega, para arquivo no Departamento de Pessoal.</p>
-<p>Agradeço.</p>
+${assinaturaHtml() ? "<br>"+assinaturaHtml() : "<p>Atenciosamente,</p>"}
 </div>`;
+}
+
+/* assinatura do e-mail: colada uma vez do Outlook e guardada só neste navegador */
+const ASSIN_KEY="telegramaAssinatura";
+const assinBox=$("assinMail");
+function assinaturaHtml(){
+  const c=assinBox.cloneNode(true);
+  c.querySelectorAll("script,style,meta,link,title,o\\:p").forEach(n=>n.remove());
+  return (c.textContent.trim()||c.querySelector("img")) ? c.innerHTML.trim() : "";
+}
+function salvaAssin(){
+  try{ const h=assinaturaHtml(); h ? localStorage.setItem(ASSIN_KEY,h) : localStorage.removeItem(ASSIN_KEY); }
+  catch(e){ $("assinAviso").textContent="Não foi possível salvar a assinatura neste navegador (ela vale só até recarregar a página)."; return; }
+  const quebradas=[...assinBox.querySelectorAll("img")].filter(i=>!/^(data:|https?:)/i.test(i.getAttribute("src")||""));
+  $("assinAviso").textContent = quebradas.length ? "Alguma imagem da assinatura não foi copiada. Copie a assinatura de um e-mail enviado (não do editor de assinaturas) e cole de novo." : "";
+}
+const lerArquivo = f => new Promise(ok=>{ const r=new FileReader(); r.onload=()=>ok(r.result); r.readAsDataURL(f); });
+assinBox.addEventListener("paste",async e=>{
+  const cd=e.clipboardData; if(!cd) return;
+  const html=cd.getData("text/html");
+  const imgs=[...cd.items].filter(i=>i.kind==="file"&&i.type.startsWith("image/")).map(i=>i.getAsFile());
+  if(!html && !imgs.length) return;           /* texto simples: deixa o navegador colar */
+  e.preventDefault();
+  const dataUrls=await Promise.all(imgs.map(lerArquivo));
+  let frag;
+  if(html){
+    const doc=new DOMParser().parseFromString(html,"text/html");
+    doc.querySelectorAll("script,style,meta,link,title,iframe,object,embed").forEach(n=>n.remove());
+    doc.querySelectorAll("*").forEach(n=>[...n.attributes].forEach(a=>{ if(/^on/i.test(a.name)) n.removeAttribute(a.name); }));
+    /* imagens que vieram como arquivo local (file:, cid:) são trocadas pelas imagens da área de transferência */
+    let k=0;
+    doc.querySelectorAll("img").forEach(im=>{ const s=im.getAttribute("src")||"";
+      if(!/^(data:|https?:)/i.test(s) && k<dataUrls.length) im.setAttribute("src",dataUrls[k++]); });
+    frag=doc.body.innerHTML;
+  } else frag=dataUrls.map(u=>`<img src="${u}">`).join("");
+  document.execCommand("insertHTML",false,frag);
+  salvaAssin();
+});
+assinBox.addEventListener("input",salvaAssin);
+$("assinLimpar").addEventListener("click",()=>{ assinBox.innerHTML=""; salvaAssin(); });
+try{ const s=localStorage.getItem(ASSIN_KEY); if(s) assinBox.innerHTML=s; }catch(e){}
+
+/* imagens da assinatura (data:) viram anexos embutidos (cid), que o Outlook exibe corretamente */
+function separaImagens(html){
+  const partes=[]; let n=0;
+  const out=html.replace(/(<img\b[^>]*?\bsrc=)(["'])data:(image\/[\w.+-]+);base64,([^"']+)\2/gi,(m,pre,q,tipo,dados)=>{
+    const id=`assin${++n}.${Date.now().toString(36)}@wap`;
+    partes.push({id,tipo,dados:dados.replace(/\s+/g,""),nome:`imagem${n}.${(tipo.split("/")[1]||"png").replace("jpeg","jpg").replace(/\+.*/,"")}`});
+    return `${pre}${q}cid:${id}${q}`;
+  });
+  return {html:out,partes};
 }
 
 $("email").addEventListener("click",async()=>{
@@ -479,7 +539,14 @@ $("email").addEventListener("click",async()=>{
     if(cc.length) h.push("Cc: "+cc.join(", "));
     if(cco.length) h.push("Bcc: "+cco.join(", "));
     h.push("Subject: "+cab(`Telegrama – Convocação para retorno ao trabalho – ${nome}`),"MIME-Version: 1.0",`Content-Type: multipart/mixed; boundary="${B}"`);
-    const eml=[h.join("\r\n"),"",`--${B}`,"Content-Type: text/html; charset=UTF-8","Content-Transfer-Encoding: base64","",linhas76(b64Txt(corpoEmail())),
+    const corpo=separaImagens(corpoEmail()), R=B+"_rel";
+    const htmlPart=["Content-Type: text/html; charset=UTF-8","Content-Transfer-Encoding: base64","",linhas76(b64Txt(corpo.html))];
+    const corpoParte = corpo.partes.length
+      ? [`Content-Type: multipart/related; type="text/html"; boundary="${R}"`,"",`--${R}`,...htmlPart,
+         ...corpo.partes.flatMap(p=>[`--${R}`,`Content-Type: ${p.tipo}; name="${p.nome}"`,"Content-Transfer-Encoding: base64",`Content-ID: <${p.id}>`,`Content-Disposition: inline; filename="${p.nome}"`,"",linhas76(p.dados)]),
+         `--${R}--`,""]
+      : htmlPart;
+    const eml=[h.join("\r\n"),"",`--${B}`,...corpoParte,
       `--${B}`,`Content-Type: application/pdf; name="${cab(arq+".pdf")}"`,`Content-Disposition: attachment; filename*=UTF-8''${encodeURIComponent(arq+".pdf")}`,"Content-Transfer-Encoding: base64","",linhas76(b64Bytes(pdf)),`--${B}--`,""].join("\r\n");
     const url=URL.createObjectURL(new Blob([eml],{type:"message/rfc822"}));
     const a=document.createElement("a"); a.href=url; a.download=arq+".eml"; document.body.appendChild(a); a.click(); a.remove();
