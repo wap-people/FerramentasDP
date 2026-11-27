@@ -263,7 +263,7 @@ h1{font-size:1.15rem;font-weight:700}
     <button id="copiar">Copiar texto do telegrama</button>
     <button id="gerar" style="margin-top:10px">Gerar PDF</button>
 
-    <div id="boxEmail" style="display:none">
+    <div id="boxEmail">
     <div class="grupo">Enviar por e-mail</div>
     <label for="mPara">Para</label>
     <input id="mPara" type="email" multiple autocomplete="off" value="plac@bithome-brasil.com.br" placeholder="email@exemplo.com">
@@ -374,7 +374,6 @@ function render(){
   const d=dados(), t=textos(d), conv=d.fin==="convocacao";
   $("hintFin").textContent = HINT_FIN[d.fin];
   $("boxPrazo").style.display = conv ? "block" : "none";
-  $("boxEmail").style.display = conv ? "block" : "none";
   const per=$("periodo");
   if(d.dias!=null){
     per.style.display="block";
@@ -486,9 +485,19 @@ const linhas76 = s => s.replace(/.{1,76}/g,"$&\r\n");
 const cab = t => `=?UTF-8?B?${b64Txt(t)}?=`;
 
 function corpoEmail(){
+  const v = id => esc($(id).value.trim().toUpperCase());
+  const doc = textos(dados()).titulo;
+  const end = v("logradouro")+(v("numero")?", "+v("numero"):"")+(v("compl")?" – "+v("compl"):"");
   return `<div style="font-family:Aptos,Calibri,'Segoe UI',Arial,sans-serif;font-size:11pt;color:#1a1a1a">
 <p>Olá, pessoal,</p>
 <p>Por gentileza, encaminhar via telegrama.</p>
+<p><b>Documento:</b> ${doc}<br>
+<b>Colaborador(a):</b> ${v("nome")} – Matrícula ${v("mat")}</p>
+<p><b>Endereço de entrega:</b><br>
+${end}<br>
+${v("bairro")}<br>
+${v("cidade")} – ${v("uf")}<br>
+CEP ${v("cep")}</p>
 ${assinaturaHtml() ? "<br>"+assinaturaHtml() : "<br>"}
 </div>`;
 }
@@ -545,7 +554,6 @@ function separaImagens(html){
 }
 
 $("email").addEventListener("click",async()=>{
-  if($("fin").value!=="convocacao") return;
   if(faltando()) return;
   const para=listaMail($("mPara").value), cc=listaMail($("mCc").value), cco=listaMail($("mCco").value);
   const ok = x => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x);
@@ -561,7 +569,7 @@ $("email").addEventListener("click",async()=>{
     const h=["X-Unsent: 1","To: "+para.join(", ")];
     if(cc.length) h.push("Cc: "+cc.join(", "));
     if(cco.length) h.push("Bcc: "+cco.join(", "));
-    h.push("Subject: "+cab(`Telegrama – Convocação para retorno ao trabalho – ${nome}`),"MIME-Version: 1.0",`Content-Type: multipart/mixed; boundary="${B}"`);
+    h.push("Subject: "+cab(`Telegrama – ${textos(dados()).titulo} – ${nome}`),"MIME-Version: 1.0",`Content-Type: multipart/mixed; boundary="${B}"`);
     const corpo=separaImagens(corpoEmail()), R=B+"_rel";
     const htmlPart=["Content-Type: text/html; charset=UTF-8","Content-Transfer-Encoding: base64","",linhas76(b64Txt(corpo.html))];
     const corpoParte = corpo.partes.length
