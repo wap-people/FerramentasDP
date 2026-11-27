@@ -274,7 +274,7 @@ h1{font-size:1.15rem;font-weight:700}
     <div class="hint">Separe vários endereços com vírgula.</div>
     <label for="assinMail">Assinatura do e-mail</label>
     <div id="assinMail" class="assin-mail" contenteditable="true" role="textbox" aria-multiline="true" data-ph="Cole aqui sua assinatura do Outlook"></div>
-    <div class="hint">No Outlook, abra um e-mail que você enviou, selecione a assinatura (com o logo), copie (Ctrl+C) e cole aqui (Ctrl+V). Fica salva neste navegador e entra no fim de todos os e-mails gerados.</div>
+    <div class="hint">No Outlook, abra um e-mail que você enviou, selecione a assinatura (com o logo), copie (Ctrl+C) e cole aqui (Ctrl+V). Fica salva neste navegador e entra no fim de todos os e-mails gerados. Usando a macro do Outlook, deixe em branco: a macro já coloca a assinatura padrão.</div>
     <div class="err" id="assinAviso" style="min-height:0"></div>
     <button id="assinLimpar" type="button" class="sec">Limpar assinatura</button>
     <button id="email" style="margin-top:14px">Gerar e-mail com PDF anexo</button>
@@ -482,7 +482,7 @@ function corpoEmail(){
 <p><b>Documento:</b> Convocação para Retorno ao Trabalho<br>
 <b>Colaborador(a):</b> ${v("nome")} – Matrícula ${v("mat")}<br>
 <b>Endereço de entrega:</b><br>${end}</p>
-${assinaturaHtml() ? "<br>"+assinaturaHtml() : "<p>Atenciosamente,</p>"}
+${assinaturaHtml() ? "<br>"+assinaturaHtml() : "<br>"}
 </div>`;
 }
 
