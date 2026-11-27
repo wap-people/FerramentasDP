@@ -169,13 +169,13 @@ h1{font-size:1.15rem;font-weight:700}
     </div>
 
     <label for="empresa">Empresa</label>
-    <input id="empresa" autocomplete="off" placeholder="Razão social">
+    <input id="empresa" autocomplete="off">
 
     <label for="endereco">Endereço</label>
-    <input id="endereco" autocomplete="off" placeholder="Rua, número – CEP">
+    <input id="endereco" autocomplete="off">
 
     <label for="cidade">Cidade</label>
-    <input id="cidade" autocomplete="off" placeholder="Cidade – UF">
+    <input id="cidade" autocomplete="off">
 
     <div class="row">
       <div>
@@ -241,12 +241,12 @@ function dados(){
   const dias = diasEntre($("desde").value, $("data").value);
   return {
     fin: $("fin").value,
-    nome: esc($("nome").value.trim().toUpperCase()) || "NOME DO FUNCIONÁRIO",
-    mat: esc($("mat").value.trim()) || "____",
-    cpf: esc($("cpf").value.trim()) || "___.___.___-__",
-    empresa: esc($("empresa").value.trim().toUpperCase()) || "EMPRESA",
-    endereco: esc($("endereco").value.trim().toUpperCase()) || "ENDEREÇO",
-    cidade: esc($("cidade").value.trim().toUpperCase()) || "CIDADE",
+    nome: esc($("nome").value.trim().toUpperCase()) || "",
+    mat: esc($("mat").value.trim()),
+    cpf: esc($("cpf").value.trim()),
+    empresa: esc($("empresa").value.trim().toUpperCase()) || "",
+    endereco: esc($("endereco").value.trim().toUpperCase()) || "",
+    cidade: esc($("cidade").value.trim().toUpperCase()) || "",
     desde: curta($("desde").value),
     data: curta($("data").value),
     dataExt: extenso($("data").value),
@@ -292,7 +292,7 @@ function render(){
   $("page").innerHTML = `<img class="logo" src="${LOGO}" alt="Fresnomaq">
     <div class="cab"><h1>Telegrama</h1><p>${t.titulo}</p></div>
     <div class="tele-opc"><p>Cópia da mensagem: <b>sim</b></p><p>Confirmação de entrega: <b>sim</b></p></div>
-    <p class="data">${d.cidade}, ${d.dataExt}.</p>
+    <p class="data">${d.cidade?d.cidade+", ":""}${d.dataExt}.</p>
     <div class="tele-blocos">
       <div><h2>Remetente</h2><p><b>${d.empresa}</b></p><p>${d.endereco}</p><p>${d.cidade}</p></div>
       <div><h2>Destinatário</h2><p><b>${d.nome}</b></p><p>Matrícula: ${d.mat}</p><p>CPF: ${d.cpf}</p></div>
@@ -353,6 +353,9 @@ $("gerar").addEventListener("click",()=>{
   setTimeout(()=>document.title=antigo,500);
 });
 
+/* segurança: todo carregamento começa com os dados pessoais em branco */
+["nome","mat","cpf","empresa","endereco","cidade","desde"].forEach(id=>$(id).value="");
+$("fin").value="rescisao"; $("prazo").value="72";
 $("data").value = new Date().toISOString().slice(0,10);
 render();
 </script>
