@@ -169,13 +169,32 @@ h1{font-size:1.15rem;font-weight:700}
     </div>
 
     <label for="empresa">Empresa</label>
-    <input id="empresa" autocomplete="off">
+    <input id="empresa" autocomplete="off" value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA" readonly>
 
-    <label for="endereco">Endereço</label>
-    <input id="endereco" autocomplete="off">
+    <label for="logradouro">Logradouro</label>
+    <input id="logradouro" autocomplete="off">
 
-    <label for="cidade">Cidade</label>
-    <input id="cidade" autocomplete="off">
+    <div class="row">
+      <div>
+        <label for="numero">Número</label>
+        <input id="numero" autocomplete="off">
+      </div>
+      <div>
+        <label for="bairro">Bairro</label>
+        <input id="bairro" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="cidade">Cidade</label>
+        <input id="cidade" autocomplete="off">
+      </div>
+      <div>
+        <label for="cep">CEP</label>
+        <input id="cep" inputmode="numeric" autocomplete="off" maxlength="10">
+      </div>
+    </div>
 
     <div class="row">
       <div>
@@ -245,7 +264,10 @@ function dados(){
     mat: esc($("mat").value.trim()),
     cpf: esc($("cpf").value.trim()),
     empresa: esc($("empresa").value.trim().toUpperCase()) || "",
-    endereco: esc($("endereco").value.trim().toUpperCase()) || "",
+    logradouro: esc($("logradouro").value.trim().toUpperCase()),
+    numero: esc($("numero").value.trim().toUpperCase()),
+    bairro: esc($("bairro").value.trim().toUpperCase()),
+    cep: esc($("cep").value.trim()),
     cidade: esc($("cidade").value.trim().toUpperCase()) || "",
     desde: curta($("desde").value),
     data: curta($("data").value),
@@ -294,7 +316,7 @@ function render(){
     <div class="tele-opc"><p>Cópia da mensagem: <b>sim</b></p><p>Confirmação de entrega: <b>sim</b></p></div>
     <p class="data">${d.cidade?d.cidade+", ":""}${d.dataExt}.</p>
     <div class="tele-blocos">
-      <div><h2>Remetente</h2><p><b>${d.empresa}</b></p><p>${d.endereco}</p><p>${d.cidade}</p></div>
+      <div><h2>Remetente</h2><p><b>${d.empresa}</b></p><p>Logradouro: ${d.logradouro}</p><p>Número: ${d.numero}</p><p>Bairro: ${d.bairro}</p><p>Cidade: ${d.cidade}</p><p>CEP: ${d.cep}</p></div>
       <div><h2>Destinatário</h2><p><b>${d.nome}</b></p><p>Matrícula: ${d.mat}</p><p>CPF: ${d.cpf}</p></div>
     </div>
     <p class="saud">Ao(À) colaborador(a) <b>${d.nome}</b> – Matrícula <b>${d.mat}</b> – CPF <b>${d.cpf}</b>,</p>
@@ -325,7 +347,10 @@ function faltando(){
   if(!$("mat").value.trim()) f.push("matrícula");
   if($("cpf").value.replace(/\D/g,"").length!==11) f.push("CPF");
   if(!$("empresa").value.trim()) f.push("empresa");
-  if(!$("endereco").value.trim()) f.push("endereço");
+  if(!$("logradouro").value.trim()) f.push("logradouro");
+  if(!$("numero").value.trim()) f.push("número");
+  if(!$("bairro").value.trim()) f.push("bairro");
+  if($("cep").value.replace(/\D/g,"").length!==8) f.push("CEP");
   if(!$("cidade").value.trim()) f.push("cidade");
   if(!$("desde").value) f.push("data de início das ausências");
   if(!$("data").value) f.push("data do telegrama");
@@ -334,7 +359,8 @@ function faltando(){
 }
 
 $("cpf").addEventListener("input",()=>{ $("cpf").value=fmtCpf($("cpf").value); });
-["fin","nome","mat","cpf","empresa","endereco","cidade","desde","data","prazo"].forEach(id=>$(id).addEventListener("input",render));
+$("cep").addEventListener("input",()=>{ const d=$("cep").value.replace(/\D/g,"").slice(0,8); $("cep").value=d.length>5?d.slice(0,2)+"."+d.slice(2,5)+"-"+d.slice(5):d.length>2?d.slice(0,2)+"."+d.slice(2):d; });
+["fin","nome","mat","cpf","empresa","logradouro","numero","bairro","cidade","cep","desde","data","prazo"].forEach(id=>$(id).addEventListener("input",render));
 
 $("copiar").addEventListener("click",async()=>{
   if(faltando()) return;
@@ -354,7 +380,8 @@ $("gerar").addEventListener("click",()=>{
 });
 
 /* segurança: todo carregamento começa com os dados pessoais em branco */
-["nome","mat","cpf","empresa","endereco","cidade","desde"].forEach(id=>$(id).value="");
+["nome","mat","cpf","logradouro","numero","bairro","cidade","cep","desde"].forEach(id=>$(id).value="");
+$("empresa").value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA";
 $("fin").value="rescisao"; $("prazo").value="72";
 $("data").value = new Date().toISOString().slice(0,10);
 render();
