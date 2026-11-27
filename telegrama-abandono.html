@@ -162,6 +162,8 @@ h1{font-size:1.15rem;font-weight:700}
     <div class="hint dica" id="hintFin"></div>
 
     <div class="grupo">Remetente</div>
+    <label for="estab">Unidade (estabelecimento)</label>
+    <select id="estab" autocomplete="off"></select>
     <label for="empresa">Empresa</label>
     <input id="empresa" autocomplete="off" value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA" readonly>
 
@@ -566,6 +568,27 @@ $("email").addEventListener("click",async()=>{
   finally{ bt.disabled=false; }
 });
 
+/* ---------- unidades fixas (cadastro FP0560 – Manutenção Estabelecimentos) ----------
+   Para completar bairro/CEP, basta preencher aqui. */
+const UNIDADES = [
+  {cod:"1",  rotulo:"1 – Matriz – São José dos Pinhais/PR", log:"RUA ANTONIO SINGER",            num:"200", bairro:"", cidade:"SÃO JOSÉ DOS PINHAIS", uf:"PR", cep:""},
+  {cod:"3",  rotulo:"3 – Eusébio/CE",                        log:"RUA VITORIA KELLY",             num:"100", bairro:"", cidade:"EUSÉBIO",              uf:"CE", cep:""},
+  {cod:"9",  rotulo:"9 – Filial 109 – Fortaleza (Eusébio/CE)", log:"RUA VITORIA KELLY",           num:"200", bairro:"", cidade:"EUSÉBIO",              uf:"CE", cep:""},
+  {cod:"11", rotulo:"11 – Filial 111 – Linhares/ES",         log:"ROD. GOVERNADOR MARIO COVAS",   num:"S/N", bairro:"", cidade:"LINHARES",             uf:"ES", cep:""},
+  {cod:"12", rotulo:"12 – Filial 112 – Serra/ES",            log:"AV. CIVIT I",                   num:"",    bairro:"", cidade:"SERRA",                uf:"ES", cep:""}
+];
+$("estab").innerHTML = `<option value="">Selecione a unidade…</option>` + UNIDADES.map(u=>`<option value="${u.cod}">${esc(u.rotulo)}</option>`).join("");
+$("estab").addEventListener("change",()=>{
+  const u=UNIDADES.find(x=>x.cod===$("estab").value);
+  const v=u||{log:"",num:"",bairro:"",cidade:"",uf:"",cep:""};
+  $("rLog").value=v.log; $("rNum").value=v.num; $("rBairro").value=v.bairro;
+  $("rCidade").value=v.cidade; $("rUf").value=v.uf;
+  const d=v.cep.replace(/\D/g,""); $("rCep").value = d.length===8 ? d.slice(0,2)+"."+d.slice(2,5)+"-"+d.slice(5) : "";
+  render();
+  const falta=[!v.num&&"número",!v.bairro&&"bairro",!d&&"CEP"].filter(Boolean);
+  $("err").textContent = u && falta.length ? `Unidade sem ${falta.join(", ")} no cadastro: complete abaixo.` : "";
+});
+
 /* ---------- planilha de funcionários: lida só na memória, nunca salva ---------- */
 let BASE=null, COLS=null;
 const norm = s => semAcento(String(s||"")).toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
@@ -672,7 +695,7 @@ $("gerar").addEventListener("click",()=>{
 /* segurança: todo carregamento começa com os dados pessoais em branco */
 ["nome","mat","cpf","logradouro","numero","compl","bairro","cidade","uf","cep","rLog","rNum","rBairro","rCidade","rUf","rCep","desde","mPara","mCc","mCco"].forEach(id=>$(id).value="");
 $("empresa").value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA";
-$("fin").value="rescisao"; $("prazo").value="72";
+$("estab").value=""; $("fin").value="rescisao"; $("prazo").value="72";
 $("data").value = new Date().toISOString().slice(0,10);
 render();
 </script>
