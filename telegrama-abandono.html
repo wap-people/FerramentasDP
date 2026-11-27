@@ -240,7 +240,8 @@ h1{font-size:1.15rem;font-weight:700}
     <label for="mCco">Cco</label>
     <input id="mCco" type="email" multiple autocomplete="off" placeholder="Opcional">
     <div class="hint">Separe vários endereços com vírgula.</div>
-    <button id="email" style="margin-top:14px">Abrir rascunho de e-mail</button>
+    <button id="email" style="margin-top:14px">Gerar e-mail com PDF anexo</button>
+    <div class="hint">Baixa um arquivo <b>.eml</b>: ao abrir, o Outlook mostra o rascunho pronto, com o telegrama em PDF anexado. Confira e clique em Enviar.</div>
     </div>
     <div class="err" id="err"></div>
     <div class="hint">No site dos Correios, marque <b>Cópia da mensagem</b> e <b>Confirmação de entrega</b>: os comprovantes provam o envio e o recebimento. Na janela de impressão, escolha <b>Salvar como PDF</b>.</div>
@@ -395,8 +396,44 @@ $("copiar").addEventListener("click",async()=>{
   const b=$("copiar"), o=b.textContent; b.textContent="Texto copiado ✓"; setTimeout(()=>b.textContent=o,1800);
 });
 
-/* rascunho de e-mail: abre o programa de e-mail padrão (Outlook) com tudo preenchido */
+/* rascunho de e-mail: gera um arquivo .eml (rascunho do Outlook) já com o PDF anexado */
 const listaMail = v => v.split(/[;,\s]+/).map(x=>x.trim()).filter(Boolean);
+const semAcento = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"");
+function carregaLib(){
+  if(window.html2pdf) return Promise.resolve();
+  return new Promise((ok,erro)=>{ const sc=document.createElement("script");
+    sc.src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+    sc.onload=ok; sc.onerror=()=>erro(new Error("Não foi possível carregar o gerador de PDF. Verifique a internet.")); document.head.appendChild(sc); });
+}
+async function pdfBlob(){
+  await carregaLib();
+  const pg=$("page"), antes=pg.getAttribute("style")||"";
+  pg.setAttribute("style","box-shadow:none;height:296.5mm;min-height:0;overflow:hidden");
+  try{
+    return await html2pdf().set({margin:0,image:{type:"jpeg",quality:.95},
+      html2canvas:{scale:2,backgroundColor:"#ffffff"},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}})
+      .from(pg).outputPdf("blob");
+  } finally { pg.setAttribute("style",antes); }
+}
+function b64Bytes(u8){ let s=""; for(let i=0;i<u8.length;i+=0x8000) s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000)); return btoa(s); }
+const b64Txt = t => b64Bytes(new TextEncoder().encode(t));
+const linhas76 = s => s.replace(/.{1,76}/g,"$&\r\n");
+const cab = t => `=?UTF-8?B?${b64Txt(t)}?=`;
+
+function corpoEmail(){
+  const v = id => esc($(id).value.trim().toUpperCase());
+  const end = [v("logradouro")+", "+v("numero")+($("compl").value.trim()?" – "+v("compl"):""), v("bairro"), v("cidade")+" – "+v("uf"), "CEP "+esc($("cep").value.trim())].join("<br>");
+  return `<div style="font-family:Aptos,Calibri,'Segoe UI',Arial,sans-serif;font-size:11pt;color:#1a1a1a">
+<p>Olá, pessoal,</p>
+<p>Por favor, encaminhem o telegrama em anexo pelos Correios, com <b>cópia da mensagem</b> e <b>confirmação de entrega</b>.</p>
+<p><b>Documento:</b> Convocação para Retorno ao Trabalho<br>
+<b>Colaborador(a):</b> ${v("nome")} – Matrícula ${v("mat")}<br>
+<b>Endereço de entrega:</b><br>${end}</p>
+<p>Peço que, após o envio, me retornem os comprovantes de postagem e de entrega, para arquivo no Departamento de Pessoal.</p>
+<p>Agradeço.</p>
+</div>`;
+}
+
 $("email").addEventListener("click",async()=>{
   if($("fin").value!=="convocacao") return;
   if(faltando()) return;
@@ -405,18 +442,24 @@ $("email").addEventListener("click",async()=>{
   if(!para.length){ $("err").textContent="Informe ao menos um destinatário em Para."; return; }
   const ruins=[...para,...cc,...cco].filter(x=>!ok(x));
   if(ruins.length){ $("err").textContent="E-mail inválido: "+ruins.join(", ")+"."; return; }
-  const assunto=`Telegrama – Convocação para retorno ao trabalho – ${$("nome").value.trim().toUpperCase()}`;
-  const txt=textoPuro();
-  try{ await navigator.clipboard.writeText(txt); }catch(e){}
-  const enc=encodeURIComponent;
-  const q=[`subject=${enc(assunto)}`];
-  if(cc.length) q.push(`cc=${enc(cc.join(","))}`);
-  if(cco.length) q.push(`bcc=${enc(cco.join(","))}`);
-  let url=`mailto:${para.map(enc).join(",")}?${q.join("&")}&body=${enc(txt.replace(/\n/g,"\r\n"))}`;
-  /* textos longos podem ser cortados por alguns programas: aí o corpo vai pela área de transferência */
-  if(url.length>1900) url=`mailto:${para.map(enc).join(",")}?${q.join("&")}&body=${enc("Cole aqui o texto do telegrama (Ctrl+V) e anexe o PDF.\r\n")}`;
-  location.href=url;
-  const b=$("email"), o=b.textContent; b.textContent="Rascunho aberto ✓ (texto também copiado)"; setTimeout(()=>b.textContent=o,2500);
+  const bt=$("email"), orig=bt.textContent; bt.disabled=true; bt.textContent="Gerando PDF…";
+  try{
+    const nome=$("nome").value.trim().toUpperCase();
+    const arq=semAcento(`Telegrama_Convocacao_retorno_${nome}`).replace(/[^\w-]+/g,"_");
+    const pdf=new Uint8Array(await (await pdfBlob()).arrayBuffer());
+    const B="----=_WAP_"+Date.now().toString(36);
+    const h=["X-Unsent: 1","To: "+para.join(", ")];
+    if(cc.length) h.push("Cc: "+cc.join(", "));
+    if(cco.length) h.push("Bcc: "+cco.join(", "));
+    h.push("Subject: "+cab(`Telegrama – Convocação para retorno ao trabalho – ${nome}`),"MIME-Version: 1.0",`Content-Type: multipart/mixed; boundary="${B}"`);
+    const eml=[h.join("\r\n"),"",`--${B}`,"Content-Type: text/html; charset=UTF-8","Content-Transfer-Encoding: base64","",linhas76(b64Txt(corpoEmail())),
+      `--${B}`,`Content-Type: application/pdf; name="${arq}.pdf"`,`Content-Disposition: attachment; filename="${arq}.pdf"`,"Content-Transfer-Encoding: base64","",linhas76(b64Bytes(pdf)),`--${B}--`,""].join("\r\n");
+    const url=URL.createObjectURL(new Blob([eml],{type:"message/rfc822"}));
+    const a=document.createElement("a"); a.href=url; a.download=arq+".eml"; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),10000);
+    bt.textContent="E-mail gerado ✓ abra o arquivo baixado"; setTimeout(()=>bt.textContent=orig,3500);
+  }catch(e){ $("err").textContent=e.message||"Falha ao gerar o e-mail."; bt.textContent=orig; }
+  finally{ bt.disabled=false; }
 });
 
 $("gerar").addEventListener("click",()=>{
