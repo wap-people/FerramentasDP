@@ -179,6 +179,16 @@ h1{font-size:1.15rem;font-weight:700}
     <input id="rCep" inputmode="numeric" autocomplete="off" maxlength="10">
 
     <div class="grupo">Destinatário (colaborador)</div>
+    <label for="planilha">Planilha de funcionários (FP4061)</label>
+    <input id="planilha" type="file" accept=".xml,.xlsx,.xls,.csv" autocomplete="off">
+    <div id="boxBusca" style="display:none">
+      <label for="busca">Buscar colaborador</label>
+      <input id="busca" list="listaFunc" autocomplete="off" placeholder="Matrícula ou nome">
+      <datalist id="listaFunc"></datalist>
+      <button id="descartar" type="button" class="sec">Descartar planilha</button>
+    </div>
+    <div class="hint" id="planInfo">Os dados ficam só na memória desta aba: nada é salvo, e ao recarregar a página a base é apagada.</div>
+    <div class="err" id="planErr" style="min-height:0"></div>
     <label for="nome">Nome do colaborador</label>
     <input id="nome" autocomplete="off" placeholder="Nome completo">
 
@@ -555,6 +565,101 @@ $("email").addEventListener("click",async()=>{
   }catch(e){ $("err").textContent=e.message||"Falha ao gerar o e-mail."; bt.textContent=orig; }
   finally{ bt.disabled=false; }
 });
+
+/* ---------- planilha de funcionários: lida só na memória, nunca salva ---------- */
+let BASE=null, COLS=null;
+const norm = s => semAcento(String(s||"")).toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+const ACHA = {
+  mat:   h => /^(matricula|matr|chapa)\b/.test(h),
+  nome:  h => /^nome( (completo|funcionario|colaborador))?$/.test(h),
+  cpf:   h => /^(cpf|id federal)\b/.test(h),
+  logradouro: h => /\b(endereco|logradouro|rua)\b/.test(h) && !/\b(numero|complemento|bairro|cidade|cep|uf|e ?mail|eletronico|tipo)\b/.test(h),
+  numero: h => /^(numero|num|nr|n)( (do )?(endereco|residencia|logradouro|casa|imovel))?$/.test(h) || /^(endereco|logradouro) numero$/.test(h),
+  compl: h => /\bcomplemento\b/.test(h),
+  bairro: h => /\bbairro\b/.test(h),
+  cidade: h => /\b(cidade|municipio)\b/.test(h) && !/\b(uf|natural|nascimento|ctps|rg)\b/.test(h),
+  uf:    h => /^(uf|estado|unidade federacao|unid federacao|sigla uf)( (endereco|residencia))?$/.test(h),
+  cep:   h => /\bcep\b/.test(h)
+};
+function mapeia(cab){
+  const m={}, n=cab.map(norm);
+  for(const k in ACHA){ const i=n.findIndex(ACHA[k]); if(i>=0) m[k]=i; }
+  return m;
+}
+/* Excel XML 2003 (formato do Datasul FP4061) */
+function lerXml(txt){
+  const doc=new DOMParser().parseFromString(txt,"application/xml");
+  const NS="urn:schemas-microsoft-com:office:spreadsheet";
+  const ws=doc.getElementsByTagNameNS(NS,"Worksheet")[0];
+  if(!ws) throw new Error("Arquivo XML não é uma planilha do Excel.");
+  return [...ws.getElementsByTagNameNS(NS,"Row")].map(r=>{
+    const lin=[]; let c=0;
+    for(const cel of r.getElementsByTagNameNS(NS,"Cell")){
+      const idx=cel.getAttributeNS(NS,"Index"); if(idx) c=+idx-1;
+      const d=cel.getElementsByTagNameNS(NS,"Data")[0]; lin[c]=d?d.textContent.trim():"";
+      c+=1+(+cel.getAttributeNS(NS,"MergeAcross")||0);
+    }
+    return lin;
+  });
+}
+function carregaXlsx(){
+  if(window.XLSX) return Promise.resolve();
+  return new Promise((ok,erro)=>{ const sc=document.createElement("script");
+    sc.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+    sc.onload=ok; sc.onerror=()=>erro(new Error("Não foi possível carregar o leitor de Excel. Verifique a internet.")); document.head.appendChild(sc); });
+}
+async function lerPlanilha(f){
+  if(/\.xml$/i.test(f.name)) return lerXml(await f.text());
+  await carregaXlsx();
+  const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});
+  return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false,defval:""}).map(l=>l.map(v=>String(v).trim()));
+}
+function descartaBase(){
+  BASE=null; COLS=null; $("listaFunc").innerHTML=""; $("busca").value=""; $("planilha").value="";
+  $("boxBusca").style.display="none"; $("planErr").textContent="";
+  $("planInfo").textContent="Os dados ficam só na memória desta aba: nada é salvo, e ao recarregar a página a base é apagada.";
+}
+$("planilha").addEventListener("change",async()=>{
+  const f=$("planilha").files[0]; if(!f) return;
+  $("planErr").textContent="";
+  try{
+    const linhas=await lerPlanilha(f);
+    $("planilha").value="";                       /* solta o arquivo: só o necessário fica na memória */
+    const hi=linhas.findIndex(l=>{ const m=mapeia(l); return "mat" in m && "nome" in m; });
+    if(hi<0) throw new Error("Não achei as colunas Matrícula e Nome na planilha.");
+    COLS=mapeia(linhas[hi]);
+    const pega=(l,k)=> k in COLS ? (l[COLS[k]]||"") : "";
+    BASE=linhas.slice(hi+1).filter(l=>pega(l,"mat")&&pega(l,"nome")).map(l=>{
+      const o={}; for(const k in COLS) o[k]=pega(l,k); return o; });
+    linhas.length=0;
+    $("listaFunc").innerHTML=BASE.map((o,i)=>`<option value="${esc(o.mat)} – ${esc(o.nome.toUpperCase())}">`).join("");
+    $("boxBusca").style.display="block";
+    const semEnd=["logradouro","numero","bairro","cidade","uf","cep"].filter(k=>!(k in COLS));
+    $("planInfo").textContent=`${BASE.length} colaboradores carregados na memória (somem ao recarregar a página).`;
+    if(semEnd.length) $("planErr").textContent="Esta planilha não traz o endereço ("+semEnd.join(", ")+"). Só nome, matrícula e CPF serão preenchidos. Gere o FP4061 incluindo as colunas de endereço.";
+    $("busca").focus();
+  }catch(e){ descartaBase(); $("planErr").textContent=e.message||"Não foi possível ler a planilha."; }
+});
+function aplica(o){
+  const cepFmt = v => { const d=String(v).replace(/\D/g,"").padStart(8,"0").slice(-8); return d.slice(0,2)+"."+d.slice(2,5)+"-"+d.slice(5); };
+  let log=o.logradouro||"", num=o.numero||"";
+  if(log && !("numero" in COLS)){ const m=log.match(/^(.*?)[,\s]+(?:n[º°o.]?\s*)?(\d+[a-z]?|s\/?n)\s*(.*)$/i); if(m){ log=m[1]; num=m[2]; if(m[3]&&!o.compl) o.compl=m[3].replace(/^[-–,\s]+/,""); } }
+  const set=(id,v)=>{ $(id).value=v; };
+  set("nome",o.nome.toUpperCase()); set("mat",o.mat);
+  set("cpf", o.cpf ? fmtCpf(String(o.cpf).replace(/\D/g,"").padStart(11,"0")) : "");
+  set("logradouro",log.toUpperCase()); set("numero",String(num).toUpperCase()); set("compl",(o.compl||"").toUpperCase());
+  set("bairro",(o.bairro||"").toUpperCase()); set("cidade",(o.cidade||"").toUpperCase());
+  set("uf",(o.uf||"").replace(/[^a-z]/gi,"").toUpperCase().slice(0,2)); set("cep", o.cep ? cepFmt(o.cep) : "");
+  render();
+}
+$("busca").addEventListener("input",()=>{
+  if(!BASE) return;
+  const v=$("busca").value.trim(); if(!v) return;
+  const mat=v.split(" – ")[0].trim();
+  const o=BASE.find(x=>x.mat===mat && v.includes(" – ")) || (/^\d+$/.test(v) ? BASE.find(x=>x.mat===v) : null);
+  if(o) aplica({...o});
+});
+$("descartar").addEventListener("click",descartaBase);
 
 $("gerar").addEventListener("click",()=>{
   if(faltando()) return;
