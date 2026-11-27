@@ -230,6 +230,18 @@ h1{font-size:1.15rem;font-weight:700}
 
     <button id="copiar">Copiar texto do telegrama</button>
     <button id="gerar" style="margin-top:10px">Gerar PDF</button>
+
+    <div id="boxEmail" style="display:none">
+    <div class="grupo">Enviar por e-mail</div>
+    <label for="mPara">Para</label>
+    <input id="mPara" type="email" multiple autocomplete="off" placeholder="email@exemplo.com">
+    <label for="mCc">Cc</label>
+    <input id="mCc" type="email" multiple autocomplete="off" placeholder="Opcional">
+    <label for="mCco">Cco</label>
+    <input id="mCco" type="email" multiple autocomplete="off" placeholder="Opcional">
+    <div class="hint">Separe vários endereços com vírgula.</div>
+    <button id="email" style="margin-top:14px">Abrir rascunho de e-mail</button>
+    </div>
     <div class="err" id="err"></div>
     <div class="hint">No site dos Correios, marque <b>Cópia da mensagem</b> e <b>Confirmação de entrega</b>: os comprovantes provam o envio e o recebimento. Na janela de impressão, escolha <b>Salvar como PDF</b>.</div>
   </aside>
@@ -317,6 +329,7 @@ function render(){
   const d=dados(), t=textos(d), conv=d.fin==="convocacao";
   $("hintFin").textContent = HINT_FIN[d.fin];
   $("boxPrazo").style.display = conv ? "block" : "none";
+  $("boxEmail").style.display = conv ? "block" : "none";
   const per=$("periodo");
   if(d.dias!=null){
     per.style.display="block";
@@ -382,6 +395,30 @@ $("copiar").addEventListener("click",async()=>{
   const b=$("copiar"), o=b.textContent; b.textContent="Texto copiado ✓"; setTimeout(()=>b.textContent=o,1800);
 });
 
+/* rascunho de e-mail: abre o programa de e-mail padrão (Outlook) com tudo preenchido */
+const listaMail = v => v.split(/[;,\s]+/).map(x=>x.trim()).filter(Boolean);
+$("email").addEventListener("click",async()=>{
+  if($("fin").value!=="convocacao") return;
+  if(faltando()) return;
+  const para=listaMail($("mPara").value), cc=listaMail($("mCc").value), cco=listaMail($("mCco").value);
+  const ok = x => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x);
+  if(!para.length){ $("err").textContent="Informe ao menos um destinatário em Para."; return; }
+  const ruins=[...para,...cc,...cco].filter(x=>!ok(x));
+  if(ruins.length){ $("err").textContent="E-mail inválido: "+ruins.join(", ")+"."; return; }
+  const assunto=`Telegrama – Convocação para retorno ao trabalho – ${$("nome").value.trim().toUpperCase()}`;
+  const txt=textoPuro();
+  try{ await navigator.clipboard.writeText(txt); }catch(e){}
+  const enc=encodeURIComponent;
+  const q=[`subject=${enc(assunto)}`];
+  if(cc.length) q.push(`cc=${enc(cc.join(","))}`);
+  if(cco.length) q.push(`bcc=${enc(cco.join(","))}`);
+  let url=`mailto:${para.map(enc).join(",")}?${q.join("&")}&body=${enc(txt.replace(/\n/g,"\r\n"))}`;
+  /* textos longos podem ser cortados por alguns programas: aí o corpo vai pela área de transferência */
+  if(url.length>1900) url=`mailto:${para.map(enc).join(",")}?${q.join("&")}&body=${enc("Cole aqui o texto do telegrama (Ctrl+V) e anexe o PDF.\r\n")}`;
+  location.href=url;
+  const b=$("email"), o=b.textContent; b.textContent="Rascunho aberto ✓ (texto também copiado)"; setTimeout(()=>b.textContent=o,2500);
+});
+
 $("gerar").addEventListener("click",()=>{
   if(faltando()) return;
   const antigo=document.title;
@@ -392,7 +429,7 @@ $("gerar").addEventListener("click",()=>{
 });
 
 /* segurança: todo carregamento começa com os dados pessoais em branco */
-["nome","mat","cpf","logradouro","numero","compl","bairro","cidade","uf","cep","desde"].forEach(id=>$(id).value="");
+["nome","mat","cpf","logradouro","numero","compl","bairro","cidade","uf","cep","desde","mPara","mCc","mCco"].forEach(id=>$(id).value="");
 $("empresa").value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA";
 $("fin").value="rescisao"; $("prazo").value="72";
 $("data").value = new Date().toISOString().slice(0,10);
