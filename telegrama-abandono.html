@@ -106,6 +106,7 @@ html.embed .voltar{display:none}
 .tele-blocos{display:grid;grid-template-columns:1fr 1fr;gap:8mm;padding:2.5mm 0;border-top:.75pt solid #1a1a1a;border-bottom:.75pt solid #1a1a1a;margin-bottom:5mm}
 .tele-blocos h2{font-size:9pt;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#444;margin:0 0 1mm}
 .tele-blocos p{line-height:1.4}
+.tele-opc{margin:0 0 4mm}.tele-opc p{line-height:1.45}
 .assin{grid-template-columns:1fr 1fr}
 @page{size:A4;margin:0}
 @media print{
@@ -290,6 +291,7 @@ function render(){
 
   $("page").innerHTML = `<img class="logo" src="${LOGO}" alt="Fresnomaq">
     <div class="cab"><h1>Telegrama</h1><p>${t.titulo}</p></div>
+    <div class="tele-opc"><p>Cópia da mensagem: <b>sim</b></p><p>Confirmação de entrega: <b>sim</b></p></div>
     <p class="data">${d.cidade}, ${d.dataExt}.</p>
     <div class="tele-blocos">
       <div><h2>Remetente</h2><p><b>${d.empresa}</b></p><p>${d.endereco}</p><p>${d.cidade}</p></div>
@@ -301,7 +303,7 @@ function render(){
     <div class="assin"><div class="sig"><div class="sig-top"></div><div class="sig-line"></div><b>${d.empresa}</b><span>Empregador</span></div><div></div></div>
     <div class="info">
       <section><h2>Envio pelos Correios</h2>
-      <p>Cópia da mensagem: <b>sim</b> · Confirmação de entrega: <b>sim</b>. Arquive este documento junto com o comprovante de postagem, a cópia do telegrama e o aviso de entrega no prontuário do colaborador.</p></section>
+      <p>Arquive este documento junto com o comprovante de postagem, a cópia do telegrama e o aviso de entrega no prontuário do colaborador.</p></section>
     </div>`;
   $("err").textContent="";
 }
