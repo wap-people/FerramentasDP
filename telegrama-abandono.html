@@ -453,21 +453,32 @@ const nomeArquivo = () => ("Telegrama - "+$("nome").value.trim().toUpperCase().r
 /* rascunho de e-mail: gera um arquivo .eml (rascunho do Outlook) já com o PDF anexado */
 const listaMail = v => v.split(/[;,\s]+/).map(x=>x.trim()).filter(Boolean);
 const semAcento = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"");
-function carregaLib(){
-  if(window.html2pdf) return Promise.resolve();
-  return new Promise((ok,erro)=>{ const sc=document.createElement("script");
-    sc.src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+function carregaScript(src){
+  return new Promise((ok,erro)=>{ const sc=document.createElement("script"); sc.src=src;
     sc.onload=ok; sc.onerror=()=>erro(new Error("Não foi possível carregar o gerador de PDF. Verifique a internet.")); document.head.appendChild(sc); });
 }
+async function carregaLib(){
+  if(!window.html2canvas) await carregaScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+  if(!(window.jspdf && window.jspdf.jsPDF)) await carregaScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+}
+/* PDF A4 enquadrado: a folha é copiada para fora da tela com 210 mm fixos e a janela
+   de captura é larga o bastante, assim o PDF não sai cortado quando a janela é estreita */
 async function pdfBlob(){
   await carregaLib();
-  const pg=$("page"), antes=pg.getAttribute("style")||"";
-  pg.setAttribute("style","box-shadow:none;height:296.5mm;min-height:0;overflow:hidden");
+  const caixa=document.createElement("div");
+  caixa.setAttribute("style","position:absolute;left:0;top:0;width:210mm;margin:0;padding:0;background:#fff;z-index:-1");
+  const pg=$("page").cloneNode(true); pg.removeAttribute("id");
+  pg.setAttribute("style","box-shadow:none;width:210mm;height:296.5mm;min-height:0;margin:0;overflow:hidden;transform:none");
+  caixa.appendChild(pg); document.body.appendChild(caixa);
   try{
-    return await html2pdf().set({margin:0,image:{type:"jpeg",quality:.95},
-      html2canvas:{scale:2,backgroundColor:"#ffffff"},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}})
-      .from(pg).outputPdf("blob");
-  } finally { pg.setAttribute("style",antes); }
+    const r=pg.getBoundingClientRect();
+    const canvas=await html2canvas(pg,{scale:2,backgroundColor:"#ffffff",logging:false,useCORS:true,
+      x:r.left+window.scrollX, y:r.top+window.scrollY, width:r.width, height:r.height,
+      scrollX:0, scrollY:0, windowWidth:Math.max(1200,Math.ceil(r.width)+40), windowHeight:Math.max(1700,Math.ceil(r.height)+40)});
+    const pdf=new window.jspdf.jsPDF({unit:"mm",format:"a4",orientation:"portrait"});
+    pdf.addImage(canvas.toDataURL("image/jpeg",0.95),"JPEG",0,0,210,297,undefined,"FAST");
+    return pdf.output("blob");
+  } finally { caixa.remove(); }
 }
 function b64Bytes(u8){ let s=""; for(let i=0;i<u8.length;i+=0x8000) s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000)); return btoa(s); }
 const b64Txt = t => b64Bytes(new TextEncoder().encode(t));
@@ -475,13 +486,9 @@ const linhas76 = s => s.replace(/.{1,76}/g,"$&\r\n");
 const cab = t => `=?UTF-8?B?${b64Txt(t)}?=`;
 
 function corpoEmail(){
-  const v = id => esc($(id).value.trim().toUpperCase());
-  const end = [v("logradouro")+", "+v("numero")+($("compl").value.trim()?" – "+v("compl"):""), v("bairro"), v("cidade")+" – "+v("uf"), "CEP "+esc($("cep").value.trim())].join("<br>");
   return `<div style="font-family:Aptos,Calibri,'Segoe UI',Arial,sans-serif;font-size:11pt;color:#1a1a1a">
 <p>Olá, pessoal,</p>
-<p><b>Documento:</b> Convocação para Retorno ao Trabalho<br>
-<b>Colaborador(a):</b> ${v("nome")} – Matrícula ${v("mat")}<br>
-<b>Endereço de entrega:</b><br>${end}</p>
+<p>Por gentileza, encaminhar via telegrama.</p>
 ${assinaturaHtml() ? "<br>"+assinaturaHtml() : "<br>"}
 </div>`;
 }
