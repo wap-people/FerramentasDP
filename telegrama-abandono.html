@@ -166,6 +166,8 @@ h1{font-size:1.15rem;font-weight:700}
     <select id="estab" autocomplete="off"></select>
     <label for="empresa">Empresa</label>
     <input id="empresa" autocomplete="off" value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA" readonly>
+    <label for="rCnpj">CNPJ da unidade</label>
+    <input id="rCnpj" autocomplete="off" readonly placeholder="Preenchido ao escolher a unidade">
 
     <label for="rLog">Endereço da unidade</label>
     <input id="rLog" autocomplete="off">
@@ -334,6 +336,7 @@ function dados(){
     rCidade: esc($("rCidade").value.trim().toUpperCase()),
     rUf: esc($("rUf").value.trim().toUpperCase()),
     rCep: esc($("rCep").value.trim()),
+    rCnpj: esc($("rCnpj").value.trim()),
     bairro: esc($("bairro").value.trim().toUpperCase()),
     cep: esc($("cep").value.trim()),
     cidade: esc($("cidade").value.trim().toUpperCase()) || "",
@@ -385,7 +388,7 @@ function render(){
     <div class="tele-opc"><p>Cópia da mensagem: <b>sim</b></p><p>Confirmação de entrega: <b>sim</b></p></div>
     <p class="data">${d.rCidade?d.rCidade+(d.rUf?"/"+d.rUf:"")+", ":""}${d.dataExt}.</p>
     <div class="tele-blocos">
-      <div><h2>Remetente</h2><p><b>${d.empresa}</b></p><p>Endereço: ${d.rLog}</p><p>Número: ${d.rNum}</p><p>Bairro: ${d.rBairro}</p><p>Cidade: ${d.rCidade} – UF: ${d.rUf}</p><p>CEP: ${d.rCep}</p></div>
+      <div><h2>Remetente</h2><p><b>${d.empresa}</b></p>${d.rCnpj?`<p>CNPJ: ${d.rCnpj}</p>`:""}<p>Endereço: ${d.rLog}</p><p>Número: ${d.rNum}</p><p>Bairro: ${d.rBairro}</p><p>Cidade: ${d.rCidade} – UF: ${d.rUf}</p><p>CEP: ${d.rCep}</p></div>
       <div><h2>Destinatário</h2><p><b>${d.nome}</b></p><p>Matrícula: ${d.mat}</p><p>CPF: ${d.cpf}</p><p>Endereço: ${d.logradouro}</p><p>Número: ${d.numero}${d.compl?" – "+d.compl:""}</p><p>Bairro: ${d.bairro}</p><p>Cidade: ${d.cidade} – UF: ${d.uf}</p><p>CEP: ${d.cep}</p></div>
     </div>
     <p class="saud">Ao(À) colaborador(a) <b>${d.nome}</b> – Matrícula <b>${d.mat}</b> – CPF <b>${d.cpf}</b>,</p>
@@ -412,6 +415,7 @@ function faltando(){
   if(!$("mat").value.trim()) f.push("matrícula");
   if($("cpf").value.replace(/\D/g,"").length!==11) f.push("CPF");
   if(!$("empresa").value.trim()) f.push("empresa");
+  if(!$("estab").value) f.push("unidade");
   if(!$("rLog").value.trim()) f.push("endereço do remetente");
   if(!$("rNum").value.trim()) f.push("número do remetente");
   if(!$("rBairro").value.trim()) f.push("bairro do remetente");
@@ -571,16 +575,18 @@ $("email").addEventListener("click",async()=>{
 /* ---------- unidades fixas (cadastro FP0560 – Manutenção Estabelecimentos) ----------
    Para completar bairro/CEP, basta preencher aqui. */
 const UNIDADES = [
-  {cod:"1",  rotulo:"1 – Matriz – São José dos Pinhais/PR", log:"RUA ANTONIO SINGER",            num:"200", bairro:"", cidade:"SÃO JOSÉ DOS PINHAIS", uf:"PR", cep:""},
-  {cod:"3",  rotulo:"3 – Eusébio/CE",                        log:"RUA VITORIA KELLY",             num:"100", bairro:"", cidade:"EUSÉBIO",              uf:"CE", cep:""},
-  {cod:"9",  rotulo:"9 – Filial 109 – Fortaleza (Eusébio/CE)", log:"RUA VITORIA KELLY",           num:"200", bairro:"", cidade:"EUSÉBIO",              uf:"CE", cep:""},
-  {cod:"11", rotulo:"11 – Filial 111 – Linhares/ES",         log:"ROD. GOVERNADOR MARIO COVAS",   num:"S/N", bairro:"", cidade:"LINHARES",             uf:"ES", cep:""},
-  {cod:"12", rotulo:"12 – Filial 112 – Serra/ES",            log:"AV. CIVIT I",                   num:"",    bairro:"", cidade:"SERRA",                uf:"ES", cep:""}
+  {cod:"1",  cnpj:"06.337.280/0001-04", rotulo:"1 – Matriz – Afonso Pena – São José dos Pinhais/PR", log:"AV. RUI BARBOSA",              num:"5525 – GALPÕES 4, 5, 6 E 19", bairro:"AFONSO PENA",    cidade:"SÃO JOSÉ DOS PINHAIS", uf:"PR", cep:"83045350"},
+  {cod:"4",  cnpj:"06.337.280/0004-57", rotulo:"São Marcos – São José dos Pinhais/PR",             log:"RUA ANTONIO SINGER",           num:"200 – GALPÃO 02",            bairro:"SÃO MARCOS",     cidade:"SÃO JOSÉ DOS PINHAIS", uf:"PR", cep:"83090362"},
+  {cod:"3",  cnpj:"06.337.280/0003-76", rotulo:"3 – Eusébio/CE",                                    log:"RUA VITORIA KELLY",            num:"100 – GALPÃO 1A",            bairro:"AUTÓDROMO",      cidade:"EUSÉBIO",              uf:"CE", cep:"61763810"},
+  {cod:"9",  cnpj:"06.337.280/0009-61", rotulo:"9 – Filial 109 – Fortaleza (Eusébio/CE)",           log:"RUA VITORIA KELLY",            num:"100 – GALPÃO 1B",            bairro:"AUTÓDROMO",      cidade:"EUSÉBIO",              uf:"CE", cep:"61763810"},
+  {cod:"11", cnpj:"06.337.280/0011-86", rotulo:"11 – Filial 111 – Linhares/ES",                     log:"ROD. GOVERNADOR MÁRIO COVAS",  num:"S/N – KM 160 – COND. ECOPARK LINHARES", bairro:"BEBEDOURO", cidade:"LINHARES",          uf:"ES", cep:"29913010"},
+  {cod:"12", cnpj:"06.337.280/0012-67", rotulo:"12 – Filial 112 – Serra/ES",                        log:"AV. CIVIT I",                  num:"275 – MEZANINO 1 A 10",      bairro:"BARRO BRANCO",   cidade:"SERRA",                uf:"ES", cep:"29170740"}
 ];
 $("estab").innerHTML = `<option value="">Selecione a unidade…</option>` + UNIDADES.map(u=>`<option value="${u.cod}">${esc(u.rotulo)}</option>`).join("");
 $("estab").addEventListener("change",()=>{
   const u=UNIDADES.find(x=>x.cod===$("estab").value);
-  const v=u||{log:"",num:"",bairro:"",cidade:"",uf:"",cep:""};
+  const v=u||{cnpj:"",log:"",num:"",bairro:"",cidade:"",uf:"",cep:""};
+  $("rCnpj").value=v.cnpj;
   $("rLog").value=v.log; $("rNum").value=v.num; $("rBairro").value=v.bairro;
   $("rCidade").value=v.cidade; $("rUf").value=v.uf;
   const d=v.cep.replace(/\D/g,""); $("rCep").value = d.length===8 ? d.slice(0,2)+"."+d.slice(2,5)+"-"+d.slice(5) : "";
@@ -693,7 +699,7 @@ $("gerar").addEventListener("click",()=>{
 });
 
 /* segurança: todo carregamento começa com os dados pessoais em branco */
-["nome","mat","cpf","logradouro","numero","compl","bairro","cidade","uf","cep","rLog","rNum","rBairro","rCidade","rUf","rCep","desde","mPara","mCc","mCco"].forEach(id=>$(id).value="");
+["nome","mat","cpf","logradouro","numero","compl","bairro","cidade","uf","cep","rLog","rNum","rBairro","rCidade","rUf","rCep","rCnpj","desde","mPara","mCc","mCco"].forEach(id=>$(id).value="");
 $("empresa").value="FRESNOMAQ INDÚSTRIA DE MÁQUINAS SA";
 $("estab").value=""; $("fin").value="rescisao"; $("prazo").value="72";
 $("data").value = new Date().toISOString().slice(0,10);
